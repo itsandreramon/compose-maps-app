@@ -1,5 +1,8 @@
 [versions]
 kotlin = '1.4.32'
+ktor = '1.5.4'
+kotlinx_coroutines = '1.4.3'
+kotlinx_serialization = '1.2.0'
 androidx_compose = '1.0.0-beta05'
 androidx_activity = '1.3.0-alpha07'
 androidx_core = '1.6.0-alpha02'
@@ -20,6 +23,18 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx_coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx_coroutines" }
+
+kotlinx-serialization-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
+
+jetbrains-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+jetbrains-ktor-client-json = { module = "io.ktor:ktor-client-json", version.ref = "ktor" }
+jetbrains-ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+jetbrains-ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
+jetbrains-ktor-engine-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
 google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
