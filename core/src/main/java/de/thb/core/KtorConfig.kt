@@ -16,7 +16,6 @@ import io.ktor.http.HttpHeaders
 import kotlinx.serialization.json.Json
 
 private val ktorHttpClient = HttpClient(Android) {
-
     install(JsonFeature) {
         serializer = KotlinxSerializer(
             Json {
