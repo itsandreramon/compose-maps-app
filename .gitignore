@@ -5,7 +5,7 @@
 .gradle
 
 # Android Studio
-/build
+**/*/build
 /captures
 /local.properties
 /.idea/
