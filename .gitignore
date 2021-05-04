@@ -1,6 +1,3 @@
-# IntelliJ
-*.iml
-
 # Gradle
 .gradle
 
@@ -11,6 +8,7 @@
 /.idea/
 .externalNativeBuild
 .cxx
+*.iml
 
 # macOS
 .DS_Store
