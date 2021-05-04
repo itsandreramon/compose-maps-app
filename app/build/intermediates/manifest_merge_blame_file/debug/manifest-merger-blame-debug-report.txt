@@ -1,0 +1,60 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="de.thb.rulona"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="23"
+8-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="30" />
+9-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml
+10
+11    <application
+11-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:5:5-23:19
+12        android:allowBackup="true"
+12-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:6:9-35
+13        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+13-->[androidx.core:core:1.6.0-alpha02] /Users/andrethiele/.gradle/caches/transforms-3/d39917ff505a7efea9a694523b011591/transformed/core-1.6.0-alpha02/AndroidManifest.xml:24:18-86
+14        android:debuggable="true"
+15        android:extractNativeLibs="false"
+16        android:icon="@mipmap/ic_launcher"
+16-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:7:9-43
+17        android:label="@string/app_name"
+17-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:8:9-41
+18        android:roundIcon="@mipmap/ic_launcher_round"
+18-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:9:9-54
+19        android:supportsRtl="true"
+19-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:10:9-35
+20        android:theme="@style/Theme.Rulona" >
+20-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:11:9-44
+21        <activity
+21-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:12:9-22:20
+22            android:name="de.thb.rulona.MainActivity"
+22-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:13:13-41
+23            android:exported="true"
+23-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:14:13-36
+24            android:label="@string/app_name"
+24-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:15:13-45
+25            android:theme="@style/Theme.Rulona.NoActionBar" >
+25-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:16:13-60
+26            <intent-filter>
+26-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:17:13-21:29
+27                <action android:name="android.intent.action.MAIN" />
+27-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:18:17-69
+27-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:18:25-66
+28
+29                <category android:name="android.intent.category.LAUNCHER" />
+29-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:20:17-77
+29-->/Users/andrethiele/Developer/GitHub/Rulona/app/src/main/AndroidManifest.xml:20:27-74
+30            </intent-filter>
+31        </activity>
+32        <activity
+32-->[androidx.compose.ui:ui-tooling:1.0.0-beta05] /Users/andrethiele/.gradle/caches/transforms-3/6391661ece627a8789b0c55a4c0ef68f/transformed/ui-tooling-1.0.0-beta05/AndroidManifest.xml:25:9-27:39
+33            android:name="androidx.compose.ui.tooling.preview.PreviewActivity"
+33-->[androidx.compose.ui:ui-tooling:1.0.0-beta05] /Users/andrethiele/.gradle/caches/transforms-3/6391661ece627a8789b0c55a4c0ef68f/transformed/ui-tooling-1.0.0-beta05/AndroidManifest.xml:26:13-79
+34            android:exported="true" />
+34-->[androidx.compose.ui:ui-tooling:1.0.0-beta05] /Users/andrethiele/.gradle/caches/transforms-3/6391661ece627a8789b0c55a4c0ef68f/transformed/ui-tooling-1.0.0-beta05/AndroidManifest.xml:27:13-36
+35    </application>
+36
+37</manifest>
