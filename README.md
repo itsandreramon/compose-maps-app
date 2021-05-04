@@ -5,5 +5,5 @@
 - Airbnb [Mavericks](https://github.com/airbnb/mavericks)
 - Google [Accompanist](https://github.com/google/accompanist)
 
-### Setup Instructions
-- Use Android Studio Canary to open this project
+### Instructions
+This project uses Jetpack Compose and should be opened using Android Studio [Canary](https://developer.android.com/studio/preview).
