@@ -46,7 +46,7 @@ dependencies {
     implementation project(':core')
     implementation project(':ui')
 
-    implementation libs.activity.compose
+    implementation libs.androidx.activity.compose
 
     implementation libs.compose.ui.ui
     implementation libs.compose.ui.tooling
