@@ -25,7 +25,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion libs.versions.compose.get()
+        kotlinCompilerExtensionVersion libs.versions.androidx.compose.get()
     }
 }
 
@@ -34,9 +34,9 @@ dependencies {
 
     implementation libs.androidx.activity.compose
 
-    implementation libs.compose.ui.ui
-    implementation libs.compose.ui.tooling
-    implementation libs.compose.material.material
+    implementation libs.androidx.compose.ui.ui
+    implementation libs.androidx.compose.ui.tooling
+    implementation libs.androidx.compose.material.material
 
     implementation libs.airbnb.mavericks.compose
     implementation libs.google.accompanist.insets

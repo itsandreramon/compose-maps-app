@@ -1,25 +1,23 @@
 [versions]
 kotlin = '1.4.32'
-accompanist = '0.8.1'
-compose = '1.0.0-beta05'
-activity = '1.3.0-alpha07'
-compose = '1.0.0-beta05'
-core = '1.6.0-alpha02'
-mavericks = '2.1.0-alpha01'
-accompanist = '0.8.1'
+androidx_compose = '1.0.0-beta05'
+androidx_activity = '1.3.0-alpha07'
+androidx_core = '1.6.0-alpha02'
+google_accompanist = '0.8.1'
+airbnb_mavericks = '2.1.0-alpha01'
 
 [libraries]
 android-gradlePlugin = "com.android.tools.build:gradle:7.0.0-alpha15"
 
-google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "accompanist" }
-airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "mavericks" }
+androidx-compose-ui-ui = { module = "androidx.compose.ui:ui", version.ref = "androidx_compose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx_compose" }
+androidx-compose-material-material = { module = "androidx.compose.material:material", version.ref = "androidx_compose" }
 
-compose-ui-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-material-material = { module = "androidx.compose.material:material", version.ref = "compose" }
-
-androidx-core = { module = "androidx.core:core-ktx", version.ref = "core" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx_core" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx_activity" }
 
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }
+airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
