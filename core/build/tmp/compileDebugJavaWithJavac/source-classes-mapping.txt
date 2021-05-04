@@ -1,2 +1,0 @@
-de/thb/core/BuildConfig.java
- de.thb.core.BuildConfig
