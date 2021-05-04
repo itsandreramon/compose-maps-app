@@ -25,11 +25,6 @@ private val ktorHttpClient = HttpClient(Android) {
                 ignoreUnknownKeys = true
             }
         )
-
-        engine {
-            connectTimeout = TIME_OUT
-            socketTimeout = TIME_OUT
-        }
     }
 
     install(Logging) {
