@@ -2,6 +2,7 @@
 
 ### Stack
 - Jetpack [Compose](https://developer.android.com/jetpack/compose)
+- JetBrains [Ktor](https://github.com/ktorio/ktor)
 - Google [Accompanist](https://github.com/google/accompanist)
 - Airbnb [Mavericks](https://github.com/airbnb/mavericks)
 - Dropbox [Store](https://github.com/dropbox/Store)
