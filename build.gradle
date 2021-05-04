@@ -25,6 +25,10 @@ allprojects {
     }
 }
 
+subprojects {
+    apply from: rootProject.file('ktlint.gradle')
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
