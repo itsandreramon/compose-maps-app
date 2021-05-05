@@ -47,8 +47,14 @@ dependencies {
     implementation project(':ui')
 
     implementation libs.androidx.activity.compose
+    implementation libs.androidx.navigation.compose
 
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
+
+    implementation libs.airbnb.mavericks.compose
+    implementation libs.google.accompanist.insets
+
+    debugImplementation libs.square.leakCanary
 }
