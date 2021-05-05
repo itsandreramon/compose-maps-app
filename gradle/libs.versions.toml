@@ -1,7 +1,9 @@
 [versions]
 kotlin = '1.4.32'
 ktor = '1.5.4'
-kotlinx_coroutines = '1.4.3'
+koin = '3.0.1'
+kotlinx_coroutines_core = '1.4.3'
+kotlinx_coroutines_play = '1.1.1'
 kotlinx_serialization = '1.2.0'
 androidx_compose = '1.0.0-beta05'
 androidx_navigation = '1.0.0-alpha10'
@@ -12,6 +14,7 @@ google_maps = '2.3.0'
 google_gms = '4.3.5'
 google_play_location = '18.0.0'
 google_play_maps = '17.0.0'
+google_play_ktx = '1.8.1'
 airbnb_mavericks = '2.1.0-alpha01'
 dropbox_store = '4.0.0'
 pinterest_ktlint = '0.41.0'
@@ -31,8 +34,9 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx_coroutines" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx_coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx_coroutines_core" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx_coroutines_core" }
+kotlinx-coroutines-play = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx_coroutines_play" }
 
 kotlinx-serialization-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
@@ -43,9 +47,13 @@ jetbrains-ktor-client-logging = { module = "io.ktor:ktor-client-logging", versio
 jetbrains-ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
 jetbrains-ktor-engine-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+
 google-gms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google_gms" }
 google-play-location = { module = "com.google.android.gms:play-services-location", version.ref = "google_play_location" }
 google-play-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google_play_maps" }
+google-play-ktx = { module = "com.google.android.play:core-ktx", version.ref = "google_play_ktx" }
 google-maps-ktx = { module = "com.google.maps.android:maps-ktx", version.ref = "google_maps" }
 
 google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }

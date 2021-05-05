@@ -27,6 +27,10 @@ dependencies {
 
     implementation libs.kotlin.stdlib
     implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.play
+
+    implementation libs.koin.core
+    implementation libs.koin.android
 
     implementation libs.kotlinx.serialization.json
 
@@ -35,4 +39,7 @@ dependencies {
     implementation libs.jetbrains.ktor.client.json
     implementation libs.jetbrains.ktor.client.serialization
     implementation libs.jetbrains.ktor.engine.android
+
+    implementation libs.google.play.location
+    implementation libs.google.play.ktx
 }

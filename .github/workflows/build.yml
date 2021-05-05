@@ -40,4 +40,4 @@ jobs:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
 
       - name: Build project
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace --scan

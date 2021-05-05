@@ -74,6 +74,9 @@ dependencies {
     implementation libs.androidx.activity.compose
     implementation libs.androidx.navigation.compose
 
+    implementation libs.koin.core
+    implementation libs.koin.android
+
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material

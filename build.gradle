@@ -29,6 +29,15 @@ allprojects {
 
 subprojects {
     apply from: rootProject.file('ktlint.gradle')
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+
+            allWarningsAsErrors = true
+            jvmTarget = "1.8"
+        }
+    }
 }
 
 task clean(type: Delete) {
