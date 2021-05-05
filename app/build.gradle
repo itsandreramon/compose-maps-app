@@ -71,6 +71,8 @@ dependencies {
     implementation project(':core')
     implementation project(':ui')
 
+    implementation libs.kotlin.stdlib
+
     implementation libs.androidx.activity.compose
     implementation libs.androidx.navigation.compose
 
