@@ -16,5 +16,10 @@ jobs:
         with:
           java-version: 11
 
+      - name: Decrypt secrets
+        run: ./release/decrypt-secrets.sh
+        env:
+          ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
+
       - name: Build project
         run: ./gradlew assembleDebug
