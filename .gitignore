@@ -1,7 +1,7 @@
-# API Keys
+# Secrets
 debug.keystore.jks
-google-services.json
 keystore.properties
+secrets.properties
 
 # Gradle
 .gradle

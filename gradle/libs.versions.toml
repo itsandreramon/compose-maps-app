@@ -9,6 +9,7 @@ androidx_activity = '1.3.0-alpha07'
 androidx_core = '1.6.0-alpha02'
 google_accompanist = '0.8.1'
 google_maps = '2.3.0'
+google_gms = '4.3.5'
 google_play_location = '18.0.0'
 google_play_maps = '17.0.0'
 airbnb_mavericks = '2.1.0-alpha01'
@@ -42,6 +43,7 @@ jetbrains-ktor-client-logging = { module = "io.ktor:ktor-client-logging", versio
 jetbrains-ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
 jetbrains-ktor-engine-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
+google-gms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google_gms" }
 google-play-location = { module = "com.google.android.gms:play-services-location", version.ref = "google_play_location" }
 google-play-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google_play_maps" }
 

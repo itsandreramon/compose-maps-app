@@ -3,8 +3,13 @@ plugins {
     id 'kotlin-android'
 }
 
+secrets {
+    propertiesFileName 'secrets.properties'
+}
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(rootProject.file("keystore.properties")))
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdk buildConfig.compileSdk
@@ -21,6 +26,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+
+            versionNameSuffix "-dev"
+            applicationIdSuffix ".debug"
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -29,7 +41,7 @@ android {
 
     signingConfig {
         debug {
-            keyAlias debug
+            keyAlias "debug"
             keyPassword keystoreProperties["debugKeyPassword"]
             storePassword keystoreProperties["debugStorePassword"]
             storeFile rootProject.file("release/debug.keystore.jks")
@@ -72,4 +84,8 @@ dependencies {
     implementation libs.google.accompanist.insets
 
     debugImplementation libs.square.leakCanary
+}
+
+if (file("google-services.json").exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }
