@@ -14,7 +14,9 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
+import de.thb.ui.components.MapView
 import de.thb.ui.components.ScreenTitle
+import de.thb.ui.util.rememberMapViewWithLifecycle
 
 data class ScreenOneState(
     val count: Int = 0
@@ -31,6 +33,7 @@ class ScreenOneViewModel(
 
 @Composable
 fun ScreenOne() {
+    val mapView = rememberMapViewWithLifecycle()
     val viewModel: ScreenOneViewModel = mavericksViewModel()
     val count by viewModel.collectAsState(ScreenOneState::count)
 
@@ -48,5 +51,7 @@ fun ScreenOne() {
         Spacer(Modifier.padding(vertical = 16.dp))
 
         Text("Clicked $count times")
+
+        MapView(map = mapView)
     }
 }

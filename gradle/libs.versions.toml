@@ -46,6 +46,7 @@ jetbrains-ktor-engine-android = { module = "io.ktor:ktor-client-android", versio
 google-gms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google_gms" }
 google-play-location = { module = "com.google.android.gms:play-services-location", version.ref = "google_play_location" }
 google-play-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google_play_maps" }
+google-maps-ktx = { module = "com.google.maps.android:maps-ktx", version.ref = "google_maps" }
 
 google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }

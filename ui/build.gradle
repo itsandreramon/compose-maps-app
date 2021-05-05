@@ -40,4 +40,8 @@ dependencies {
 
     implementation libs.airbnb.mavericks.compose
     implementation libs.google.accompanist.insets
+
+    implementation libs.google.maps.ktx
+    implementation libs.google.play.maps
+    implementation libs.google.play.location
 }
