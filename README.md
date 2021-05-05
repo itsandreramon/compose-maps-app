@@ -14,4 +14,17 @@ This project uses Jetpack Compose and should be opened using Android Studio [Can
 ```
 $ export ENCRYPT_KEY=
 $ ./scripts/decrypt_secrets.sh
-``
+```
+
+#### Add Signing Config
+```
+// keystore.properties
+debugKeyPassword=
+debugStorePassword=
+```
+
+#### Add Google Maps API key
+```
+// secrets.properties
+MAPS_API_KEY=
+```
