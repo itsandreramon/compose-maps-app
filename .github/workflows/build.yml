@@ -31,5 +31,13 @@ jobs:
           DEBUG_KEY_PASSWORD: ${{ secrets.DEBUG_KEY_PASSWORD }}
           DEBUG_STORE_PASSWORD: ${{ secrets.DEBUG_STORE_PASSWORD }}
 
+      - name: Create secrets.properties
+        run: |
+          {
+            echo 'MAPS_API_KEY=$MAPS_API_KEY'
+          } >keystore.properties
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+
       - name: Build project
         run: ./gradlew assembleDebug
