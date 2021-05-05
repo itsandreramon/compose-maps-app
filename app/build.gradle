@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
 }
 
@@ -39,7 +40,7 @@ android {
         }
     }
 
-    signingConfig {
+    signingConfigs {
         debug {
             keyAlias "debug"
             keyPassword keystoreProperties["debugKeyPassword"]
@@ -84,8 +85,4 @@ dependencies {
     implementation libs.google.accompanist.insets
 
     debugImplementation libs.square.leakCanary
-}
-
-if (file("google-services.json").exists()) {
-    apply plugin: 'com.google.gms.google-services'
 }
