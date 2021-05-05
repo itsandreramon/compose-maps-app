@@ -21,5 +21,15 @@ jobs:
         env:
           ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
 
+      - name: Create keystore.properties
+        run: |
+          {
+            echo 'debugKeyPassword=$DEBUG_KEY_PASSWORD'
+            echo 'debugStorePassword=$DEBUG_STORE_PASSWORD'
+          } >keystore.properties
+        env:
+          DEBUG_KEY_PASSWORD: ${{ secrets.DEBUG_KEY_PASSWORD }}
+          DEBUG_STORE_PASSWORD: ${{ secrets.DEBUG_STORE_PASSWORD }}
+
       - name: Build project
         run: ./gradlew assembleDebug
