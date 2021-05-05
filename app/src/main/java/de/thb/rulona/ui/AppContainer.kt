@@ -1,4 +1,4 @@
-package de.thb.rulona
+package de.thb.rulona.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.material.BottomNavigation

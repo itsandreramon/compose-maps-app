@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat.setDecorFitsSystemWindows
 import com.google.accompanist.insets.ProvideWindowInsets
-import de.thb.rulona.AppContainer
 import de.thb.ui.theme.RulonaTheme
 
 class MainActivity : ComponentActivity() {
