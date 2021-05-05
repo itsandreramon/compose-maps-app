@@ -24,8 +24,8 @@ jobs:
       - name: Create keystore.properties
         run: |
           {
-            echo 'debugKeyPassword=$DEBUG_KEY_PASSWORD'
-            echo 'debugStorePassword=$DEBUG_STORE_PASSWORD'
+            echo "debugKeyPassword=$DEBUG_KEY_PASSWORD"
+            echo "debugStorePassword=$DEBUG_STORE_PASSWORD"
           } >keystore.properties
         env:
           DEBUG_KEY_PASSWORD: ${{ secrets.DEBUG_KEY_PASSWORD }}
@@ -34,7 +34,7 @@ jobs:
       - name: Create secrets.properties
         run: |
           {
-            echo 'MAPS_API_KEY=$MAPS_API_KEY'
+            echo "MAPS_API_KEY=$MAPS_API_KEY"
           } >secrets.properties
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
