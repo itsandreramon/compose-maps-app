@@ -3,6 +3,9 @@ plugins {
     id 'kotlin-android'
 }
 
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(rootProject.file("keystore.properties")))
+
 android {
     compileSdk buildConfig.compileSdk
 
@@ -21,6 +24,15 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    signingConfig {
+        debug {
+            keyAlias debug
+            keyPassword keystoreProperties["debugKeyPassword"]
+            storePassword keystoreProperties["debugStorePassword"]
+            storeFile rootProject.file("release/debug.keystore.jks")
         }
     }
 
@@ -52,6 +64,9 @@ dependencies {
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
+
+    implementation libs.google.play.location
+    implementation libs.google.play.maps
 
     implementation libs.airbnb.mavericks.compose
     implementation libs.google.accompanist.insets
