@@ -38,6 +38,20 @@ subprojects {
             jvmTarget = "1.8"
         }
     }
+
+    configurations.configureEach {
+        exclude group: 'androidx.appcompat'
+        exclude group: 'com.google.android.material', module: 'material'
+
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            def group = details.requested.group
+            def module = details.requested.module.name
+
+            if (group == 'org.jetbrains.kotlin' && module.startsWith('kotlin-stdlib')) {
+                details.useVersion libs.versions.kotlin.get()
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {

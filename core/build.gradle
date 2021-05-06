@@ -25,12 +25,8 @@ android {
 dependencies {
     implementation libs.androidx.core
 
-    implementation libs.kotlin.stdlib
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.play
-
-    implementation libs.koin.core
-    implementation libs.koin.android
 
     implementation libs.kotlinx.serialization.json
 
