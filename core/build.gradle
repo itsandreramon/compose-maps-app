@@ -31,6 +31,10 @@ android {
 dependencies {
     implementation libs.androidx.core
 
+    kapt libs.androidx.room.compiler
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.ktx
+
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.play
 
@@ -42,4 +46,6 @@ dependencies {
 
     implementation libs.square.retrofit.lib
     implementation libs.square.retrofit.moshi
+
+    implementation libs.dropbox.store
 }
