@@ -3,9 +3,11 @@ package de.thb.ui.components
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.coroutineScope
@@ -24,7 +26,11 @@ fun MapView(map: MapView, context: Context, deviceLocation: Location?) {
     val scope = remember { lifecycle.coroutineScope }
     val isShownFirstTime = remember { mutableStateOf(true) }
 
-    AndroidView({ map }) { mapView ->
+    AndroidView(
+        factory = { map },
+        modifier = Modifier
+            .fillMaxSize()
+    ) { mapView ->
         scope.launchWhenCreated {
             with(mapView.awaitMap()) {
                 if (hasLocationPermission(context)) {

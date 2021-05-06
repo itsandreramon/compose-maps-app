@@ -97,20 +97,18 @@ private fun ScreenOneContent(
 ) {
     val mapView = rememberMapViewWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .statusBarsPadding()
-    ) {
-        ScreenTitle(title = "One")
+    Column(Modifier.statusBarsPadding()) {
+        Column(Modifier.padding(16.dp)) {
+            ScreenTitle(title = "One")
 
-        Button(onClick = onButtonClick) {
-            Text("Click")
+            Button(onClick = onButtonClick) {
+                Text("Click")
+            }
+
+            Spacer(Modifier.padding(vertical = 16.dp))
+
+            Text("Clicked $count times")
         }
-
-        Spacer(Modifier.padding(vertical = 16.dp))
-
-        Text("Clicked $count times")
 
         MapView(mapView, LocalContext.current, deviceLocation)
     }
