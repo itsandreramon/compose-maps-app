@@ -1,5 +1,6 @@
 package de.thb.ui.util
 
+import android.location.Location
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -9,6 +10,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
 import de.thb.ui.R
 
 @Composable
@@ -48,4 +50,8 @@ private fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserv
             }
         }
     }
+}
+
+fun Location.toLatLng(): LatLng {
+    return LatLng(latitude, longitude)
 }

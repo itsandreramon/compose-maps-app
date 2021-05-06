@@ -1,4 +1,4 @@
-package de.thb.ui.screens
+package de.thb.ui.screens.two
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
