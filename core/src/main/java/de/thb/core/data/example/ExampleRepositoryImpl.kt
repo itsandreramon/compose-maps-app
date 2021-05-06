@@ -24,7 +24,7 @@ class ExampleRepositoryImpl(
         fetcher = Fetcher.of {
             exampleRemoteDataSource.getAll()
         },
-        sourceOfTruth = SourceOfTruth.Companion.of(
+        sourceOfTruth = SourceOfTruth.of(
             reader = { exampleLocalDataSource.getAll() },
             writer = { _, input -> exampleLocalDataSource.insert(input) }
         )
