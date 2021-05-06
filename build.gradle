@@ -15,8 +15,8 @@ buildscript {
     dependencies {
         classpath libs.android.gradlePlugin
         classpath libs.kotlin.gradlePlugin
-        classpath libs.kotlinx.serialization.gradlePlugin
         classpath libs.google.gms.gradlePlugin
+        classpath libs.google.hilt.gradlePlugin
     }
 }
 

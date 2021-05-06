@@ -22,7 +22,7 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
-import de.thb.core.data.LocationRepositoryImpl
+import de.thb.core.data.location.LocationRepositoryImpl
 import de.thb.ui.components.MapView
 import de.thb.ui.components.ScreenTitle
 import de.thb.ui.screens.one.ScreenOneUseCase.RequestLocationUpdates

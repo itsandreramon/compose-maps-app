@@ -1,6 +1,13 @@
 plugins {
     id 'com.android.library'
+    id 'dagger.hilt.android.plugin'
     id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+kapt {
+    correctErrorTypes = true
+    useBuildCache = true
 }
 
 android {
@@ -38,10 +45,15 @@ dependencies {
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
 
-    implementation libs.airbnb.mavericks.compose
-    implementation libs.google.accompanist.insets
+    implementation libs.androidx.hilt.navigation.compose
+
+    kapt libs.google.hilt.compiler
+    implementation libs.google.hilt.android
 
     implementation libs.google.maps.ktx
     implementation libs.google.play.maps
     implementation libs.google.play.location
+
+    implementation libs.airbnb.mavericks.compose
+    implementation libs.google.accompanist.insets
 }

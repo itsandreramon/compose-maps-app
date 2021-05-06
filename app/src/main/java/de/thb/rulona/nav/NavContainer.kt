@@ -1,7 +1,6 @@
 package de.thb.rulona.nav
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,16 +17,13 @@ fun NavContainer(navController: NavHostController) {
         composable(Screen.Two.route) {
             ScreenTwo(
                 onButtonClick = {
-                    navigateDestination(navController, Screen.One.route)
+                    navController.navigate(Screen.One.route) {
+                        popUpTo = navController.graph.startDestination
+                        launchSingleTop = true
+                    }
                 }
             )
         }
-    }
-}
-
-fun navigateDestination(navController: NavController, destination: String) {
-    navController.navigate(destination) {
-        launchSingleTop = true
     }
 }
 
