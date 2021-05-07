@@ -1,18 +1,7 @@
 plugins {
     id 'com.android.application'
-    id 'dagger.hilt.android.plugin'
     id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
-    id 'kotlin-kapt'
-}
-
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-}
-
-secrets {
-    propertiesFileName 'secrets.properties'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -78,15 +67,15 @@ dependencies {
     implementation project(':core')
     implementation project(':ui')
 
+    implementation libs.koin.core
+    implementation libs.koin.android
+
     implementation libs.androidx.activity.compose
     implementation libs.androidx.navigation.compose
 
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
-
-    kapt libs.google.hilt.compiler
-    implementation libs.google.hilt.android
 
     implementation libs.google.play.location
     implementation libs.google.play.maps

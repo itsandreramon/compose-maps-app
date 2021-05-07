@@ -1,13 +1,7 @@
 plugins {
     id 'com.android.library'
-    id 'dagger.hilt.android.plugin'
+    id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
-    id 'kotlin-kapt'
-}
-
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
 }
 
 android {
@@ -39,18 +33,20 @@ android {
 dependencies {
     implementation project(':core')
 
+    implementation libs.koin.core
+    implementation libs.koin.android
+    implementation libs.koin.compose
+
     implementation libs.androidx.activity.compose
 
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
 
-    implementation libs.androidx.hilt.navigation.compose
-
-    kapt libs.google.hilt.compiler
-    implementation libs.google.hilt.android
-
     implementation libs.google.maps.ktx
+    implementation libs.google.maps.utils
+    implementation libs.google.maps.services
+
     implementation libs.google.play.maps
     implementation libs.google.play.location
 

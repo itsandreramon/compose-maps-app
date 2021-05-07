@@ -1,9 +1,8 @@
 package de.thb.core.data.example.remote
 
 import de.thb.core.domain.ExampleEntity
-import javax.inject.Inject
 
-class ExampleRemoteDataSourceImpl @Inject constructor(
+class ExampleRemoteDataSourceImpl(
     private val exampleService: ExampleService
 ) : ExampleRemoteDataSource {
 
