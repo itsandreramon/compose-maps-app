@@ -14,6 +14,7 @@ fun NavContainer(navController: NavHostController) {
         composable(Screen.One.route) {
             ScreenOne()
         }
+
         composable(Screen.Two.route) {
             ScreenTwo(
                 onButtonClick = {
