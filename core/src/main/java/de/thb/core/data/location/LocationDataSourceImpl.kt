@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
-class LocationRepositoryImpl private constructor(
-    private val fusedLocationClient: FusedLocationProviderClient
-) : LocationRepository {
+class LocationDataSourceImpl private constructor(
+    private val locationClient: FusedLocationProviderClient
+) : LocationDataSource {
 
     @RequiresPermission(
         anyOf = [
@@ -27,7 +27,7 @@ class LocationRepositoryImpl private constructor(
         ]
     )
     override fun getLastLocation() = flow {
-        emit(fusedLocationClient.lastLocation.await())
+        emit(locationClient.lastLocation.await())
     }
 
     @RequiresPermission(
@@ -38,7 +38,7 @@ class LocationRepositoryImpl private constructor(
     )
     override fun requestLocationUpdates(
         request: LocationRequest
-    ): Flow<Location> = fusedLocationClient.locationFlow(request)
+    ): Flow<Location> = locationClient.locationFlow(request)
 
     @RequiresPermission(
         anyOf = [
@@ -52,8 +52,10 @@ class LocationRepositoryImpl private constructor(
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
-                for (location in result.locations) {
-                    offer(location)
+                try {
+                    offer(result.lastLocation)
+                } catch (e: Exception) {
+                    // swallow
                 }
             }
         }
@@ -63,18 +65,18 @@ class LocationRepositoryImpl private constructor(
             callback,
             Looper.getMainLooper()
         ).addOnFailureListener { e ->
-            close(e)
+            close(e) // in case of exception, close the Flow
         }
 
+        // clean up when Flow collection ends
         awaitClose {
             removeLocationUpdates(callback)
         }
     }
 
     companion object {
-
-        fun getInstance(context: Context): LocationRepository {
-            return LocationRepositoryImpl(
+        fun getInstance(context: Context): LocationDataSource {
+            return LocationDataSourceImpl(
                 LocationServices.getFusedLocationProviderClient(context)
             )
         }

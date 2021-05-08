@@ -22,7 +22,8 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
-import de.thb.core.data.location.LocationRepositoryImpl
+import com.google.maps.GeoApiContext
+import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.ui.components.MapView
 import de.thb.ui.components.ScreenTitle
 import de.thb.ui.screens.one.ScreenOneUseCase.RequestLocationUpdates
@@ -31,6 +32,7 @@ import de.thb.ui.util.rememberMapViewWithLifecycle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 
 data class ScreenOneState(
     val count: Int = 0,
@@ -42,7 +44,7 @@ class ScreenOneViewModel(
 ) : MavericksViewModel<ScreenOneState>(initialState) {
 
     fun requestLocationUpdates(useCase: RequestLocationUpdates) {
-        val locationRepository = LocationRepositoryImpl.getInstance(useCase.context)
+        val locationRepository = LocationDataSourceImpl.getInstance(useCase.context)
 
         viewModelScope.launch {
             locationRepository
@@ -94,6 +96,7 @@ private fun ScreenOneContent(
     onButtonClick: () -> Unit,
     count: Int,
     deviceLocation: Location?,
+    geoApiContext: GeoApiContext = get(),
 ) {
     val mapView = rememberMapViewWithLifecycle()
 
@@ -110,6 +113,6 @@ private fun ScreenOneContent(
             Text("Clicked $count times")
         }
 
-        MapView(mapView, LocalContext.current, deviceLocation)
+        MapView(mapView, LocalContext.current, deviceLocation, geoApiContext)
     }
 }

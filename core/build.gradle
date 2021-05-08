@@ -1,13 +1,8 @@
 plugins {
     id 'com.android.library'
+    id 'com.google.devtools.ksp' version "1.4.32-1.0.0-alpha08"
     id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
-    id 'kotlin-kapt'
-}
-
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
 }
 
 android {
@@ -33,7 +28,7 @@ dependencies {
 
     implementation libs.koin.core
 
-    kapt libs.androidx.room.compiler
+    ksp libs.androidx.room.compiler
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx
 

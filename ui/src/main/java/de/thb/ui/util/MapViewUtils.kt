@@ -10,8 +10,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.model.LatLng
+import com.google.maps.DirectionsApiRequest
+import com.google.maps.GeoApiContext
+import com.google.maps.PendingResult
+import com.google.maps.model.DirectionsResult
+import de.thb.core.util.Result
 import de.thb.ui.R
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
@@ -52,6 +58,31 @@ private fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserv
     }
 }
 
-fun Location.toLatLng(): LatLng {
-    return LatLng(latitude, longitude)
+fun Location.toMapLatLng(): MapLatLng {
+    return MapLatLng(latitude, longitude)
+}
+
+fun Location.toGmsLatLng(): GmsLatLng {
+    return GmsLatLng(latitude, longitude)
+}
+
+suspend fun calculateDirections(
+    geoApiContext: GeoApiContext,
+    destination: GmsLatLng,
+    origin: GmsLatLng,
+): Result<DirectionsResult> {
+    return suspendCancellableCoroutine { cont ->
+        DirectionsApiRequest(geoApiContext).apply {
+            origin(origin)
+            destination(destination)
+        }.setCallback(object : PendingResult.Callback<DirectionsResult> {
+            override fun onResult(result: DirectionsResult) {
+                cont.resume(Result.Success(result))
+            }
+
+            override fun onFailure(e: Throwable) {
+                cont.resume(Result.Error(e))
+            }
+        })
+    }
 }

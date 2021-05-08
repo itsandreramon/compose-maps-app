@@ -9,6 +9,7 @@ import com.dropbox.android.external.store4.StoreResponse
 import de.thb.core.data.example.local.ExampleLocalDataSource
 import de.thb.core.data.example.remote.ExampleRemoteDataSource
 import de.thb.core.domain.ExampleEntity
+import de.thb.core.util.toEntities
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -22,7 +23,7 @@ class ExampleRepositoryImpl(
 
     private val store: Store<Any, List<ExampleEntity>> = StoreBuilder.from(
         fetcher = Fetcher.of {
-            exampleRemoteDataSource.getAll()
+            exampleRemoteDataSource.getAll().toEntities()
         },
         sourceOfTruth = SourceOfTruth.of(
             reader = { exampleLocalDataSource.getAll() },

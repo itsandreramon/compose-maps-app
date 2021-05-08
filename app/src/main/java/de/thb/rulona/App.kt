@@ -3,6 +3,7 @@ package de.thb.rulona
 import android.app.Application
 import com.airbnb.mvrx.Mavericks
 import de.thb.core.di.coreModule
+import de.thb.ui.di.mapsModule
 import org.koin.core.context.startKoin
 
 class App : Application() {
@@ -12,7 +13,7 @@ class App : Application() {
         Mavericks.initialize(applicationContext)
 
         startKoin {
-            modules(coreModule)
+            modules(coreModule, mapsModule)
         }
     }
 }
