@@ -38,8 +38,7 @@ fun MapView(
 
     AndroidView(
         factory = { map },
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) { mapView ->
         scope.launchWhenCreated {
             with(mapView.awaitMap()) {
