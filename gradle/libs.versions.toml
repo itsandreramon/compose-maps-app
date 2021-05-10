@@ -1,6 +1,8 @@
 [versions]
 kotlin = '1.4.32'
 koin = '3.0.1'
+kotest = '4.5.0'
+mockk = '1.11.0'
 kotlinx_coroutines_core = '1.4.3'
 kotlinx_coroutines_play = '1.1.1'
 androidx_compose_lib = '1.0.0-beta06'
@@ -19,9 +21,11 @@ google_play_ktx = '1.8.1'
 google_secrets = '0.6'
 square_leakcanary = '2.7'
 square_retrofit = '2.9.0'
+square_turbine = '0.4.1'
 airbnb_mavericks = '2.1.0-alpha01'
 dropbox_store = '4.0.0'
 pinterest_ktlint = '0.41.0'
+junit = '4.13.1'
 
 [libraries]
 android-gradlePlugin = "com.android.tools.build:gradle:7.0.0-alpha15"
@@ -49,9 +53,14 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
 square-leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "square_leakcanary" }
 square-retrofit-lib = { module = "com.squareup.retrofit2:retrofit", version.ref = "square_retrofit" }
 square-retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "square_retrofit" }
+square-turbine = { module = "app.cash.turbine:turbine", version.ref = "square_turbine" }
 
 google-gms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google_gms" }
 
@@ -68,3 +77,5 @@ google-accompanist-insets = { module = "com.google.accompanist:accompanist-inset
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
 dropbox-store = { module = "com.dropbox.mobile.store:store4", version.ref = "dropbox_store" }
 pinterest-ktlint = { module = "com.pinterest:ktlint", version.ref = "pinterest_ktlint" }
+
+junit  = { module = "junit:junit", version.ref = "junit" }

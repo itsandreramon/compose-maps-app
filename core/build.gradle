@@ -42,4 +42,9 @@ dependencies {
     implementation libs.square.retrofit.moshi
 
     implementation libs.dropbox.store
+
+    testImplementation libs.junit
+    testImplementation libs.mockk
+    testImplementation libs.kotest.assertions
+    testImplementation libs.square.turbine
 }
