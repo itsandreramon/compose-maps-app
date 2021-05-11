@@ -1,6 +1,7 @@
 # Secrets
 debug.keystore.jks
 keystore.properties
+secrets.properties
 
 # Gradle
 .gradle

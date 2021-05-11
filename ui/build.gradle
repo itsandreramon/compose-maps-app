@@ -1,6 +1,11 @@
 plugins {
     id 'com.android.library'
+    id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
+}
+
+secrets {
+    propertiesFileName 'secrets.properties'
 }
 
 android {

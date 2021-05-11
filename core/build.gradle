@@ -5,6 +5,10 @@ plugins {
     id 'kotlin-android'
 }
 
+secrets {
+    propertiesFileName 'secrets.properties'
+}
+
 android {
     compileSdk buildConfig.compileSdk
 
