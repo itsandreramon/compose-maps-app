@@ -1,10 +1,7 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
-}
-
-if (rootProject.file("local.properties").exists()) {
-    apply plugin: 'com.google.secrets_gradle_plugin' version '0.6'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")

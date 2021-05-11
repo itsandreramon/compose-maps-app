@@ -3,10 +3,6 @@ plugins {
     id 'kotlin-android'
 }
 
-if (rootProject.file("local.properties").exists()) {
-    apply plugin: 'com.google.secrets_gradle_plugin' version '0.6'
-}
-
 android {
     compileSdk buildConfig.compileSdk
 
