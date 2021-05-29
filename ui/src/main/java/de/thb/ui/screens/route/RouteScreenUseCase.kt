@@ -1,9 +1,9 @@
-package de.thb.ui.screens.one
+package de.thb.ui.screens.route
 
 import android.content.Context
 
-sealed class ScreenOneUseCase {
+sealed class RouteScreenUseCase {
     data class RequestLocationUpdates(
         val context: Context,
-    ) : ScreenOneUseCase()
+    ) : RouteScreenUseCase()
 }

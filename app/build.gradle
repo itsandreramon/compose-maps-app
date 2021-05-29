@@ -76,6 +76,7 @@ dependencies {
     implementation libs.androidx.compose.ui.ui
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.material.material
+    implementation libs.androidx.compose.material.icons
 
     implementation libs.google.play.location
     implementation libs.google.play.maps

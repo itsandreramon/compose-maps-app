@@ -9,11 +9,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ScreenTitle(title: String) {
+fun ScreenTitle(title: String, modifier: Modifier = Modifier) {
     Text(
         style = MaterialTheme.typography.h4,
         text = title,
-        modifier = Modifier.padding(vertical = 16.dp)
+        modifier = modifier
     )
 }
 

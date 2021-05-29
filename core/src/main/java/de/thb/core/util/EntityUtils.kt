@@ -1,12 +1,12 @@
 package de.thb.core.util
 
-import de.thb.core.domain.ExampleEntity
-import de.thb.core.domain.ExampleResponse
+import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.PlaceResponse
 
-fun ExampleResponse.toEntity(): ExampleEntity {
-    return ExampleEntity(id, name)
+fun PlaceResponse.toEntity(): PlaceEntity {
+    return PlaceEntity(uuid, name)
 }
 
-fun List<ExampleResponse>.toEntities(): List<ExampleEntity> {
+fun List<PlaceResponse>.toEntities(): List<PlaceEntity> {
     return map { it.toEntity() }
 }

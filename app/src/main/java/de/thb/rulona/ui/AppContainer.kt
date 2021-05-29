@@ -10,8 +10,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -49,7 +47,7 @@ fun AppContent(navController: NavHostController) {
 
 @Composable
 fun RulonaBottomAppBar(navController: NavHostController) {
-    val items = listOf(Screen.One, Screen.Two)
+    val items = listOf(Screen.Places, Screen.Route)
 
     Surface(
         elevation = 4.dp,
@@ -65,7 +63,7 @@ fun RulonaBottomAppBar(navController: NavHostController) {
 
             items.forEach { screen ->
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                    icon = { Icon(screen.icon, contentDescription = null) },
                     label = { Text(screen.title) },
                     selected = currentRoute == screen.route,
                     onClick = {

@@ -1,8 +1,12 @@
 package de.thb.core.di
 
-import de.thb.core.data.example.remote.ExampleRemoteDataSource
-import de.thb.core.data.example.remote.ExampleRemoteDataSourceImpl
-import de.thb.core.data.example.remote.ExampleService
+import android.content.Context
+import androidx.room.Room
+import de.thb.core.data.AppDatabase
+import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.places.remote.PlacesRemoteDataSource
+import de.thb.core.data.places.remote.PlacesRemoteDataSourceImpl
+import de.thb.core.data.places.remote.PlacesService
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -15,17 +19,30 @@ val coreModule = module {
             .addConverterFactory(MoshiConverterFactory.create())
     }
 
-    fun provideExampleService(retrofit: Retrofit.Builder): ExampleService {
+    fun providePlacesService(retrofit: Retrofit.Builder): PlacesService {
         return retrofit
             .build()
-            .create(ExampleService::class.java)
+            .create(PlacesService::class.java)
     }
 
-    fun provideExampleRemoteDataSource(service: ExampleService): ExampleRemoteDataSource {
-        return ExampleRemoteDataSourceImpl(service)
+    fun provideAppDatabase(applicationContext: Context): AppDatabase {
+        return Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "db"
+        ).build()
+    }
+
+    fun providePlacesRemoteDataSource(service: PlacesService): PlacesRemoteDataSource {
+        return PlacesRemoteDataSourceImpl(service)
+    }
+
+    fun providePlacesLocalDataSource(appDatabase: AppDatabase): PlacesLocalDataSource {
+        return appDatabase.placesLocalDataSource()
     }
 
     single { provideRetrofit() }
-    single { provideExampleService(get()) }
-    single { provideExampleRemoteDataSource(get()) }
+    single { providePlacesService(get()) }
+    single { providePlacesRemoteDataSource(get()) }
+    single { providePlacesLocalDataSource(get()) }
+    single { provideAppDatabase(get()) }
 }

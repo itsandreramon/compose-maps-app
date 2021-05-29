@@ -1,4 +1,4 @@
-package de.thb.ui.screens.one
+package de.thb.ui.screens.route
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.location.Location
@@ -26,7 +26,7 @@ import com.google.maps.GeoApiContext
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.ui.components.MapView
 import de.thb.ui.components.ScreenTitle
-import de.thb.ui.screens.one.ScreenOneUseCase.RequestLocationUpdates
+import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdates
 import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import kotlinx.coroutines.flow.collect
@@ -34,14 +34,14 @@ import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
-data class ScreenOneState(
+data class RouteState(
     val count: Int = 0,
     val location: Location? = null,
 ) : MavericksState
 
-class ScreenOneViewModel(
-    initialState: ScreenOneState,
-) : MavericksViewModel<ScreenOneState>(initialState) {
+class RouteViewModel(
+    initialState: RouteState,
+) : MavericksViewModel<RouteState>(initialState) {
 
     fun requestLocationUpdates(useCase: RequestLocationUpdates) {
         val locationRepository = LocationDataSourceImpl.getInstance(useCase.context)
@@ -60,8 +60,7 @@ class ScreenOneViewModel(
 }
 
 @Composable
-fun ScreenOne() {
-    val viewModel: ScreenOneViewModel = mavericksViewModel()
+fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
     val context = LocalContext.current
 
     val requestLocationPermissionLauncher =
@@ -79,12 +78,12 @@ fun ScreenOne() {
         }
     }
 
-    val count by viewModel.collectAsState(ScreenOneState::count)
-    val deviceLocation by viewModel.collectAsState(ScreenOneState::location)
+    val count by viewModel.collectAsState(RouteState::count)
+    val deviceLocation by viewModel.collectAsState(RouteState::location)
 
     Log.e("Location", "$deviceLocation")
 
-    ScreenOneContent(
+    PlacesScreenContent(
         onButtonClick = viewModel::increment,
         count = count,
         deviceLocation = deviceLocation,
@@ -92,7 +91,7 @@ fun ScreenOne() {
 }
 
 @Composable
-private fun ScreenOneContent(
+private fun PlacesScreenContent(
     onButtonClick: () -> Unit,
     count: Int,
     deviceLocation: Location?,
@@ -102,7 +101,7 @@ private fun ScreenOneContent(
 
     Column(Modifier.statusBarsPadding()) {
         Column(Modifier.padding(16.dp)) {
-            ScreenTitle(title = "One")
+            ScreenTitle(title = "Route")
 
             Button(onClick = onButtonClick) {
                 Text("Click")
