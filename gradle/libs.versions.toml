@@ -28,7 +28,7 @@ pinterest_ktlint = '0.41.0'
 junit = '4.13.1'
 
 [libraries]
-android-gradlePlugin = "com.android.tools.build:gradle:7.0.0-alpha15"
+android-gradlePlugin = "com.android.tools.build:gradle:7.0.0-beta03"
 
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui", version.ref = "androidx_compose_lib" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx_compose_lib" }
