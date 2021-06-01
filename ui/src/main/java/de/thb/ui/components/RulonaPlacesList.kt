@@ -6,10 +6,18 @@ import androidx.compose.runtime.Composable
 import de.thb.core.domain.PlaceEntity
 
 @Composable
-fun RulonaPlacesList(places: List<PlaceEntity>, onItemClick: () -> Unit) {
+fun RulonaPlacesList(
+    places: List<PlaceEntity>,
+    onItemClick: () -> Unit,
+    isInEditMode: Boolean = false
+) {
     LazyColumn {
         items(places) { place ->
-            RulonaPlaceItem(title = place.name, onClick = onItemClick)
+            RulonaPlaceItem(
+                title = place.name,
+                isInEditMode = isInEditMode,
+                onClick = onItemClick
+            )
         }
     }
 }

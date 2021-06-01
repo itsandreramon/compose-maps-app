@@ -18,11 +18,7 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.GeoApiContext
 import com.google.maps.android.ktx.awaitMap
-import de.thb.ui.util.GmsLatLng
-import de.thb.ui.util.calculateDirections
-import de.thb.ui.util.hasLocationPermission
-import de.thb.ui.util.toGmsLatLng
-import de.thb.ui.util.toMapLatLng
+import de.thb.ui.util.*
 
 @SuppressLint("MissingPermission")
 @Composable

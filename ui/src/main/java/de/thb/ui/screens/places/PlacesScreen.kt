@@ -14,6 +14,7 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
+import de.thb.ui.components.RulonaPlacesHeader
 import de.thb.ui.components.RulonaPlacesList
 import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.components.ScreenTitle
@@ -23,6 +24,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 data class PlacesState(
+    val isInEditMode: Boolean = false,
     val places: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -49,16 +51,32 @@ class PlacesViewModel(
                 .collect { setState { copy(places = it) } }
         }
     }
+
+    fun setEditMode(editMode: Boolean) {
+        setState { copy(isInEditMode = editMode) }
+    }
 }
 
 @Composable
 fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
     val places by viewModel.collectAsState(PlacesState::places)
-    PlacesScreenContent(places)
+    val isInEditMode by viewModel.collectAsState(PlacesState::isInEditMode)
+
+    PlacesScreenContent(
+        places = places,
+        isInEditMode = isInEditMode,
+        onEditClicked = { viewModel.setEditMode(true) },
+        onCloseClicked = { viewModel.setEditMode(false) }
+    )
 }
 
 @Composable
-fun PlacesScreenContent(places: List<PlaceEntity>) {
+fun PlacesScreenContent(
+    places: List<PlaceEntity>,
+    isInEditMode: Boolean = false,
+    onEditClicked: () -> Unit,
+    onCloseClicked: () -> Unit,
+) {
     Column(
         Modifier
             .statusBarsPadding()
@@ -66,6 +84,13 @@ fun PlacesScreenContent(places: List<PlaceEntity>) {
     ) {
         ScreenTitle(title = "Places", Modifier.padding(vertical = 16.dp))
         RulonaSearchBar(Modifier.padding(bottom = 8.dp))
-        RulonaPlacesList(places) { Log.e("TAG", "Clicked") }
+
+        RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
+
+        RulonaPlacesList(
+            places = places,
+            onItemClick = { Log.e("TAG", "Clicked") },
+            isInEditMode = isInEditMode,
+        )
     }
 }

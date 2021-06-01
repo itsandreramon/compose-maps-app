@@ -6,10 +6,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -53,10 +50,6 @@ class RouteViewModel(
                 .collect { setState { copy(location = it) } }
         }
     }
-
-    fun increment() = setState {
-        copy(count = count + 1)
-    }
 }
 
 @Composable
@@ -78,22 +71,17 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
         }
     }
 
-    val count by viewModel.collectAsState(RouteState::count)
     val deviceLocation by viewModel.collectAsState(RouteState::location)
 
     Log.e("Location", "$deviceLocation")
 
     PlacesScreenContent(
-        onButtonClick = viewModel::increment,
-        count = count,
         deviceLocation = deviceLocation,
     )
 }
 
 @Composable
 private fun PlacesScreenContent(
-    onButtonClick: () -> Unit,
-    count: Int,
     deviceLocation: Location?,
     geoApiContext: GeoApiContext = get(),
 ) {
@@ -101,15 +89,7 @@ private fun PlacesScreenContent(
 
     Column(Modifier.statusBarsPadding()) {
         Column(Modifier.padding(16.dp)) {
-            ScreenTitle(title = "Route")
-
-            Button(onClick = onButtonClick) {
-                Text("Click")
-            }
-
-            Spacer(Modifier.padding(vertical = 16.dp))
-
-            Text("Clicked $count times")
+            ScreenTitle(title = "Route", Modifier.padding(vertical = 16.dp))
         }
 
         MapView(mapView, LocalContext.current, deviceLocation, geoApiContext)

@@ -79,4 +79,4 @@ airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", ve
 dropbox-store = { module = "com.dropbox.mobile.store:store4", version.ref = "dropbox_store" }
 pinterest-ktlint = { module = "com.pinterest:ktlint", version.ref = "pinterest_ktlint" }
 
-junit  = { module = "junit:junit", version.ref = "junit" }
+junit = { module = "junit:junit", version.ref = "junit" }
