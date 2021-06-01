@@ -10,8 +10,6 @@
 | Caching | Dropbox [Store](https://github.com/dropbox/Store)|
 | Networking | Square [Retrofit](https://github.com/square/retrofit)|
 
-![summary](https://user-images.githubusercontent.com/17139385/117423621-343b1180-af21-11eb-9305-7b6565f6f630.png)
-
 ## Instructions
 
 This project uses Jetpack Compose and should be opened using Android
