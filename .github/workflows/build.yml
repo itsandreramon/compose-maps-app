@@ -21,14 +21,6 @@ jobs:
         env:
           ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
 
-      - name: Create secrets.properties
-        run: |
-          {
-            echo "MAPS_API_KEY=MAPS_API_KEY"
-          } >secrets.properties
-        env:
-          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-
       - name: Create keystore.properties
         run: |
           {
@@ -39,11 +31,11 @@ jobs:
           DEBUG_KEY_PASSWORD: ${{ secrets.DEBUG_KEY_PASSWORD }}
           DEBUG_STORE_PASSWORD: ${{ secrets.DEBUG_STORE_PASSWORD }}
 
-      - name: Create secrets.properties
+      - name: Create local.properties
         run: |
           {
             echo "MAPS_API_KEY=$MAPS_API_KEY"
-          } >secrets.properties
+          } >local.properties
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
 
