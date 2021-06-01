@@ -100,11 +100,11 @@ fun PlacesScreenContent(
             modifier = Modifier.padding(bottom = 8.dp),
         )
 
-        RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
-
         if (isInSearchMode) {
             Text(text = "Searching...")
         } else {
+            RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
+
             RulonaPlacesList(
                 places = places,
                 onItemClick = { Log.e("TAG", "Clicked") },
