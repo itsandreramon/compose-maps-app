@@ -19,17 +19,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.thb.ui.type.SearchState
+import de.thb.ui.type.getSearchState
 import de.thb.ui.util.state
 
 @Composable
 fun RulonaSearchBar(
-    onSearchStateChanged: (Boolean) -> Unit,
+    onSearchStateChanged: (SearchState) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var query by state { TextFieldValue() }
     var focus by state { FocusState.Inactive }
 
-    val searchState = (query.text.isNotEmpty()) && (focus == FocusState.Active)
+    val searchState = getSearchState(query.text, focus)
 
     onSearchStateChanged(searchState)
 

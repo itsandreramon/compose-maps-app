@@ -15,10 +15,8 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
-import de.thb.ui.components.RulonaPlacesHeader
-import de.thb.ui.components.RulonaPlacesList
-import de.thb.ui.components.RulonaSearchBar
-import de.thb.ui.components.ScreenTitle
+import de.thb.ui.components.*
+import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -26,7 +24,7 @@ import org.koin.core.component.inject
 
 data class PlacesState(
     val isInEditMode: Boolean = false,
-    val isInSearchMode: Boolean = false,
+    val searchState: SearchState = SearchState.Inactive,
     val places: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -54,12 +52,12 @@ class PlacesViewModel(
         }
     }
 
-    fun setEditMode(editMode: Boolean) {
-        setState { copy(isInEditMode = editMode) }
+    fun setEditMode(state: Boolean) {
+        setState { copy(isInEditMode = state) }
     }
 
-    fun setSearchMode(searchMode: Boolean) {
-        setState { copy(isInSearchMode = searchMode) }
+    fun setSearchState(state: SearchState) {
+        setState { copy(searchState = state) }
     }
 }
 
@@ -67,13 +65,13 @@ class PlacesViewModel(
 fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
     val places by viewModel.collectAsState(PlacesState::places)
     val isInEditMode by viewModel.collectAsState(PlacesState::isInEditMode)
-    val isInSearchMode by viewModel.collectAsState(PlacesState::isInSearchMode)
+    val searchState by viewModel.collectAsState(PlacesState::searchState)
 
     PlacesScreenContent(
         places = places,
         isInEditMode = isInEditMode,
-        isInSearchMode = isInSearchMode,
-        onSearchStateChanged = { mode -> viewModel.setSearchMode(mode) },
+        searchState = searchState,
+        onSearchStateChanged = { mode -> viewModel.setSearchState(mode) },
         onEditClicked = { viewModel.setEditMode(true) },
         onCloseClicked = { viewModel.setEditMode(false) },
     )
@@ -83,8 +81,8 @@ fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
 fun PlacesScreenContent(
     places: List<PlaceEntity>,
     isInEditMode: Boolean = false,
-    isInSearchMode: Boolean = false,
-    onSearchStateChanged: (Boolean) -> Unit,
+    searchState: SearchState = SearchState.Inactive,
+    onSearchStateChanged: (SearchState) -> Unit,
     onEditClicked: () -> Unit,
     onCloseClicked: () -> Unit,
 ) {
@@ -100,16 +98,22 @@ fun PlacesScreenContent(
             modifier = Modifier.padding(bottom = 8.dp),
         )
 
-        if (isInSearchMode) {
-            Text(text = "Searching...")
-        } else {
-            RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
+        when (searchState) {
+            SearchState.Inactive -> {
+                RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
 
-            RulonaPlacesList(
-                places = places,
-                onItemClick = { Log.e("TAG", "Clicked") },
-                isInEditMode = isInEditMode,
-            )
+                RulonaPlacesList(
+                    places = places,
+                    onItemClick = { Log.e("TAG", "Clicked") },
+                    isInEditMode = isInEditMode,
+                )
+            }
+            SearchState.Active -> {
+                RulonaSearchHeader()
+            }
+            SearchState.Search -> {
+                Text("Searching...")
+            }
         }
     }
 }
