@@ -3,6 +3,7 @@ package de.thb.ui.screens.places
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import org.koin.core.component.inject
 
 data class PlacesState(
     val isInEditMode: Boolean = false,
+    val isInSearchMode: Boolean = false,
     val places: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -55,18 +57,25 @@ class PlacesViewModel(
     fun setEditMode(editMode: Boolean) {
         setState { copy(isInEditMode = editMode) }
     }
+
+    fun setSearchMode(searchMode: Boolean) {
+        setState { copy(isInSearchMode = searchMode) }
+    }
 }
 
 @Composable
 fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
     val places by viewModel.collectAsState(PlacesState::places)
     val isInEditMode by viewModel.collectAsState(PlacesState::isInEditMode)
+    val isInSearchMode by viewModel.collectAsState(PlacesState::isInSearchMode)
 
     PlacesScreenContent(
         places = places,
         isInEditMode = isInEditMode,
+        isInSearchMode = isInSearchMode,
+        onSearchStateChanged = { mode -> viewModel.setSearchMode(mode) },
         onEditClicked = { viewModel.setEditMode(true) },
-        onCloseClicked = { viewModel.setEditMode(false) }
+        onCloseClicked = { viewModel.setEditMode(false) },
     )
 }
 
@@ -74,6 +83,8 @@ fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
 fun PlacesScreenContent(
     places: List<PlaceEntity>,
     isInEditMode: Boolean = false,
+    isInSearchMode: Boolean = false,
+    onSearchStateChanged: (Boolean) -> Unit,
     onEditClicked: () -> Unit,
     onCloseClicked: () -> Unit,
 ) {
@@ -83,14 +94,22 @@ fun PlacesScreenContent(
             .padding(16.dp)
     ) {
         ScreenTitle(title = "Places", Modifier.padding(vertical = 16.dp))
-        RulonaSearchBar(Modifier.padding(bottom = 8.dp))
+
+        RulonaSearchBar(
+            onSearchStateChanged = onSearchStateChanged,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
 
         RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
 
-        RulonaPlacesList(
-            places = places,
-            onItemClick = { Log.e("TAG", "Clicked") },
-            isInEditMode = isInEditMode,
-        )
+        if (isInSearchMode) {
+            Text(text = "Searching...")
+        } else {
+            RulonaPlacesList(
+                places = places,
+                onItemClick = { Log.e("TAG", "Clicked") },
+                isInEditMode = isInEditMode,
+            )
+        }
     }
 }
