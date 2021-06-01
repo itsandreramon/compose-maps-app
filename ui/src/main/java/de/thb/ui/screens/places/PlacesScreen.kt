@@ -16,6 +16,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.*
+import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 data class PlacesState(
-    val isInEditMode: Boolean = false,
+    val editState: EditState = EditState.Done,
     val searchState: SearchState = SearchState.Inactive,
     val places: List<PlaceEntity> = listOf(),
 ) : MavericksState
@@ -52,8 +53,8 @@ class PlacesViewModel(
         }
     }
 
-    fun setEditMode(state: Boolean) {
-        setState { copy(isInEditMode = state) }
+    fun setEditState(state: EditState) {
+        setState { copy(editState = state) }
     }
 
     fun setSearchState(state: SearchState) {
@@ -64,27 +65,25 @@ class PlacesViewModel(
 @Composable
 fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
     val places by viewModel.collectAsState(PlacesState::places)
-    val isInEditMode by viewModel.collectAsState(PlacesState::isInEditMode)
+    val editState by viewModel.collectAsState(PlacesState::editState)
     val searchState by viewModel.collectAsState(PlacesState::searchState)
 
     PlacesScreenContent(
         places = places,
-        isInEditMode = isInEditMode,
+        editState = editState,
         searchState = searchState,
-        onSearchStateChanged = { mode -> viewModel.setSearchState(mode) },
-        onEditClicked = { viewModel.setEditMode(true) },
-        onCloseClicked = { viewModel.setEditMode(false) },
+        onSearchStateChanged = viewModel::setSearchState,
+        onEditStateChanged = viewModel::setEditState,
     )
 }
 
 @Composable
 fun PlacesScreenContent(
     places: List<PlaceEntity>,
-    isInEditMode: Boolean = false,
+    editState: EditState = EditState.Done,
     searchState: SearchState = SearchState.Inactive,
     onSearchStateChanged: (SearchState) -> Unit,
-    onEditClicked: () -> Unit,
-    onCloseClicked: () -> Unit,
+    onEditStateChanged: (EditState) -> Unit,
 ) {
     Column(
         Modifier
@@ -100,12 +99,12 @@ fun PlacesScreenContent(
 
         when (searchState) {
             SearchState.Inactive -> {
-                RulonaPlacesHeader(onEditClicked, onCloseClicked, isInEditMode)
+                RulonaPlacesHeader(editState, onEditStateChanged)
 
                 RulonaPlacesList(
                     places = places,
                     onItemClick = { Log.e("TAG", "Clicked") },
-                    isInEditMode = isInEditMode,
+                    editState = editState,
                 )
             }
             SearchState.Active -> {

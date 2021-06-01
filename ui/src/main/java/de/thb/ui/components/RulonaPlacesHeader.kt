@@ -18,12 +18,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.thb.ui.theme.rulona_material_blue_600
+import de.thb.ui.type.EditState
+import de.thb.ui.type.toggleEditState
 
 @Composable
 fun RulonaPlacesHeader(
-    onEditClicked: () -> Unit,
-    onCloseClicked: () -> Unit,
-    isInEditMode: Boolean = false,
+    editState: EditState,
+    onEditStateChanged: (EditState) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -39,10 +40,10 @@ fun RulonaPlacesHeader(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .height(32.dp)
-                .clickable { if (isInEditMode) onCloseClicked() else onEditClicked() }
+                .clickable { onEditStateChanged(toggleEditState(editState)) }
                 .align(Alignment.CenterEnd)
         ) {
-            if (isInEditMode) {
+            if (editState == EditState.Editing) {
                 Text(
                     text = "Fertig",
                     color = rulona_material_blue_600,

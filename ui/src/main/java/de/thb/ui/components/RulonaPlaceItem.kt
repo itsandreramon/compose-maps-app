@@ -29,7 +29,7 @@ import de.thb.ui.theme.rulona_material_red_600
 fun RulonaPlaceItem(
     title: String,
     onClick: () -> Unit,
-    isInEditMode: Boolean = false,
+    isInEditMode: Boolean,
     trend: Trend = Trend.UP,
 ) {
     Surface(
@@ -75,5 +75,5 @@ fun RulonaPlaceItem(
 @Composable
 @Preview
 fun RulonaPlaceItemPreview() {
-    RulonaPlaceItem("Berlin", onClick = {})
+    RulonaPlaceItem("Berlin", onClick = {}, isInEditMode = false)
 }
