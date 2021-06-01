@@ -33,6 +33,6 @@ debugStorePassword=
 #### Add Google Maps API key
 
 ```
-// secrets.properties
+// local.properties
 MAPS_API_KEY=
 ```
