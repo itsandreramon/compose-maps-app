@@ -15,7 +15,11 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
-import de.thb.ui.components.*
+import de.thb.ui.components.RulonaPlacesHeader
+import de.thb.ui.components.RulonaPlacesList
+import de.thb.ui.components.RulonaSearchBar
+import de.thb.ui.components.RulonaSearchHeader
+import de.thb.ui.components.ScreenTitle
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
