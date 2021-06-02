@@ -9,14 +9,15 @@ import de.thb.core.domain.PlaceEntity
 fun RulonaSearchList(
     places: List<PlaceEntity>,
     onItemClick: () -> Unit,
-    isInEditMode: Boolean = false
+    onItemBookmarkClicked: (PlaceEntity) -> Unit,
 ) {
     LazyColumn {
         items(places) { place ->
-            RulonaPlaceItem(
+            RulonaSearchItem(
                 title = place.name,
-                isInEditMode = isInEditMode,
-                onClick = onItemClick
+                isBookmarked = place.isBookmarked,
+                onClick = onItemClick,
+                onBookmarkClicked = { onItemBookmarkClicked(place) },
             )
         }
     }

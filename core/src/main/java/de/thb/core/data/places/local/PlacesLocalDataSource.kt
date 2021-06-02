@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.Flow
 interface PlacesLocalDataSource {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(examples: List<PlaceEntity>)
+    suspend fun insert(places: List<PlaceEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(place: PlaceEntity)
 
     @Query("SELECT * FROM places")
     fun getAll(): Flow<List<PlaceEntity>>

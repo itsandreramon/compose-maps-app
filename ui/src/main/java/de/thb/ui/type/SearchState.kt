@@ -1,9 +1,12 @@
 package de.thb.ui.type
 
 import androidx.compose.ui.focus.FocusState
+import java.util.Locale
 
-enum class SearchState {
-    Inactive, Active, Search
+sealed class SearchState(val query: String = "") {
+    object Inactive : SearchState()
+    object Active : SearchState()
+    class Search(query: String) : SearchState(query)
 }
 
 fun getSearchState(
@@ -17,6 +20,6 @@ fun getSearchState(
             SearchState.Inactive
         }
     } else {
-        SearchState.Search
+        SearchState.Search(searchQuery.toLowerCase(Locale.getDefault()))
     }
 }

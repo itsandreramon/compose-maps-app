@@ -13,4 +13,7 @@ data class PlaceEntity(
 
     @ColumnInfo(name = "title")
     val name: String,
+
+    @ColumnInfo(name = "is_bookmarked")
+    val isBookmarked: Boolean = false,
 )

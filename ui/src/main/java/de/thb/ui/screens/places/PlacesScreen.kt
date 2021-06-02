@@ -3,7 +3,6 @@ package de.thb.ui.screens.places
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,18 +18,24 @@ import de.thb.ui.components.RulonaPlacesHeader
 import de.thb.ui.components.RulonaPlacesList
 import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.components.RulonaSearchHeader
+import de.thb.ui.components.RulonaSearchList
 import de.thb.ui.components.ScreenTitle
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.Locale
 
 data class PlacesState(
     val editState: EditState = EditState.Done,
     val searchState: SearchState = SearchState.Inactive,
     val places: List<PlaceEntity> = listOf(),
+    val searchedPlaces: List<PlaceEntity> = listOf(),
+    val bookmarkedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
 class PlacesViewModel(
@@ -53,41 +58,80 @@ class PlacesViewModel(
         viewModelScope.launch {
             placesLocalDataSource
                 .getAll()
-                .collect { setState { copy(places = it) } }
+                .collect {
+                    setState { copy(places = it) }
+                }
         }
+
+        stateFlow.onEach { state ->
+            val bookmarkedPlaces = state.places
+                .filter { it.isBookmarked }
+
+            setState { copy(bookmarkedPlaces = bookmarkedPlaces) }
+        }.launchIn(viewModelScope)
+
+        stateFlow.onEach { state ->
+            val searchedPlaces = if (state.searchState is SearchState.Search) {
+                state.places.filter { place ->
+                    place.name
+                        .toLowerCase(Locale.getDefault())
+                        .contains(state.searchState.query)
+                }
+            } else {
+                listOf()
+            }
+
+            setState { copy(searchedPlaces = searchedPlaces) }
+        }.launchIn(viewModelScope)
     }
 
-    fun setEditState(state: EditState) {
+    fun setScreenEditState(state: EditState) {
         setState { copy(editState = state) }
     }
 
-    fun setSearchState(state: SearchState) {
+    fun setScreenSearchState(state: SearchState) {
         setState { copy(searchState = state) }
+    }
+
+    fun togglePlaceItemBookmark(place: PlaceEntity) {
+        viewModelScope.launch {
+            val updatedPlace = place.copy(
+                isBookmarked = !place.isBookmarked
+            )
+
+            placesLocalDataSource.insert(updatedPlace)
+        }
     }
 }
 
 @Composable
 fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
-    val places by viewModel.collectAsState(PlacesState::places)
+    val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
+    val searchedPlaces by viewModel.collectAsState(PlacesState::searchedPlaces)
+
     val editState by viewModel.collectAsState(PlacesState::editState)
     val searchState by viewModel.collectAsState(PlacesState::searchState)
 
     PlacesScreenContent(
-        places = places,
+        bookmarkedPlaces = bookmarkedPlaces,
+        searchedPlaces = searchedPlaces,
         editState = editState,
         searchState = searchState,
-        onSearchStateChanged = viewModel::setSearchState,
-        onEditStateChanged = viewModel::setEditState,
+        onSearchStateChanged = viewModel::setScreenSearchState,
+        onEditStateChanged = viewModel::setScreenEditState,
+        onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
     )
 }
 
 @Composable
 fun PlacesScreenContent(
-    places: List<PlaceEntity>,
+    bookmarkedPlaces: List<PlaceEntity>,
+    searchedPlaces: List<PlaceEntity>,
     editState: EditState = EditState.Done,
     searchState: SearchState = SearchState.Inactive,
     onSearchStateChanged: (SearchState) -> Unit,
     onEditStateChanged: (EditState) -> Unit,
+    onItemBookmarkClicked: (PlaceEntity) -> Unit,
 ) {
     Column(
         Modifier
@@ -102,20 +146,30 @@ fun PlacesScreenContent(
         )
 
         when (searchState) {
-            SearchState.Inactive -> {
+            is SearchState.Inactive -> {
                 RulonaPlacesHeader(editState, onEditStateChanged)
 
                 RulonaPlacesList(
-                    places = places,
+                    places = bookmarkedPlaces,
                     onItemClick = { Log.e("TAG", "Clicked") },
                     editState = editState,
                 )
             }
-            SearchState.Active -> {
+            is SearchState.Active -> {
                 RulonaSearchHeader()
+
+                RulonaSearchList(
+                    places = bookmarkedPlaces,
+                    onItemClick = {},
+                    onItemBookmarkClicked = onItemBookmarkClicked
+                )
             }
-            SearchState.Search -> {
-                Text("Searching...")
+            is SearchState.Search -> {
+                RulonaSearchList(
+                    places = searchedPlaces,
+                    onItemClick = {},
+                    onItemBookmarkClicked = onItemBookmarkClicked,
+                )
             }
         }
     }
