@@ -49,7 +49,7 @@ class PlacesViewModel(
             placesLocalDataSource.insert(
                 listOf(
                     PlaceEntity(uuid = "-1", name = "Berlin"),
-                    PlaceEntity(uuid = "-2", name = "Hamburg"),
+                    PlaceEntity(uuid = "-2", name = "Hamburg", isBookmarked = true),
                     PlaceEntity(uuid = "-3", name = "Frankfurt"),
                 )
             )

@@ -2,6 +2,7 @@ package de.thb.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -15,6 +16,7 @@ fun RulonaSearchHeader() {
     Box(
         modifier = Modifier
             .padding(16.dp)
+            .height(24.dp)
             .fillMaxWidth(),
     ) {
         Text(

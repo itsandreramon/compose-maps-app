@@ -39,7 +39,7 @@ fun RulonaPlacesHeader(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .height(32.dp)
+                .height(24.dp)
                 .clickable { onEditStateChanged(toggleEditState(editState)) }
                 .align(Alignment.CenterEnd)
         ) {
