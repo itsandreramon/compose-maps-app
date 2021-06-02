@@ -9,15 +9,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.airbnb.mvrx.Mavericks
 import de.thb.ui.screens.places.PlacesScreen
-import de.thb.ui.screens.places.PlacesViewModel
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class PlacesScreenTest {
-
-    private var placesViewModel: PlacesViewModel? = null
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
@@ -31,11 +27,6 @@ class PlacesScreenTest {
                 PlacesScreen()
             }
         }
-    }
-
-    @After
-    fun tearDown() {
-        placesViewModel = null
     }
 
     @Test
