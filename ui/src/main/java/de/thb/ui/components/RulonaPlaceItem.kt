@@ -28,9 +28,10 @@ import de.thb.ui.theme.rulona_material_red_600
 @Composable
 fun RulonaPlaceItem(
     title: String,
-    onClick: () -> Unit,
     isInEditMode: Boolean,
     trend: Trend = Trend.UP,
+    onClick: () -> Unit,
+    onRemoved: () -> Unit,
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -38,7 +39,6 @@ fun RulonaPlaceItem(
     ) {
         Box(
             Modifier
-                .clickable { onClick() }
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
@@ -66,7 +66,9 @@ fun RulonaPlaceItem(
                 },
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .clickable { onRemoved() }
             )
         }
     }
@@ -75,5 +77,10 @@ fun RulonaPlaceItem(
 @Composable
 @Preview
 fun RulonaPlaceItemPreview() {
-    RulonaPlaceItem("Berlin", onClick = {}, isInEditMode = false)
+    RulonaPlaceItem(
+        title = "Berlin",
+        isInEditMode = false,
+        onClick = {},
+        onRemoved = {},
+    )
 }

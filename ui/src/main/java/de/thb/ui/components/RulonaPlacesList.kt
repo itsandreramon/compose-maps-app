@@ -9,15 +9,17 @@ import de.thb.ui.type.EditState
 @Composable
 fun RulonaPlacesList(
     places: List<PlaceEntity>,
+    editState: EditState,
     onItemClick: () -> Unit,
-    editState: EditState
+    onItemRemoved: (PlaceEntity) -> Unit,
 ) {
     LazyColumn {
         items(places) { place ->
             RulonaPlaceItem(
                 title = place.name,
                 isInEditMode = editState.isInEditMode,
-                onClick = onItemClick
+                onClick = onItemClick,
+                onRemoved = { onItemRemoved(place) },
             )
         }
     }

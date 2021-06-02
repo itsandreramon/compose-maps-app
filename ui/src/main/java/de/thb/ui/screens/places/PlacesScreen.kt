@@ -120,6 +120,7 @@ fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
         onSearchStateChanged = viewModel::setScreenSearchState,
         onEditStateChanged = viewModel::setScreenEditState,
         onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
+        onItemRemoveClicked = viewModel::togglePlaceItemBookmark
     )
 }
 
@@ -132,6 +133,7 @@ fun PlacesScreenContent(
     onSearchStateChanged: (SearchState) -> Unit,
     onEditStateChanged: (EditState) -> Unit,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
+    onItemRemoveClicked: (PlaceEntity) -> Unit,
 ) {
     Column(
         Modifier
@@ -151,8 +153,9 @@ fun PlacesScreenContent(
 
                 RulonaPlacesList(
                     places = bookmarkedPlaces,
-                    onItemClick = { Log.e("TAG", "Clicked") },
                     editState = editState,
+                    onItemClick = { Log.e("TAG", "Clicked") },
+                    onItemRemoved = onItemRemoveClicked,
                 )
             }
             is SearchState.Active -> {
