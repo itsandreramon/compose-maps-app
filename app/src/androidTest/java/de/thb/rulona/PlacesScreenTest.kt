@@ -47,9 +47,9 @@ class PlacesScreenTest {
             .assertIsDisplayed()
 
         composeTestRule.onNodeWithText("Search")
-            .performTextInput("Berlin")
+            .performTextInput("Ber")
 
-        composeTestRule.onNodeWithText("Searching...")
+        composeTestRule.onNodeWithText("Berlin")
             .assertIsDisplayed()
     }
 }
