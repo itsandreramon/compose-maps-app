@@ -39,9 +39,11 @@ fun RulonaPlaceItem(
     ) {
         Box(
             Modifier
+                .clickable { onClick() }
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
+
             Row {
                 Text(text = title)
 
@@ -58,18 +60,23 @@ fun RulonaPlaceItem(
                 )
             }
 
-            Image(
-                imageVector = if (isInEditMode) {
-                    Icons.Default.Close
-                } else {
-                    Icons.Default.ChevronRight
-                },
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clickable { onRemoved() }
-            )
+            if (isInEditMode) {
+                Image(
+                    imageVector = Icons.Default.Close,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable { onRemoved() }
+                )
+            } else {
+                Image(
+                    imageVector = Icons.Default.ChevronRight,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
         }
     }
 }

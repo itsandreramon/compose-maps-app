@@ -10,7 +10,7 @@ import de.thb.ui.type.EditState
 fun RulonaPlacesList(
     places: List<PlaceEntity>,
     editState: EditState,
-    onItemClick: () -> Unit,
+    onItemClick: (uuid: String) -> Unit,
     onItemRemoved: (PlaceEntity) -> Unit,
 ) {
     LazyColumn {
@@ -18,7 +18,7 @@ fun RulonaPlacesList(
             RulonaPlaceItem(
                 title = place.name,
                 isInEditMode = editState.isInEditMode,
-                onClick = onItemClick,
+                onClick = { onItemClick(place.uuid) },
                 onRemoved = { onItemRemoved(place) },
             )
         }

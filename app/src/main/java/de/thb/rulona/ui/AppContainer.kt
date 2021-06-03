@@ -63,7 +63,11 @@ fun RulonaBottomAppBar(navController: NavHostController) {
 
             items.forEach { screen ->
                 BottomNavigationItem(
-                    icon = { Icon(screen.icon, contentDescription = null) },
+                    icon = {
+                        screen.icon?.let { icon ->
+                            Icon(icon, contentDescription = null)
+                        }
+                    },
                     label = { Text(screen.title) },
                     selected = currentRoute == screen.route,
                     onClick = {

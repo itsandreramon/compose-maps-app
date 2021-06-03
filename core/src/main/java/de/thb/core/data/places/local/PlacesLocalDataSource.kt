@@ -18,4 +18,7 @@ interface PlacesLocalDataSource {
 
     @Query("SELECT * FROM places")
     fun getAll(): Flow<List<PlaceEntity>>
+
+    @Query("SELECT * FROM places WHERE uuid = :uuid LIMIT 1")
+    fun getByUuid(uuid: String): Flow<PlaceEntity>
 }

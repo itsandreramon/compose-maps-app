@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -105,7 +104,10 @@ class PlacesViewModel(
 }
 
 @Composable
-fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
+fun PlacesScreen(
+    viewModel: PlacesViewModel = mavericksViewModel(),
+    onPlaceClicked: (uuid: String) -> Unit
+) {
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
     val searchedPlaces by viewModel.collectAsState(PlacesState::searchedPlaces)
 
@@ -117,6 +119,7 @@ fun PlacesScreen(viewModel: PlacesViewModel = mavericksViewModel()) {
         searchedPlaces = searchedPlaces,
         editState = editState,
         searchState = searchState,
+        onPlaceClicked = onPlaceClicked,
         onSearchStateChanged = viewModel::setScreenSearchState,
         onEditStateChanged = viewModel::setScreenEditState,
         onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
@@ -130,6 +133,7 @@ fun PlacesScreenContent(
     searchedPlaces: List<PlaceEntity>,
     editState: EditState = EditState.Done,
     searchState: SearchState = SearchState.Inactive,
+    onPlaceClicked: (uuid: String) -> Unit,
     onSearchStateChanged: (SearchState) -> Unit,
     onEditStateChanged: (EditState) -> Unit,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
@@ -154,7 +158,7 @@ fun PlacesScreenContent(
                 RulonaPlacesList(
                     places = bookmarkedPlaces,
                     editState = editState,
-                    onItemClick = { Log.e("TAG", "Clicked") },
+                    onItemClick = onPlaceClicked,
                     onItemRemoved = onItemRemoveClicked,
                 )
             }

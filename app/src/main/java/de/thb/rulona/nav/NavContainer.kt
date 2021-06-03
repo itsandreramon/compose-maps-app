@@ -6,8 +6,12 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.navigate
+import de.thb.ui.screens.places.PlaceDetailsScreen
 import de.thb.ui.screens.places.PlacesScreen
 import de.thb.ui.screens.route.RouteScreen
 
@@ -15,16 +19,30 @@ import de.thb.ui.screens.route.RouteScreen
 fun NavContainer(navController: NavHostController) {
     NavHost(navController, startDestination = Screen.Places.route) {
         composable(Screen.Places.route) {
-            PlacesScreen()
+            PlacesScreen(onPlaceClicked = { placeUuid ->
+                navController.navigate("place_details/$placeUuid")
+            })
         }
 
         composable(Screen.Route.route) {
             RouteScreen()
         }
+
+        composable(
+            route = Screen.PlaceDetails.route,
+            arguments = listOf(navArgument("place_uuid") { type = NavType.StringType })
+        ) { navBackStackEntry ->
+            val placeUuid = navBackStackEntry.arguments?.getString("place_uuid")
+
+            if (placeUuid != null) {
+                PlaceDetailsScreen(placeUuid)
+            }
+        }
     }
 }
 
-sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
+sealed class Screen(val route: String, val title: String, val icon: ImageVector?) {
     object Route : Screen("route", "Route", Icons.Filled.Explore)
     object Places : Screen("places", "Places", Icons.Filled.Directions)
+    object PlaceDetails : Screen("place_details/{place_uuid}", "Place Details", null)
 }
