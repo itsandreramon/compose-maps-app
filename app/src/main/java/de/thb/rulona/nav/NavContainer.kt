@@ -37,9 +37,12 @@ fun NavContainer(navController: NavHostController) {
             val placeUuid = navBackStackEntry.arguments?.getString("place_uuid")
 
             if (placeUuid != null) {
-                PlaceDetailsScreen(placeUuid, onBackPressed = {
-                    navController.popBackStack()
-                })
+                PlaceDetailsScreen(
+                    placeUuid,
+                    onBackPressed = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
