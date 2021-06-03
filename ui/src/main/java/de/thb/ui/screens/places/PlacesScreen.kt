@@ -82,6 +82,7 @@ class PlacesViewModel(
         stateFlow.onEach { state ->
             val bookmarkedPlaces = state.places
                 .filter { it.isBookmarked }
+                .sortedBy { it.name }
 
             setState { copy(bookmarkedPlaces = bookmarkedPlaces) }
         }.launchIn(viewModelScope)
