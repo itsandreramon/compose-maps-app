@@ -18,7 +18,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.type.SearchState
 import de.thb.ui.type.getSearchState
 import de.thb.ui.util.state
@@ -49,7 +49,7 @@ fun RulonaSearchBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState -> focus = focusState },
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(corner_size_medium),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,

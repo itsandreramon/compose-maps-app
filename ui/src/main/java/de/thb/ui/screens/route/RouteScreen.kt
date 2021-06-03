@@ -12,7 +12,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -24,6 +23,7 @@ import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.ui.components.MapView
 import de.thb.ui.components.ScreenTitle
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdates
+import de.thb.ui.theme.margin_medium
 import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import kotlinx.coroutines.flow.collect
@@ -88,8 +88,8 @@ private fun PlacesScreenContent(
     val mapView = rememberMapViewWithLifecycle()
 
     Column(Modifier.statusBarsPadding()) {
-        Column(Modifier.padding(16.dp)) {
-            ScreenTitle(title = "Route", Modifier.padding(vertical = 16.dp))
+        Column(Modifier.padding(margin_medium)) {
+            ScreenTitle(title = "Route", Modifier.padding(vertical = margin_medium))
         }
 
         MapView(mapView, LocalContext.current, deviceLocation, geoApiContext)

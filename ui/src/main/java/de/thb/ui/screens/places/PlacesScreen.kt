@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -15,12 +14,14 @@ import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
-import de.thb.ui.components.RulonaPlacesHeader
-import de.thb.ui.components.RulonaPlacesList
 import de.thb.ui.components.RulonaSearchBar
-import de.thb.ui.components.RulonaSearchHeader
-import de.thb.ui.components.RulonaSearchList
 import de.thb.ui.components.ScreenTitle
+import de.thb.ui.components.places.RulonaPlacesHeader
+import de.thb.ui.components.places.RulonaPlacesList
+import de.thb.ui.components.search.RulonaSearchHeader
+import de.thb.ui.components.search.RulonaSearchList
+import de.thb.ui.theme.margin_medium
+import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
@@ -187,13 +188,13 @@ fun PlacesScreenContent(
     Column(
         Modifier
             .statusBarsPadding()
-            .padding(16.dp)
+            .padding(margin_medium)
     ) {
-        ScreenTitle(title = "Places", Modifier.padding(vertical = 16.dp))
+        ScreenTitle(title = "Places", Modifier.padding(vertical = margin_medium))
 
         RulonaSearchBar(
             onSearchStateChanged = onSearchStateChanged,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(bottom = margin_small),
         )
 
         when (searchState) {

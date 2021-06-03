@@ -1,4 +1,4 @@
-package de.thb.ui.components
+package de.thb.ui.components.search
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
