@@ -13,6 +13,8 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
+import de.thb.core.util.fromUtc
+import de.thb.core.util.nowUtc
 import de.thb.ui.components.RulonaPlacesHeader
 import de.thb.ui.components.RulonaPlacesList
 import de.thb.ui.components.RulonaSearchBar
@@ -35,7 +37,8 @@ data class PlacesState(
     val editState: EditState = EditState.Done,
     val searchState: SearchState = SearchState.Inactive,
     val places: List<PlaceEntity> = listOf(),
-    val searchedPlaces: List<PlaceEntity> = listOf(),
+    val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
+    val recentlySearchedPlaces: List<PlaceEntity> = listOf(),
     val bookmarkedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -49,9 +52,20 @@ class PlacesViewModel(
         viewModelScope.launch {
             placesLocalDataSource.insert(
                 listOf(
-                    PlaceEntity(uuid = "-1", name = "Berlin"),
-                    PlaceEntity(uuid = "-2", name = "Hamburg", isBookmarked = true),
-                    PlaceEntity(uuid = "-3", name = "Frankfurt"),
+                    PlaceEntity(
+                        uuid = "-1",
+                        name = "Berlin"
+                    ),
+                    PlaceEntity(
+                        uuid = "-2",
+                        name = "Hamburg",
+                        isBookmarked = true,
+                        searchedAtUtc = nowUtc()
+                    ),
+                    PlaceEntity(
+                        uuid = "-3",
+                        name = "Frankfurt"
+                    ),
                 )
             )
         }
@@ -72,6 +86,14 @@ class PlacesViewModel(
         }.launchIn(viewModelScope)
 
         stateFlow.onEach { state ->
+            val recentlySearchedPlaces = state.places
+                .filter { it.searchedAtUtc != null }
+                .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
+
+            setState { copy(recentlySearchedPlaces = recentlySearchedPlaces) }
+        }.launchIn(viewModelScope)
+
+        stateFlow.onEach { state ->
             val searchedPlaces = if (state.searchState is SearchState.Search) {
                 state.places.filter { place ->
                     place.name
@@ -82,7 +104,7 @@ class PlacesViewModel(
                 listOf()
             }
 
-            setState { copy(searchedPlaces = searchedPlaces) }
+            setState { copy(currentlySearchedPlaces = searchedPlaces) }
         }.launchIn(viewModelScope)
     }
 
@@ -127,14 +149,16 @@ fun PlacesScreen(
     onPlaceClicked: (uuid: String) -> Unit
 ) {
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
-    val searchedPlaces by viewModel.collectAsState(PlacesState::searchedPlaces)
+    val currentlySearchedPlaces by viewModel.collectAsState(PlacesState::currentlySearchedPlaces)
+    val recentlySearchedPlaces by viewModel.collectAsState(PlacesState::recentlySearchedPlaces)
 
     val editState by viewModel.collectAsState(PlacesState::editState)
     val searchState by viewModel.collectAsState(PlacesState::searchState)
 
     PlacesScreenContent(
         bookmarkedPlaces = bookmarkedPlaces,
-        searchedPlaces = searchedPlaces,
+        currentlySearchedPlaces = currentlySearchedPlaces,
+        recentlySearchedPlaces = recentlySearchedPlaces,
         editState = editState,
         searchState = searchState,
         onPlaceClicked = onPlaceClicked,
@@ -149,7 +173,8 @@ fun PlacesScreen(
 @Composable
 fun PlacesScreenContent(
     bookmarkedPlaces: List<PlaceEntity>,
-    searchedPlaces: List<PlaceEntity>,
+    currentlySearchedPlaces: List<PlaceEntity>,
+    recentlySearchedPlaces: List<PlaceEntity>,
     editState: EditState = EditState.Done,
     searchState: SearchState = SearchState.Inactive,
     onPlaceClicked: (uuid: String) -> Unit,
@@ -186,14 +211,14 @@ fun PlacesScreenContent(
                 RulonaSearchHeader()
 
                 RulonaSearchList(
-                    places = bookmarkedPlaces,
-                    onItemClick = {},
+                    places = recentlySearchedPlaces,
+                    onItemClick = onPlaceClicked,
                     onItemBookmarkClicked = onItemBookmarkClicked
                 )
             }
             is SearchState.Search -> {
                 RulonaSearchList(
-                    places = searchedPlaces,
+                    places = currentlySearchedPlaces,
                     onItemClick = { uuid ->
                         onPlaceClicked(uuid)
                         onPlaceSearched(uuid)

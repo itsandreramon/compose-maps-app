@@ -14,6 +14,7 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -28,6 +29,8 @@ ksp {
 }
 
 dependencies {
+    coreLibraryDesugaring libs.android.desugar
+
     implementation libs.androidx.core
 
     implementation libs.koin.core
