@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -66,5 +67,17 @@ class PlacesScreenTest {
 
         composeTestRule.onNodeWithText("Meine Orte")
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun edit_button_changes_edit_state() {
+        composeTestRule.onNodeWithContentDescription("Open Place Details")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithContentDescription("Edit Places")
+            .performClick()
+
+        composeTestRule.onNodeWithContentDescription("Remove Bookmark")
+            .assertExists()
     }
 }

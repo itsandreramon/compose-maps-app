@@ -1,7 +1,5 @@
 package de.thb.ui.type
 
-import java.util.Locale
-
 sealed class SearchState(val query: String = "") {
     object Inactive : SearchState()
     object Active : SearchState()
@@ -19,6 +17,6 @@ fun getSearchState(
             SearchState.Inactive
         }
     } else {
-        SearchState.Search(searchQuery.lowercase(Locale.getDefault()))
+        SearchState.Search(searchQuery)
     }
 }

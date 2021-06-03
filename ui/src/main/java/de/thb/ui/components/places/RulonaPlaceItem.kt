@@ -65,7 +65,7 @@ fun RulonaPlaceItem(
                 Image(
                     imageVector = Icons.Default.Close,
                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                    contentDescription = null,
+                    contentDescription = "Remove Bookmark",
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .clickable { onRemoved() }
@@ -74,7 +74,7 @@ fun RulonaPlaceItem(
                 Image(
                     imageVector = Icons.Default.ChevronRight,
                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                    contentDescription = null,
+                    contentDescription = "Open Place Details",
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }

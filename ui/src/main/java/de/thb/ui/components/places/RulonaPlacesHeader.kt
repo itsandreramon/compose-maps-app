@@ -65,7 +65,7 @@ fun RulonaPlacesHeader(
                     Image(
                         imageVector = Icons.Default.Edit,
                         colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                        contentDescription = null,
+                        contentDescription = "Edit Places",
                     )
                 }
             }

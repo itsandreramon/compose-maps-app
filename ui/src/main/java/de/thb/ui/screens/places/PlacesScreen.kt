@@ -26,13 +26,10 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.Instant
-import java.util.Locale
 
 data class PlacesState(
     val editState: EditState = EditState.Done,
@@ -74,40 +71,42 @@ class PlacesViewModel(
         viewModelScope.launch {
             placesLocalDataSource
                 .getAll()
-                .collect {
-                    setState { copy(places = it) }
-                }
+                .collect { setState { copy(places = it) } }
         }
 
-        stateFlow.onEach { state ->
-            val bookmarkedPlaces = state.places
-                .filter { it.isBookmarked }
-                .sortedBy { it.name }
+        onEach(PlacesState::places) {
+            withState { state ->
+                val bookmarkedPlaces = state.places
+                    .filter { it.isBookmarked }
+                    .sortedBy { it.name }
 
-            setState { copy(bookmarkedPlaces = bookmarkedPlaces) }
-        }.launchIn(viewModelScope)
-
-        stateFlow.onEach { state ->
-            val recentlySearchedPlaces = state.places
-                .filter { it.searchedAtUtc != null }
-                .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
-
-            setState { copy(recentlySearchedPlaces = recentlySearchedPlaces) }
-        }.launchIn(viewModelScope)
-
-        stateFlow.onEach { state ->
-            val searchedPlaces = if (state.searchState is SearchState.Search) {
-                state.places.filter { place ->
-                    place.name
-                        .lowercase(Locale.getDefault())
-                        .contains(state.searchState.query)
-                }
-            } else {
-                listOf()
+                setState { copy(bookmarkedPlaces = bookmarkedPlaces) }
             }
+        }
 
-            setState { copy(currentlySearchedPlaces = searchedPlaces) }
-        }.launchIn(viewModelScope)
+        onEach(PlacesState::places) {
+            withState { state ->
+                val recentlySearchedPlaces = state.places
+                    .filter { it.searchedAtUtc != null }
+                    .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
+
+                setState { copy(recentlySearchedPlaces = recentlySearchedPlaces) }
+            }
+        }
+
+        onEach(PlacesState::searchState) { searchState ->
+            withState { state ->
+                val searchedPlaces = if (searchState is SearchState.Search) {
+                    state.places.filter { place ->
+                        place.name.contains(other = state.searchState.query, ignoreCase = true)
+                    }
+                } else {
+                    listOf()
+                }
+
+                setState { copy(currentlySearchedPlaces = searchedPlaces) }
+            }
+        }
     }
 
     fun setScreenEditState(state: EditState) {
