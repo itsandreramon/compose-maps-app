@@ -24,7 +24,7 @@ class PlacesScreenTest {
 
         composeTestRule.setContent {
             MaterialTheme {
-                PlacesScreen()
+                PlacesScreen(onPlaceClicked = {})
             }
         }
     }
