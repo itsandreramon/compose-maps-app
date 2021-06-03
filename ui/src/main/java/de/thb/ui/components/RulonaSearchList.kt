@@ -8,7 +8,7 @@ import de.thb.core.domain.PlaceEntity
 @Composable
 fun RulonaSearchList(
     places: List<PlaceEntity>,
-    onItemClick: () -> Unit,
+    onItemClick: (uuid: String) -> Unit,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
 ) {
     LazyColumn {
@@ -16,7 +16,7 @@ fun RulonaSearchList(
             RulonaSearchItem(
                 title = place.name,
                 isBookmarked = place.isBookmarked,
-                onClick = onItemClick,
+                onClick = { onItemClick(place.uuid) },
                 onBookmarkClicked = { onItemBookmarkClicked(place) },
             )
         }

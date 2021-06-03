@@ -22,11 +22,13 @@ import de.thb.ui.components.ScreenTitle
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.time.Instant
 import java.util.Locale
 
 data class PlacesState(
@@ -101,6 +103,22 @@ class PlacesViewModel(
             placesLocalDataSource.insert(updatedPlace)
         }
     }
+
+    fun setPlaceSearchedTimestamp(uuid: String) {
+        viewModelScope.launch {
+            val searchedPlace = placesLocalDataSource
+                .getByUuid(uuid)
+                .firstOrNull()
+
+            if (searchedPlace != null) {
+                val updatedPlace = searchedPlace.copy(
+                    searchedAtUtc = Instant.now().toString()
+                )
+
+                placesLocalDataSource.insert(updatedPlace)
+            }
+        }
+    }
 }
 
 @Composable
@@ -120,6 +138,7 @@ fun PlacesScreen(
         editState = editState,
         searchState = searchState,
         onPlaceClicked = onPlaceClicked,
+        onPlaceSearched = viewModel::setPlaceSearchedTimestamp,
         onSearchStateChanged = viewModel::setScreenSearchState,
         onEditStateChanged = viewModel::setScreenEditState,
         onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
@@ -134,6 +153,7 @@ fun PlacesScreenContent(
     editState: EditState = EditState.Done,
     searchState: SearchState = SearchState.Inactive,
     onPlaceClicked: (uuid: String) -> Unit,
+    onPlaceSearched: (uuid: String) -> Unit,
     onSearchStateChanged: (SearchState) -> Unit,
     onEditStateChanged: (EditState) -> Unit,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
@@ -174,7 +194,10 @@ fun PlacesScreenContent(
             is SearchState.Search -> {
                 RulonaSearchList(
                     places = searchedPlaces,
-                    onItemClick = {},
+                    onItemClick = { uuid ->
+                        onPlaceClicked(uuid)
+                        onPlaceSearched(uuid)
+                    },
                     onItemBookmarkClicked = onItemBookmarkClicked,
                 )
             }

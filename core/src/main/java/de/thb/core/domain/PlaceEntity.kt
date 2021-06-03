@@ -16,4 +16,7 @@ data class PlaceEntity(
 
     @ColumnInfo(name = "is_bookmarked")
     val isBookmarked: Boolean = false,
+
+    @ColumnInfo(name = "searched_at_utc")
+    val searchedAtUtc: String? = null,
 )

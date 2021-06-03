@@ -1,11 +1,19 @@
 package de.thb.core.data
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 
-@Database(version = 1, entities = [PlaceEntity::class])
+@Database(
+    version = 2,
+    entities = [PlaceEntity::class],
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun placesLocalDataSource(): PlacesLocalDataSource
 }
