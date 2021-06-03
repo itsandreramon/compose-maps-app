@@ -1,18 +1,15 @@
 package de.thb.ui.screens.places
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
-import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
+import de.thb.ui.components.RulonaAppBar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -45,21 +42,21 @@ class PlaceDetailsViewModel(
 }
 
 @Composable
-fun PlaceDetailsScreen(placeUuid: String, viewModel: PlaceDetailsViewModel = mavericksViewModel()) {
+fun PlaceDetailsScreen(
+    placeUuid: String,
+    onBackPressed: () -> Unit,
+    viewModel: PlaceDetailsViewModel = mavericksViewModel()
+) {
     val place by viewModel.collectAsState(PlaceDetailsState::place)
 
     LaunchedEffect(placeUuid) {
         viewModel.setPlaceUuid(placeUuid)
     }
 
-    PlaceDetailsScreenContent(place)
+    place?.let { PlaceDetailsScreenContent(it, onBackPressed) }
 }
 
 @Composable
-fun PlaceDetailsScreenContent(place: PlaceEntity?) {
-    Box(modifier = Modifier.statusBarsPadding()) {
-        if (place != null) {
-            Text(place.name)
-        }
-    }
+fun PlaceDetailsScreenContent(place: PlaceEntity, onBackPressed: () -> Unit) {
+    RulonaAppBar(title = place.name, onBackPressed = onBackPressed)
 }
