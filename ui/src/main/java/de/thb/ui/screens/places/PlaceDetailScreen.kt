@@ -10,6 +10,7 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
+import de.thb.ui.type.RulonaAppBarAction
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -58,5 +59,8 @@ fun PlaceDetailsScreen(
 
 @Composable
 fun PlaceDetailsScreenContent(place: PlaceEntity, onBackPressed: () -> Unit) {
-    RulonaAppBar(title = place.name, onBackPressed = onBackPressed)
+    RulonaAppBar(
+        title = place.name,
+        back = RulonaAppBarAction.Back(onClick = onBackPressed)
+    )
 }

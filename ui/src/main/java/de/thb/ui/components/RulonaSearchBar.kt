@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
@@ -29,14 +28,14 @@ fun RulonaSearchBar(
     modifier: Modifier = Modifier
 ) {
     var query by state { TextFieldValue() }
-    var focus by state { FocusState.Inactive }
+    var isFocused by state { false }
 
     // if no longer in focus, reset search query
-    if (focus == FocusState.Inactive) {
+    if (!isFocused) {
         query = TextFieldValue()
     }
 
-    val searchState = getSearchState(query.text, focus)
+    val searchState = getSearchState(query.text, isFocused)
 
     onSearchStateChanged(searchState)
 
@@ -48,7 +47,7 @@ fun RulonaSearchBar(
             trailingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
-                .onFocusChanged { focusState -> focus = focusState },
+                .onFocusChanged { focusState -> isFocused = focusState.hasFocus },
             shape = RoundedCornerShape(corner_size_medium),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,

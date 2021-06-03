@@ -1,6 +1,5 @@
 package de.thb.ui.type
 
-import androidx.compose.ui.focus.FocusState
 import java.util.Locale
 
 sealed class SearchState(val query: String = "") {
@@ -11,15 +10,15 @@ sealed class SearchState(val query: String = "") {
 
 fun getSearchState(
     searchQuery: String,
-    focusState: FocusState
+    isFocused: Boolean
 ): SearchState {
     return if (searchQuery.isEmpty()) {
-        if (focusState == FocusState.Active) {
+        if (isFocused) {
             SearchState.Active
         } else {
             SearchState.Inactive
         }
     } else {
-        SearchState.Search(searchQuery.toLowerCase(Locale.getDefault()))
+        SearchState.Search(searchQuery.lowercase(Locale.getDefault()))
     }
 }

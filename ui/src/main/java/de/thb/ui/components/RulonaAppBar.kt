@@ -8,15 +8,21 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.statusBarsPadding
+import de.thb.ui.type.RulonaAppBarAction
 
 @Composable
-fun RulonaAppBar(title: String, onBackPressed: () -> Unit) {
+fun RulonaAppBar(
+    title: String,
+    back: RulonaAppBarAction.Back? = null,
+    actions: List<RulonaAppBarAction> = listOf()
+) {
     Surface(elevation = 4.dp) {
         Surface(
             modifier = Modifier
@@ -28,8 +34,18 @@ fun RulonaAppBar(title: String, onBackPressed: () -> Unit) {
                 backgroundColor = Color.Transparent,
                 elevation = 0.dp,
                 navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Filled.ArrowBack, null)
+                    if (back != null) {
+                        IconButton(onClick = back.onClick) {
+                            Icon(back.icon, back.contentDescription)
+                        }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.Notifications, null)
+                    }
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.Share, null)
                     }
                 }
             )

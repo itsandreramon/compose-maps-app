@@ -99,7 +99,7 @@ class PlacesViewModel(
             val searchedPlaces = if (state.searchState is SearchState.Search) {
                 state.places.filter { place ->
                     place.name
-                        .toLowerCase(Locale.getDefault())
+                        .lowercase(Locale.getDefault())
                         .contains(state.searchState.query)
                 }
             } else {
@@ -231,3 +231,4 @@ fun PlacesScreenContent(
         }
     }
 }
+
