@@ -47,7 +47,7 @@ fun RulonaSearchBar(
             trailingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
-                .onFocusChanged { focusState -> isFocused = focusState.hasFocus },
+                .onFocusChanged { focusState -> isFocused = focusState.isFocused },
             shape = RoundedCornerShape(corner_size_medium),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,

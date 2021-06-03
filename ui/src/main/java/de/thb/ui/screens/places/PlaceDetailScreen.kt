@@ -1,8 +1,12 @@
 package de.thb.ui.screens.places
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -11,6 +15,7 @@ import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.type.RulonaAppBarAction
+import de.thb.ui.util.state
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -59,8 +64,16 @@ fun PlaceDetailsScreen(
 
 @Composable
 fun PlaceDetailsScreenContent(place: PlaceEntity, onBackPressed: () -> Unit) {
-    RulonaAppBar(
-        title = place.name,
-        back = RulonaAppBarAction.Back(onClick = onBackPressed)
-    )
+    Column {
+        RulonaAppBar(
+            title = place.name,
+            back = RulonaAppBarAction.Back(onClick = onBackPressed)
+        )
+
+        var text by state { TextFieldValue() }
+        TextField(
+            value = text,
+            onValueChange = { text = it }
+        )
+    }
 }
