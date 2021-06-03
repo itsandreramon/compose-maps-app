@@ -19,9 +19,11 @@ import de.thb.ui.screens.route.RouteScreen
 fun NavContainer(navController: NavHostController) {
     NavHost(navController, startDestination = Screen.Places.route) {
         composable(Screen.Places.route) {
-            PlacesScreen(onPlaceClicked = { placeUuid ->
-                navController.navigate("place_details/$placeUuid")
-            })
+            PlacesScreen(
+                onPlaceClicked = { placeUuid ->
+                    navController.navigate("place_details/$placeUuid")
+                }
+            )
         }
 
         composable(Screen.Route.route) {

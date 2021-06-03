@@ -14,4 +14,3 @@ fun fromUtc(utc: String): Instant? {
         null
     }
 }
-
