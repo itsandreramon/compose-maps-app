@@ -11,7 +11,9 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.type.RulonaAppBarAction
+import de.thb.ui.type.RulonaAppBarAction.Back
+import de.thb.ui.type.RulonaAppBarAction.Notify
+import de.thb.ui.type.RulonaAppBarAction.Share
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -46,7 +48,7 @@ class PlaceDetailsViewModel(
 @Composable
 fun PlaceDetailsScreen(
     placeUuid: String,
-    onBackPressed: () -> Unit,
+    onBackClicked: () -> Unit,
     viewModel: PlaceDetailsViewModel = mavericksViewModel()
 ) {
     val place by viewModel.collectAsState(PlaceDetailsState::place)
@@ -55,15 +57,31 @@ fun PlaceDetailsScreen(
         viewModel.setPlaceUuid(placeUuid)
     }
 
-    place?.let { PlaceDetailsScreenContent(it, onBackPressed) }
+    place?.let {
+        PlaceDetailsScreenContent(
+            place = it,
+            onBackClicked = onBackClicked,
+            onNotifyClicked = {},
+            onShareClicked = {},
+        )
+    }
 }
 
 @Composable
-fun PlaceDetailsScreenContent(place: PlaceEntity, onBackPressed: () -> Unit) {
+fun PlaceDetailsScreenContent(
+    place: PlaceEntity,
+    onBackClicked: () -> Unit,
+    onNotifyClicked: () -> Unit,
+    onShareClicked: () -> Unit,
+) {
     Column {
         RulonaAppBar(
             title = place.name,
-            back = RulonaAppBarAction.Back(onClick = onBackPressed)
+            back = Back(onClick = onBackClicked),
+            actions = listOf(
+                Notify(onClick = onNotifyClicked),
+                Share(onClick = onShareClicked)
+            )
         )
     }
 }

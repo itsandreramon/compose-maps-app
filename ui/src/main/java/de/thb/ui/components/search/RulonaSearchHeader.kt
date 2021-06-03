@@ -12,24 +12,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import de.thb.ui.theme.height_list_header
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.theme.margin_small
 
 @Composable
 fun RulonaSearchHeader() {
     Box(
         modifier = Modifier
-            .padding(horizontal = margin_medium)
             .height(height_list_header)
             .fillMaxWidth(),
     ) {
         Text(
             text = "Letzte Suchen",
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = margin_medium)
+            modifier = Modifier
+                .padding(vertical = margin_medium)
+                .padding(start = margin_medium)
         )
 
         Divider(
             Modifier
                 .fillMaxWidth()
+                .padding(horizontal = margin_small)
                 .align(Alignment.BottomCenter)
         )
     }

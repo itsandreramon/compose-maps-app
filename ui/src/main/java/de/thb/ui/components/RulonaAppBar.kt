@@ -7,9 +7,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,11 +38,10 @@ fun RulonaAppBar(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Notifications, null)
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Share, null)
+                    for (action in actions) {
+                        IconButton(onClick = action.onClick) {
+                            Icon(action.icon, action.contentDescription)
+                        }
                     }
                 }
             )
