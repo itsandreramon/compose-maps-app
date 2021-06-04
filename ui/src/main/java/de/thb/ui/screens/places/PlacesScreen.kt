@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -95,8 +94,6 @@ class PlacesViewModel(
                     setState { copy(uiState = EditBookmarksUiState(bookmarkedPlaces)) }
                 }
                 is SearchUiState -> {
-                    Log.e("QUERY", "${uiState.query}")
-
                     val searchedPlaces = places.filter {
                         it.name.contains(uiState.query, ignoreCase = true)
                     }
