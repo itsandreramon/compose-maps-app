@@ -1,7 +1,6 @@
 package de.thb.rulona
 
 import androidx.activity.ComponentActivity
-import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -10,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.airbnb.mvrx.Mavericks
 import de.thb.ui.screens.places.PlacesScreen
+import de.thb.ui.theme.RulonaTheme
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -24,7 +24,7 @@ class PlacesScreenTest {
         Mavericks.initialize(composeTestRule.activity)
 
         composeTestRule.setContent {
-            MaterialTheme {
+            RulonaTheme {
                 PlacesScreen(onPlaceClicked = {})
             }
         }

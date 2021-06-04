@@ -10,7 +10,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -31,27 +31,15 @@ fun RulonaSearchBar(
     var query by state { TextFieldValue() }
     var isFocused by state { false }
 
-    if (!isFocused) {
-        // if no longer in focus, reset search query
-        query = TextFieldValue()
-    }
-
-    var oldSearchState: SearchState by state { SearchState.Inactive() }
-    val newSearchState: SearchState = getSearchState(query.text, isFocused)
-
-    // TODO refactor
-    if (newSearchState::class != oldSearchState::class) {
-        SideEffect {
-            onSearchStateChanged(newSearchState).also {
-                oldSearchState = newSearchState
-            }
-        }
-    } else {
-        SideEffect {
-            if (newSearchState is SearchState.Search) {
-                onSearchStateChanged(newSearchState).also {
-                    oldSearchState = newSearchState
-                }
+    // handle search state changes outside of onValueChanged
+    LaunchedEffect(isFocused) {
+        if (!isFocused) {
+            // if no longer in focus, reset
+            query = TextFieldValue()
+            onSearchStateChanged(SearchState.Inactive())
+        } else {
+            if (query.text.isBlank()) {
+                onSearchStateChanged(SearchState.Active())
             }
         }
     }
@@ -59,12 +47,17 @@ fun RulonaSearchBar(
     Box(modifier) {
         TextField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = { input ->
+                onSearchStateChanged(getSearchState(input.text, isFocused))
+                query = input
+            },
             label = { Text("Search") },
             trailingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
-                .onFocusChanged { focusState -> isFocused = focusState.isFocused },
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                },
             shape = RoundedCornerShape(corner_size_medium),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,

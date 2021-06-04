@@ -10,7 +10,7 @@ fun getSearchState(
     searchQuery: String,
     isFocused: Boolean
 ): SearchState {
-    return if (searchQuery.isEmpty()) {
+    return if (searchQuery.isBlank()) {
         if (isFocused) {
             SearchState.Active()
         } else {
