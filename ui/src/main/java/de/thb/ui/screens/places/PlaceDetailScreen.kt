@@ -13,6 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -123,7 +127,13 @@ fun PlaceDetailsScreenContent(
                 }
 
                 Text(
-                    text = "Die offiziellen Regeln für Berlin lassen sich hier einsehen.",
+                    text = buildAnnotatedString {
+                        append("Die offiziellen Regeln für ${place.name} lassen sich ")
+                        withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                            append("hier")
+                        }
+                        append(" einsehen.")
+                    },
                     modifier = Modifier.padding(top = margin_medium)
                 )
             }

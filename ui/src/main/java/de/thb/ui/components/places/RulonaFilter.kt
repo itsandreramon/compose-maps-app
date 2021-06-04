@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.unit.dp
 import de.thb.core.domain.Filter
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
@@ -57,6 +60,7 @@ fun RulonaFilter(
                             imageVector = Icons.Filled.Circle,
                             contentDescription = "Severity Indicator",
                             modifier = Modifier
+                                .height(16.dp)
                                 .padding(start = margin_medium)
                                 .align(Alignment.CenterVertically)
                         )
@@ -92,12 +96,14 @@ fun RulonaFilter(
                         if (editState is EditState.Done) {
                             Image(
                                 imageVector = Icons.Default.ChevronRight,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                                 contentDescription = null,
                                 modifier = Modifier.rotate(rotation)
                             )
                         } else {
                             Image(
                                 imageVector = Icons.Default.Close,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                                 contentDescription = null,
                             )
                         }
@@ -106,7 +112,7 @@ fun RulonaFilter(
             }
 
             AnimatedVisibility(visible = expanded) {
-                Box(Modifier.padding(bottom = margin_small)) {
+                Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
                     Text(text = "This is some text that is only visible after the user expanded the card.")
                 }
             }
