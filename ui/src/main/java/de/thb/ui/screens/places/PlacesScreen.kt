@@ -10,7 +10,6 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.data.places.local.PlacesRoomDao
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
