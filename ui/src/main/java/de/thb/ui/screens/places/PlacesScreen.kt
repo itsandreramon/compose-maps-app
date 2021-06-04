@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -94,8 +95,10 @@ class PlacesViewModel(
                     setState { copy(uiState = EditBookmarksUiState(bookmarkedPlaces)) }
                 }
                 is SearchUiState -> {
-                    val searchedPlaces = places.filter { place ->
-                        place.name.contains(other = uiState.query, ignoreCase = true)
+                    Log.e("QUERY", "${uiState.query}")
+
+                    val searchedPlaces = places.filter {
+                        it.name.contains(uiState.query, ignoreCase = true)
                     }
 
                     setState { copy(uiState = SearchUiState(uiState.query, searchedPlaces)) }
@@ -159,17 +162,17 @@ class PlacesViewModel(
                 listOf(
                     PlaceEntity(
                         uuid = "-1",
-                        name = "Berlin"
-                    ),
-                    PlaceEntity(
-                        uuid = "-2",
                         name = "Hamburg",
                         isBookmarked = true,
                         searchedAtUtc = nowUtc()
                     ),
                     PlaceEntity(
-                        uuid = "-3",
+                        uuid = "-2",
                         name = "Frankfurt"
+                    ),
+                    PlaceEntity(
+                        uuid = "-3",
+                        name = "Berlin"
                     ),
                 )
             )
@@ -256,7 +259,9 @@ fun PlacesSearch(
                 onPlaceClicked(uuid)
                 onPlaceSearched(uuid)
             },
-            onItemBookmarkClicked = onItemBookmarkClicked,
+            onItemBookmarkClicked = {
+                onItemBookmarkClicked(it)
+            },
         )
     }
 }

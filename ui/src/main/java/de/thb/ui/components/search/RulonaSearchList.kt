@@ -12,7 +12,9 @@ fun RulonaSearchList(
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
 ) {
     LazyColumn {
-        items(places) { place ->
+        // use key = ... as a workaround to correctly recompose
+        // see: https://issuetracker.google.com/issues/189971666
+        items(places, key = { it.toString() }) { place ->
             RulonaSearchItem(
                 title = place.name,
                 isBookmarked = place.isBookmarked,

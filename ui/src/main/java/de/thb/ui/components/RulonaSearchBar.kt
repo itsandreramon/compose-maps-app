@@ -10,6 +10,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -38,9 +39,20 @@ fun RulonaSearchBar(
     var oldSearchState: SearchState by state { SearchState.Inactive() }
     val newSearchState: SearchState = getSearchState(query.text, isFocused)
 
+    // TODO refactor
     if (newSearchState::class != oldSearchState::class) {
-        onSearchStateChanged(newSearchState).also {
-            oldSearchState = newSearchState
+        SideEffect {
+            onSearchStateChanged(newSearchState).also {
+                oldSearchState = newSearchState
+            }
+        }
+    } else {
+        SideEffect {
+            if (newSearchState is SearchState.Search) {
+                onSearchStateChanged(newSearchState).also {
+                    oldSearchState = newSearchState
+                }
+            }
         }
     }
 
