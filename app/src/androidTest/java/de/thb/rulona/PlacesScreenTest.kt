@@ -7,8 +7,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.navigation.compose.rememberNavController
 import com.airbnb.mvrx.Mavericks
-import de.thb.ui.screens.places.PlacesScreen
+import de.thb.rulona.nav.NavContainer
 import de.thb.ui.theme.RulonaTheme
 import org.junit.Before
 import org.junit.Rule
@@ -25,7 +26,7 @@ class PlacesScreenTest {
 
         composeTestRule.setContent {
             RulonaTheme {
-                PlacesScreen(onPlaceClicked = {})
+                NavContainer(navController = rememberNavController())
             }
         }
     }
@@ -82,5 +83,14 @@ class PlacesScreenTest {
 
         composeTestRule.onNodeWithContentDescription("Remove Bookmark")
             .assertExists()
+    }
+
+    @Test
+    fun clicking_on_bookmark_opens_details_screen() {
+        composeTestRule.onNodeWithText("Hamburg")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Mein Filter")
+            .assertIsDisplayed()
     }
 }
