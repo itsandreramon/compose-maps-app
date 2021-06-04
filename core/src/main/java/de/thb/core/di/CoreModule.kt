@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import de.thb.core.data.AppDatabase
 import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.places.local.PlacesLocalDataSourceImpl
 import de.thb.core.data.places.remote.PlacesRemoteDataSource
 import de.thb.core.data.places.remote.PlacesRemoteDataSourceImpl
 import de.thb.core.data.places.remote.PlacesService
+import de.thb.core.util.CoroutinesDispatcherProvider
+import de.thb.core.util.DefaultDispatcherProvider
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -36,13 +39,17 @@ val coreModule = module {
         return PlacesRemoteDataSourceImpl(service)
     }
 
-    fun providePlacesLocalDataSource(appDatabase: AppDatabase): PlacesLocalDataSource {
-        return appDatabase.placesLocalDataSource()
+    fun providePlacesLocalDataSource(
+        appDatabase: AppDatabase,
+        dispatcherProvider: CoroutinesDispatcherProvider,
+    ): PlacesLocalDataSource {
+        return PlacesLocalDataSourceImpl(appDatabase.placesLocalDataSource(), dispatcherProvider)
     }
 
     single { provideRetrofit() }
     single { providePlacesService(get()) }
     single { providePlacesRemoteDataSource(get()) }
-    single { providePlacesLocalDataSource(get()) }
+    single { providePlacesLocalDataSource(get(), get()) }
     single { provideAppDatabase(get()) }
+    single<CoroutinesDispatcherProvider> { DefaultDispatcherProvider() }
 }

@@ -30,14 +30,19 @@ fun RulonaSearchBar(
     var query by state { TextFieldValue() }
     var isFocused by state { false }
 
-    // if no longer in focus, reset search query
     if (!isFocused) {
+        // if no longer in focus, reset search query
         query = TextFieldValue()
     }
 
-    val searchState = getSearchState(query.text, isFocused)
+    var oldSearchState: SearchState by state { SearchState.Inactive() }
+    val newSearchState: SearchState = getSearchState(query.text, isFocused)
 
-    onSearchStateChanged(searchState)
+    if (newSearchState::class != oldSearchState::class) {
+        onSearchStateChanged(newSearchState).also {
+            oldSearchState = newSearchState
+        }
+    }
 
     Box(modifier) {
         TextField(

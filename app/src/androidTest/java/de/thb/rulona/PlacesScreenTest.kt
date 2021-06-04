@@ -52,6 +52,9 @@ class PlacesScreenTest {
 
         composeTestRule.onNodeWithText("Berlin")
             .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Hamburg")
+            .assertDoesNotExist()
     }
 
     @Test
