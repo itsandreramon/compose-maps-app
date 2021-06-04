@@ -2,7 +2,6 @@ package de.thb.ui.screens.route
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.location.Location
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.Column
@@ -72,8 +71,6 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
     }
 
     val deviceLocation by viewModel.collectAsState(RouteState::location)
-
-    Log.e("Location", "$deviceLocation")
 
     PlacesScreenContent(
         deviceLocation = deviceLocation,

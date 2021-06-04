@@ -1,8 +1,8 @@
 package de.thb.ui.type
 
 sealed class SearchState(val query: String = "") {
-    object Inactive : SearchState()
-    object Active : SearchState()
+    class Inactive : SearchState()
+    class Active : SearchState()
     class Search(query: String) : SearchState(query)
 }
 
@@ -12,9 +12,9 @@ fun getSearchState(
 ): SearchState {
     return if (searchQuery.isEmpty()) {
         if (isFocused) {
-            SearchState.Active
+            SearchState.Active()
         } else {
-            SearchState.Inactive
+            SearchState.Inactive()
         }
     } else {
         SearchState.Search(searchQuery)

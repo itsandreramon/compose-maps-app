@@ -1,5 +1,6 @@
 package de.thb.ui.components.places
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -10,9 +11,11 @@ import de.thb.ui.type.EditState
 fun RulonaPlacesList(
     places: List<PlaceEntity>,
     editState: EditState,
-    onItemClick: (uuid: String) -> Unit,
-    onItemRemoved: (PlaceEntity) -> Unit,
+    onItemClick: (uuid: String) -> Unit = {},
+    onItemRemoved: (PlaceEntity) -> Unit = {},
 ) {
+    Log.e("Edit3", "$editState")
+
     LazyColumn {
         items(places) { place ->
             RulonaPlaceItem(
