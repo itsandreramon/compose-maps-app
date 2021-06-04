@@ -26,19 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import de.thb.core.domain.Severity
+import de.thb.core.domain.Filter
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
-import de.thb.ui.type.toggleEditState
 import de.thb.ui.util.color
 import de.thb.ui.util.state
 
 @Composable
-fun RulonaPlaceCategory(
-    name: String,
-    severity: Severity,
+fun RulonaFilter(
+    filter: Filter,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
@@ -56,7 +54,7 @@ fun RulonaPlaceCategory(
             Box(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.align(Alignment.CenterStart)) {
                     Image(
-                        colorFilter = ColorFilter.tint(severity.color()),
+                        colorFilter = ColorFilter.tint(filter.severity.color()),
                         imageVector = Icons.Filled.Circle,
                         contentDescription = "Severity Indicator",
                         modifier = Modifier
@@ -64,7 +62,7 @@ fun RulonaPlaceCategory(
                             .align(Alignment.CenterVertically)
                     )
                     Text(
-                        text = name,
+                        text = filter.name,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
                             .padding(start = margin_medium)

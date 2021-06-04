@@ -18,14 +18,14 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.domain.Filter
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.domain.Severity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaHeaderEditable
-import de.thb.ui.components.places.RulonaPlaceCategory
+import de.thb.ui.components.places.RulonaFilter
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.margin_small
 import de.thb.ui.theme.rulona_material_red_600
 import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
@@ -109,8 +109,8 @@ fun PlaceDetailsScreenContent(
         ) {
             var editState: EditState by state { EditState.Done() }
 
-            Column(Modifier.padding(horizontal = margin_small)) {
-                Row(Modifier.padding(vertical = margin_medium)) {
+            Column(Modifier.padding(margin_medium)) {
+                Row {
                     Text(text = "Inzidenz")
 
                     Image(
@@ -124,7 +124,7 @@ fun PlaceDetailsScreenContent(
 
                 Text(
                     text = "Die offiziellen Regeln für Berlin lassen sich hier einsehen.",
-                    modifier = Modifier.padding(top = margin_medium, bottom = margin_large)
+                    modifier = Modifier.padding(top = margin_medium)
                 )
             }
 
@@ -134,23 +134,20 @@ fun PlaceDetailsScreenContent(
                 onEditStateChanged = { state -> editState = state }
             )
 
-            RulonaPlaceCategory(
-                name = "Restaurants",
-                severity = Severity.RED,
+            RulonaFilter(
+                filter = Filter("Restaurants", Severity.RED),
                 editState = editState,
                 onItemRemoved = {}
             )
 
-            RulonaPlaceCategory(
-                name = "Bars",
-                severity = Severity.YELLOW,
+            RulonaFilter(
+                filter = Filter("Bars", Severity.YELLOW),
                 editState = editState,
                 onItemRemoved = {}
             )
 
-            RulonaPlaceCategory(
-                name = "Biergärten",
-                severity = Severity.GREEN,
+            RulonaFilter(
+                filter = Filter("Biergärten", Severity.GREEN),
                 editState = editState,
                 onItemRemoved = {}
             )
