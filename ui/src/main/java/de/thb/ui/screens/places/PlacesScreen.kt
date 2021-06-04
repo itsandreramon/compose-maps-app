@@ -202,18 +202,10 @@ fun PlacesScreen(
                 PlacesEditBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
                     onEditStateChanged = { editState ->
-                        viewModel.action(
-                            PlacesScreenUseCase.EditBookmarks(
-                                editState
-                            )
-                        )
+                        viewModel.action(PlacesScreenUseCase.EditBookmarks(editState))
                     },
                     onItemRemoveClicked = { place ->
-                        viewModel.action(
-                            PlacesScreenUseCase.TogglePlaceBookmark(
-                                place
-                            )
-                        )
+                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
                     },
                 )
             }
@@ -221,11 +213,7 @@ fun PlacesScreen(
                 PlacesRecentlySearched(
                     recentlySearchedPlaces = uiState.recentlySearchedPlaces,
                     onItemBookmarkClicked = { place ->
-                        viewModel.action(
-                            PlacesScreenUseCase.TogglePlaceBookmark(
-                                place
-                            )
-                        )
+                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
                     },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
@@ -234,18 +222,10 @@ fun PlacesScreen(
                 PlacesSearch(
                     currentlySearchedPlaces = uiState.currentlySearchedPlaces,
                     onItemBookmarkClicked = { place ->
-                        viewModel.action(
-                            PlacesScreenUseCase.TogglePlaceBookmark(
-                                place
-                            )
-                        )
+                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
                     },
                     onPlaceSearched = { place ->
-                        viewModel.action(
-                            PlacesScreenUseCase.SetPlaceSearchTimestamp(
-                                place
-                            )
-                        )
+                        viewModel.action(PlacesScreenUseCase.SetPlaceSearchTimestamp(place))
                     },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
