@@ -1,6 +1,5 @@
 package de.thb.ui.components.places
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -36,7 +35,6 @@ fun RulonaPlaceItem(
     onClick: () -> Unit,
     onRemoved: () -> Unit,
 ) {
-    Log.e("Edit4", "$isInEditMode")
     Surface(
         shape = RoundedCornerShape(margin_medium),
         modifier = Modifier.fillMaxWidth()

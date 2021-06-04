@@ -71,10 +71,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
     }
 
     val deviceLocation by viewModel.collectAsState(RouteState::location)
-
-    PlacesScreenContent(
-        deviceLocation = deviceLocation,
-    )
+    PlacesScreenContent(deviceLocation = deviceLocation)
 }
 
 @Composable

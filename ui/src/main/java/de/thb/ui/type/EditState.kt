@@ -1,13 +1,13 @@
 package de.thb.ui.type
 
-enum class EditState(val isInEditMode: Boolean) {
-    Editing(true), Done(false)
+sealed class EditState(val isInEditMode: Boolean) {
+    class Editing : EditState(true)
+    class Done : EditState(false)
 }
 
 fun toggleEditState(editState: EditState): EditState {
-    return if (editState == EditState.Done) {
-        EditState.Editing
-    } else {
-        EditState.Done
+    return when (editState) {
+        is EditState.Done -> EditState.Editing()
+        else -> EditState.Done()
     }
 }

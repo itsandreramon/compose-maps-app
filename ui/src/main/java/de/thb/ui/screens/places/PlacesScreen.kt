@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -24,7 +25,6 @@ import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -62,7 +62,7 @@ class PlacesViewModel(
 
     init {
         populateDb()
-        
+
         stateFlow.combine(placesLocalDataSource.getAll()) { state, places ->
             when (val uiState = state.uiState) {
                 is PlacesUiState.Bookmarks -> {
@@ -97,15 +97,32 @@ class PlacesViewModel(
         }.launchIn(viewModelScope)
     }
 
-    fun setScreenEditState(state: EditState) {
-        if (state == EditState.Editing) {
-            setState { copy(uiState = PlacesUiState.EditBookmarks()) }
-        } else {
-            setState { copy(uiState = PlacesUiState.Bookmarks()) }
+    fun action(useCase: PlacesScreenUseCase) {
+        when (useCase) {
+            is PlacesScreenUseCase.EditBookmarks -> {
+                setScreenEditState(useCase.editState)
+            }
+            is PlacesScreenUseCase.Search -> {
+                setScreenSearchState(useCase.searchState)
+            }
+            is PlacesScreenUseCase.TogglePlaceBookmark -> {
+                togglePlaceItemBookmark(useCase.place)
+            }
+            is PlacesScreenUseCase.SetPlaceSearchTimestamp -> {
+                setPlaceSearchedTimestamp(useCase.place)
+            }
         }
     }
 
-    fun setScreenSearchState(state: SearchState) {
+    private fun setScreenEditState(state: EditState) {
+        Log.e("Setting edit state", "$state")
+        when (state) {
+            is EditState.Editing -> setState { copy(uiState = PlacesUiState.EditBookmarks()) }
+            is EditState.Done -> setState { copy(uiState = PlacesUiState.Bookmarks()) }
+        }
+    }
+
+    private fun setScreenSearchState(state: SearchState) {
         when (state) {
             is SearchState.Active -> setState { copy(uiState = PlacesUiState.RecentlySearched()) }
             is SearchState.Inactive -> setState { copy(uiState = PlacesUiState.Bookmarks()) }
@@ -113,32 +130,23 @@ class PlacesViewModel(
         }
     }
 
-    fun togglePlaceItemBookmark(place: PlaceEntity) {
+    private fun togglePlaceItemBookmark(place: PlaceEntity) {
         viewModelScope.launch {
-            val updatedPlace = place.copy(
-                isBookmarked = !place.isBookmarked
-            )
-
+            val updatedPlace = place.copy(isBookmarked = !place.isBookmarked)
             placesLocalDataSource.insert(updatedPlace)
         }
     }
 
-    fun setPlaceSearchedTimestamp(uuid: String) {
+    private fun setPlaceSearchedTimestamp(place: PlaceEntity) {
         viewModelScope.launch {
-            val searchedPlace = placesLocalDataSource
-                .getByUuid(uuid)
-                .firstOrNull()
-
-            if (searchedPlace != null) {
-                val updatedPlace = searchedPlace.copy(
-                    searchedAtUtc = Instant.now().toString()
-                )
-
-                placesLocalDataSource.insert(updatedPlace)
-            }
+            val updatedPlace = place.copy(searchedAtUtc = Instant.now().toString())
+            placesLocalDataSource.insert(updatedPlace)
         }
     }
 
+    /**
+     * Temporary Initialization until we have real data.
+     */
     private fun populateDb() {
         viewModelScope.launch {
             placesLocalDataSource.insert(
@@ -178,7 +186,9 @@ fun PlacesScreen(
         ScreenTitle(title = "Places", Modifier.padding(vertical = margin_medium))
 
         RulonaSearchBar(
-            onSearchStateChanged = viewModel::setScreenSearchState,
+            onSearchStateChanged = { searchState ->
+                viewModel.action(PlacesScreenUseCase.Search(searchState))
+            },
             modifier = Modifier.padding(bottom = margin_small),
         )
 
@@ -186,30 +196,30 @@ fun PlacesScreen(
             is PlacesUiState.Bookmarks -> {
                 PlacesBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
-                    onEditStateChanged = viewModel::setScreenEditState,
-                    onPlaceClicked = onPlaceClicked,
+                    onEditStateChanged = { viewModel.action(PlacesScreenUseCase.EditBookmarks(it)) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
             is PlacesUiState.EditBookmarks -> {
                 PlacesEditBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
-                    onEditStateChanged = viewModel::setScreenEditState,
-                    onItemRemoveClicked = viewModel::togglePlaceItemBookmark,
+                    onEditStateChanged = { editState -> viewModel.action(PlacesScreenUseCase.EditBookmarks(editState)) },
+                    onItemRemoveClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
                 )
             }
             is PlacesUiState.RecentlySearched -> {
                 PlacesRecentlySearched(
                     recentlySearchedPlaces = uiState.recentlySearchedPlaces,
-                    onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
-                    onPlaceClicked = onPlaceClicked,
+                    onItemBookmarkClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
             is PlacesUiState.Search -> {
                 PlacesSearch(
                     currentlySearchedPlaces = uiState.currentlySearchedPlaces,
-                    onItemBookmarkClicked = viewModel::togglePlaceItemBookmark,
-                    onPlaceSearched = viewModel::setPlaceSearchedTimestamp,
-                    onPlaceClicked = onPlaceClicked,
+                    onItemBookmarkClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
+                    onPlaceSearched = { place -> viewModel.action(PlacesScreenUseCase.SetPlaceSearchTimestamp(place)) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
         }
@@ -220,47 +230,53 @@ fun PlacesScreen(
 fun PlacesSearch(
     currentlySearchedPlaces: List<PlaceEntity>,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
-    onPlaceSearched: (uuid: String) -> Unit,
-    onPlaceClicked: (uuid: String) -> Unit,
+    onPlaceSearched: (PlaceEntity) -> Unit,
+    onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaSearchList(
-        places = currentlySearchedPlaces,
-        onItemClick = { uuid ->
-            onPlaceClicked(uuid)
-            onPlaceSearched(uuid)
-        },
-        onItemBookmarkClicked = onItemBookmarkClicked,
-    )
+    if (currentlySearchedPlaces.isNotEmpty()) {
+        RulonaSearchList(
+            places = currentlySearchedPlaces,
+            onItemClick = { uuid ->
+                onPlaceClicked(uuid)
+                onPlaceSearched(uuid)
+            },
+            onItemBookmarkClicked = onItemBookmarkClicked,
+        )
+    }
 }
 
 @Composable
 fun PlacesRecentlySearched(
     recentlySearchedPlaces: List<PlaceEntity>,
     onItemBookmarkClicked: (PlaceEntity) -> Unit,
-    onPlaceClicked: (uuid: String) -> Unit,
+    onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
     RulonaSearchHeader()
 
-    RulonaSearchList(
-        places = recentlySearchedPlaces,
-        onItemClick = onPlaceClicked,
-        onItemBookmarkClicked = onItemBookmarkClicked
-    )
+    if (recentlySearchedPlaces.isNotEmpty()) {
+        RulonaSearchList(
+            places = recentlySearchedPlaces,
+            onItemClick = onPlaceClicked,
+            onItemBookmarkClicked = onItemBookmarkClicked
+        )
+    }
 }
 
 @Composable
 fun PlacesBookmarks(
     bookmarkedPlaces: List<PlaceEntity>,
     onEditStateChanged: (EditState) -> Unit,
-    onPlaceClicked: (uuid: String) -> Unit,
+    onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaPlacesHeader(EditState.Done, onEditStateChanged)
+    RulonaPlacesHeader(EditState.Done(), onEditStateChanged)
 
-    RulonaPlacesList(
-        places = bookmarkedPlaces,
-        editState = EditState.Done,
-        onItemClick = onPlaceClicked,
-    )
+    if (bookmarkedPlaces.isNotEmpty()) {
+        RulonaPlacesList(
+            places = bookmarkedPlaces,
+            editState = EditState.Done(),
+            onItemClick = onPlaceClicked,
+        )
+    }
 }
 
 @Composable
@@ -269,11 +285,13 @@ fun PlacesEditBookmarks(
     onEditStateChanged: (EditState) -> Unit,
     onItemRemoveClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaPlacesHeader(EditState.Editing, onEditStateChanged)
+    RulonaPlacesHeader(EditState.Editing(), onEditStateChanged)
 
-    RulonaPlacesList(
-        places = bookmarkedPlaces,
-        editState = EditState.Editing,
-        onItemRemoved = onItemRemoveClicked,
-    )
+    if (bookmarkedPlaces.isNotEmpty()) {
+        RulonaPlacesList(
+            places = bookmarkedPlaces,
+            editState = EditState.Editing(),
+            onItemRemoved = onItemRemoveClicked,
+        )
+    }
 }

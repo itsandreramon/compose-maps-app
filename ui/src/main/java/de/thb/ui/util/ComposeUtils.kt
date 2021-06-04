@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 
 @Composable
 inline fun <T> state(
-    calculation: @DisallowComposableCalls () -> T
+    default: @DisallowComposableCalls () -> T
 ): MutableState<T> {
-    return remember { mutableStateOf(calculation()) }
+    return remember { mutableStateOf(default()) }
 }

@@ -31,6 +31,7 @@ fun RulonaPlacesHeader(
     editState: EditState,
     onEditStateChanged: (EditState) -> Unit,
 ) {
+
     Box(
         modifier = Modifier
             .height(height_list_header)
@@ -41,7 +42,7 @@ fun RulonaPlacesHeader(
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(vertical = margin_medium)
-                .padding(start = margin_medium)
+                .padding(start = margin_medium),
         )
 
         Surface(
@@ -55,7 +56,7 @@ fun RulonaPlacesHeader(
                     .padding(horizontal = margin_medium, vertical = margin_small)
                     .align(Alignment.CenterEnd)
             ) {
-                if (editState == EditState.Editing) {
+                if (editState is EditState.Editing) {
                     Text(
                         text = "Fertig",
                         color = rulona_material_blue_600,
