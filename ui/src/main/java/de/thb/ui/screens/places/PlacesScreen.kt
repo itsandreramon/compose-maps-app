@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -11,6 +10,7 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.places.local.PlacesRoomDao
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
@@ -115,7 +115,6 @@ class PlacesViewModel(
     }
 
     private fun setScreenEditState(state: EditState) {
-        Log.e("Setting edit state", "$state")
         when (state) {
             is EditState.Editing -> setState { copy(uiState = PlacesUiState.EditBookmarks()) }
             is EditState.Done -> setState { copy(uiState = PlacesUiState.Bookmarks()) }
@@ -145,7 +144,7 @@ class PlacesViewModel(
     }
 
     /**
-     * Temporary Initialization until we have real data.
+     * Temporary initialization until we have real data.
      */
     private fun populateDb() {
         viewModelScope.launch {
@@ -203,22 +202,52 @@ fun PlacesScreen(
             is PlacesUiState.EditBookmarks -> {
                 PlacesEditBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
-                    onEditStateChanged = { editState -> viewModel.action(PlacesScreenUseCase.EditBookmarks(editState)) },
-                    onItemRemoveClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
+                    onEditStateChanged = { editState ->
+                        viewModel.action(
+                            PlacesScreenUseCase.EditBookmarks(
+                                editState
+                            )
+                        )
+                    },
+                    onItemRemoveClicked = { place ->
+                        viewModel.action(
+                            PlacesScreenUseCase.TogglePlaceBookmark(
+                                place
+                            )
+                        )
+                    },
                 )
             }
             is PlacesUiState.RecentlySearched -> {
                 PlacesRecentlySearched(
                     recentlySearchedPlaces = uiState.recentlySearchedPlaces,
-                    onItemBookmarkClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
+                    onItemBookmarkClicked = { place ->
+                        viewModel.action(
+                            PlacesScreenUseCase.TogglePlaceBookmark(
+                                place
+                            )
+                        )
+                    },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
             is PlacesUiState.Search -> {
                 PlacesSearch(
                     currentlySearchedPlaces = uiState.currentlySearchedPlaces,
-                    onItemBookmarkClicked = { place -> viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place)) },
-                    onPlaceSearched = { place -> viewModel.action(PlacesScreenUseCase.SetPlaceSearchTimestamp(place)) },
+                    onItemBookmarkClicked = { place ->
+                        viewModel.action(
+                            PlacesScreenUseCase.TogglePlaceBookmark(
+                                place
+                            )
+                        )
+                    },
+                    onPlaceSearched = { place ->
+                        viewModel.action(
+                            PlacesScreenUseCase.SetPlaceSearchTimestamp(
+                                place
+                            )
+                        )
+                    },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }

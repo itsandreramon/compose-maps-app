@@ -3,7 +3,7 @@ package de.thb.core.data
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.places.local.PlacesRoomDao
 import de.thb.core.domain.PlaceEntity
 
 @Database(
@@ -15,5 +15,5 @@ import de.thb.core.domain.PlaceEntity
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun placesLocalDataSource(): PlacesLocalDataSource
+    abstract fun placesLocalDataSource(): PlacesRoomDao
 }
