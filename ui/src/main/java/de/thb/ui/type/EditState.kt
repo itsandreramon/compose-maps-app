@@ -8,6 +8,6 @@ sealed class EditState(val isInEditMode: Boolean) {
 fun toggleEditState(editState: EditState): EditState {
     return when (editState) {
         is EditState.Done -> EditState.Editing()
-        else -> EditState.Done()
+        is EditState.Editing -> EditState.Done()
     }
 }
