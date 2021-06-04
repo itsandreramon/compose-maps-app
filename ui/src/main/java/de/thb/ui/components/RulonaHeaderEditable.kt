@@ -1,4 +1,4 @@
-package de.thb.ui.components.places
+package de.thb.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -27,18 +27,18 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.toggleEditState
 
 @Composable
-fun RulonaPlacesHeader(
+fun RulonaHeaderEditable(
+    title: String,
     editState: EditState,
     onEditStateChanged: (EditState) -> Unit,
 ) {
-
     Box(
         modifier = Modifier
             .height(height_list_header)
             .fillMaxWidth(),
     ) {
         Text(
-            text = "Meine Orte",
+            text = title,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(vertical = margin_medium)
@@ -75,7 +75,6 @@ fun RulonaPlacesHeader(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = margin_small)
                 .align(Alignment.BottomCenter)
         )
     }

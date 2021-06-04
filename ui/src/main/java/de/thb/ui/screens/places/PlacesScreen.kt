@@ -13,9 +13,9 @@ import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
+import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.components.ScreenTitle
-import de.thb.ui.components.places.RulonaPlacesHeader
 import de.thb.ui.components.places.RulonaPlacesList
 import de.thb.ui.components.search.RulonaSearchHeader
 import de.thb.ui.components.search.RulonaSearchList
@@ -161,15 +161,18 @@ class PlacesViewModel(
                         uuid = "-1",
                         name = "Hamburg",
                         isBookmarked = true,
-                        searchedAtUtc = nowUtc()
+                        searchedAtUtc = nowUtc(),
+                        incidence = 44.3,
                     ),
                     PlaceEntity(
                         uuid = "-2",
-                        name = "Frankfurt"
+                        name = "Frankfurt",
+                        incidence = 23.7,
                     ),
                     PlaceEntity(
                         uuid = "-3",
-                        name = "Berlin"
+                        name = "Berlin",
+                        incidence = 55.1,
                     ),
                 )
             )
@@ -286,7 +289,7 @@ fun PlacesBookmarks(
     onEditStateChanged: (EditState) -> Unit,
     onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaPlacesHeader(EditState.Done(), onEditStateChanged)
+    RulonaHeaderEditable("Meine Orte", EditState.Done(), onEditStateChanged)
 
     if (bookmarkedPlaces.isNotEmpty()) {
         RulonaPlacesList(
@@ -303,7 +306,7 @@ fun PlacesEditBookmarks(
     onEditStateChanged: (EditState) -> Unit,
     onItemRemoveClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaPlacesHeader(EditState.Editing(), onEditStateChanged)
+    RulonaHeaderEditable("Meine Orte", EditState.Editing(), onEditStateChanged)
 
     if (bookmarkedPlaces.isNotEmpty()) {
         RulonaPlacesList(
