@@ -107,7 +107,7 @@ fun RulonaPlaceCategory(
             }
 
             AnimatedVisibility(visible = expanded) {
-                Box {
+                Box(Modifier.padding(bottom = margin_small)) {
                     Text(text = "This is some text that is only visible after the user expanded the card.")
                 }
             }
