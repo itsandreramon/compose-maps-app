@@ -1,5 +1,6 @@
 package de.thb.ui.components.places
 
+import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
@@ -7,9 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
@@ -25,9 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.unit.dp
 import de.thb.core.domain.Filter
 import de.thb.ui.theme.corner_size_medium
+import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
@@ -48,24 +49,26 @@ fun RulonaFilter(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
-                .padding(start = margin_medium)
                 .padding(vertical = margin_small)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.align(Alignment.CenterStart)) {
-                    Image(
-                        colorFilter = ColorFilter.tint(filter.severity.color()),
-                        imageVector = Icons.Filled.Circle,
-                        contentDescription = "Severity Indicator",
-                        modifier = Modifier
-                            .size(16.dp)
-                            .align(Alignment.CenterVertically)
-                    )
+                    AnimatedVisibility(editState is EditState.Done) {
+                        Image(
+                            colorFilter = ColorFilter.tint(filter.severity.color()),
+                            imageVector = Icons.Filled.Circle,
+                            contentDescription = "Severity Indicator",
+                            modifier = Modifier
+                                .padding(start = margin_medium)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.padding(end = margin_medium))
+
                     Text(
                         text = filter.name,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(start = margin_medium)
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
@@ -114,7 +117,6 @@ fun RulonaFilter(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = margin_small)
                 .align(Alignment.BottomCenter)
         )
     }

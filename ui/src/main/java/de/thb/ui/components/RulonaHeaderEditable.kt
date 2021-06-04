@@ -75,7 +75,6 @@ fun RulonaHeaderEditable(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = margin_small)
                 .align(Alignment.BottomCenter)
         )
     }

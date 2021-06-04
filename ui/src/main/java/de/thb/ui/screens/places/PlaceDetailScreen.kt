@@ -104,8 +104,8 @@ fun PlaceDetailsScreenContent(
 
         Column(
             modifier = Modifier
-                .padding(horizontal = margin_medium)
                 .padding(top = margin_large)
+                .padding(horizontal = margin_medium)
         ) {
             var editState: EditState by state { EditState.Done() }
 
