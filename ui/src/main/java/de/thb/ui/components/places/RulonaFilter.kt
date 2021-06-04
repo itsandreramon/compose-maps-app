@@ -1,6 +1,5 @@
 package de.thb.ui.components.places
 
-import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
@@ -28,7 +27,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import de.thb.core.domain.Filter
 import de.thb.ui.theme.corner_size_medium
-import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
