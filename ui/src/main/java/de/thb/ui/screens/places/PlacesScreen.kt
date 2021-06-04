@@ -19,6 +19,14 @@ import de.thb.ui.components.places.RulonaPlacesHeader
 import de.thb.ui.components.places.RulonaPlacesList
 import de.thb.ui.components.search.RulonaSearchHeader
 import de.thb.ui.components.search.RulonaSearchList
+import de.thb.ui.screens.places.PlacesScreenUseCase.EditBookmarksUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.SearchUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.SetPlaceSearchTimestampUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.TogglePlaceBookmarkUseCase
+import de.thb.ui.screens.places.PlacesUiState.BookmarksUiState
+import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
+import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
+import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
@@ -31,26 +39,26 @@ import org.koin.core.component.inject
 import java.time.Instant
 
 sealed class PlacesUiState {
-    data class RecentlySearched(
+    data class RecentlySearchedUiState(
         val recentlySearchedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
-    data class Search(
+    data class SearchUiState(
         val query: String,
         val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
-    data class Bookmarks(
+    data class BookmarksUiState(
         val bookmarkedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
-    data class EditBookmarks(
+    data class EditBookmarksUiState(
         val bookmarkedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 }
 
 data class PlacesState(
-    val uiState: PlacesUiState = PlacesUiState.Bookmarks(),
+    val uiState: PlacesUiState = BookmarksUiState(),
 ) : MavericksState
 
 class PlacesViewModel(
@@ -64,33 +72,33 @@ class PlacesViewModel(
 
         stateFlow.combine(placesLocalDataSource.getAll()) { state, places ->
             when (val uiState = state.uiState) {
-                is PlacesUiState.Bookmarks -> {
+                is BookmarksUiState -> {
                     val bookmarkedPlaces = places
                         .filter { it.isBookmarked }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = PlacesUiState.Bookmarks(bookmarkedPlaces)) }
+                    setState { copy(uiState = BookmarksUiState(bookmarkedPlaces)) }
                 }
-                is PlacesUiState.RecentlySearched -> {
+                is RecentlySearchedUiState -> {
                     val recentlySearchedPlaces = places
                         .filter { it.searchedAtUtc != null }
                         .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
 
-                    setState { copy(uiState = PlacesUiState.RecentlySearched(recentlySearchedPlaces)) }
+                    setState { copy(uiState = RecentlySearchedUiState(recentlySearchedPlaces)) }
                 }
-                is PlacesUiState.EditBookmarks -> {
+                is EditBookmarksUiState -> {
                     val bookmarkedPlaces = places
                         .filter { it.isBookmarked }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = PlacesUiState.EditBookmarks(bookmarkedPlaces)) }
+                    setState { copy(uiState = EditBookmarksUiState(bookmarkedPlaces)) }
                 }
-                is PlacesUiState.Search -> {
+                is SearchUiState -> {
                     val searchedPlaces = places.filter { place ->
                         place.name.contains(other = uiState.query, ignoreCase = true)
                     }
 
-                    setState { copy(uiState = PlacesUiState.Search(uiState.query, searchedPlaces)) }
+                    setState { copy(uiState = SearchUiState(uiState.query, searchedPlaces)) }
                 }
             }
         }.launchIn(viewModelScope)
@@ -98,16 +106,16 @@ class PlacesViewModel(
 
     fun action(useCase: PlacesScreenUseCase) {
         when (useCase) {
-            is PlacesScreenUseCase.EditBookmarks -> {
+            is EditBookmarksUseCase -> {
                 setScreenEditState(useCase.editState)
             }
-            is PlacesScreenUseCase.Search -> {
+            is SearchUseCase -> {
                 setScreenSearchState(useCase.searchState)
             }
-            is PlacesScreenUseCase.TogglePlaceBookmark -> {
+            is TogglePlaceBookmarkUseCase -> {
                 togglePlaceItemBookmark(useCase.place)
             }
-            is PlacesScreenUseCase.SetPlaceSearchTimestamp -> {
+            is SetPlaceSearchTimestampUseCase -> {
                 setPlaceSearchedTimestamp(useCase.place)
             }
         }
@@ -115,16 +123,16 @@ class PlacesViewModel(
 
     private fun setScreenEditState(state: EditState) {
         when (state) {
-            is EditState.Editing -> setState { copy(uiState = PlacesUiState.EditBookmarks()) }
-            is EditState.Done -> setState { copy(uiState = PlacesUiState.Bookmarks()) }
+            is EditState.Editing -> setState { copy(uiState = EditBookmarksUiState()) }
+            is EditState.Done -> setState { copy(uiState = BookmarksUiState()) }
         }
     }
 
     private fun setScreenSearchState(state: SearchState) {
         when (state) {
-            is SearchState.Active -> setState { copy(uiState = PlacesUiState.RecentlySearched()) }
-            is SearchState.Inactive -> setState { copy(uiState = PlacesUiState.Bookmarks()) }
-            is SearchState.Search -> setState { copy(uiState = PlacesUiState.Search(state.query)) }
+            is SearchState.Active -> setState { copy(uiState = RecentlySearchedUiState()) }
+            is SearchState.Inactive -> setState { copy(uiState = BookmarksUiState()) }
+            is SearchState.Search -> setState { copy(uiState = SearchUiState(state.query)) }
         }
     }
 
@@ -185,47 +193,47 @@ fun PlacesScreen(
 
         RulonaSearchBar(
             onSearchStateChanged = { searchState ->
-                viewModel.action(PlacesScreenUseCase.Search(searchState))
+                viewModel.action(SearchUseCase(searchState))
             },
             modifier = Modifier.padding(bottom = margin_small),
         )
 
         when (val uiState = placesUiState.value) {
-            is PlacesUiState.Bookmarks -> {
+            is BookmarksUiState -> {
                 PlacesBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
-                    onEditStateChanged = { viewModel.action(PlacesScreenUseCase.EditBookmarks(it)) },
+                    onEditStateChanged = { viewModel.action(EditBookmarksUseCase(it)) },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
-            is PlacesUiState.EditBookmarks -> {
+            is EditBookmarksUiState -> {
                 PlacesEditBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
                     onEditStateChanged = { editState ->
-                        viewModel.action(PlacesScreenUseCase.EditBookmarks(editState))
+                        viewModel.action(EditBookmarksUseCase(editState))
                     },
                     onItemRemoveClicked = { place ->
-                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
+                        viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
                 )
             }
-            is PlacesUiState.RecentlySearched -> {
+            is RecentlySearchedUiState -> {
                 PlacesRecentlySearched(
                     recentlySearchedPlaces = uiState.recentlySearchedPlaces,
                     onItemBookmarkClicked = { place ->
-                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
+                        viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )
             }
-            is PlacesUiState.Search -> {
+            is SearchUiState -> {
                 PlacesSearch(
                     currentlySearchedPlaces = uiState.currentlySearchedPlaces,
                     onItemBookmarkClicked = { place ->
-                        viewModel.action(PlacesScreenUseCase.TogglePlaceBookmark(place))
+                        viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
                     onPlaceSearched = { place ->
-                        viewModel.action(PlacesScreenUseCase.SetPlaceSearchTimestamp(place))
+                        viewModel.action(SetPlaceSearchTimestampUseCase(place))
                     },
                     onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
                 )

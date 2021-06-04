@@ -5,19 +5,19 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 
 sealed class PlacesScreenUseCase {
-    data class EditBookmarks(
+    data class EditBookmarksUseCase(
         val editState: EditState,
     ) : PlacesScreenUseCase()
 
-    data class Search(
+    data class SearchUseCase(
         val searchState: SearchState
     ) : PlacesScreenUseCase()
 
-    data class TogglePlaceBookmark(
+    data class TogglePlaceBookmarkUseCase(
         val place: PlaceEntity
     ) : PlacesScreenUseCase()
 
-    data class SetPlaceSearchTimestamp(
+    data class SetPlaceSearchTimestampUseCase(
         val place: PlaceEntity
     ) : PlacesScreenUseCase()
 }
