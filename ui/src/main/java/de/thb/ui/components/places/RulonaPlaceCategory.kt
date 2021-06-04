@@ -17,6 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -29,11 +30,19 @@ import de.thb.core.domain.Severity
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
+import de.thb.ui.type.EditState
+import de.thb.ui.type.toggleEditState
 import de.thb.ui.util.color
 import de.thb.ui.util.state
 
 @Composable
-fun RulonaPlaceCategory(name: String, severity: Severity, modifier: Modifier = Modifier) {
+fun RulonaPlaceCategory(
+    name: String,
+    severity: Severity,
+    modifier: Modifier = Modifier,
+    editState: EditState = EditState.Done(),
+    onItemRemoved: () -> Unit,
+) {
     var expanded by state { false }
 
     Box(modifier = modifier) {
@@ -72,14 +81,27 @@ fun RulonaPlaceCategory(name: String, severity: Severity, modifier: Modifier = M
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .clickable { expanded = !expanded }
+                            .clickable {
+                                if (editState is EditState.Done) {
+                                    expanded = !expanded
+                                } else {
+                                    onItemRemoved()
+                                }
+                            }
                             .padding(horizontal = margin_medium, vertical = margin_small),
                     ) {
-                        Image(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            modifier = Modifier.rotate(rotation)
-                        )
+                        if (editState is EditState.Done) {
+                            Image(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                modifier = Modifier.rotate(rotation)
+                            )
+                        } else {
+                            Image(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
             }

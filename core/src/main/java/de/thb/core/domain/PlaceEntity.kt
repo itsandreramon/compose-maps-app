@@ -19,4 +19,7 @@ data class PlaceEntity(
 
     @ColumnInfo(name = "searched_at_utc")
     val searchedAtUtc: String? = null,
+
+    @ColumnInfo(name = "incidence")
+    val incidence: Double? = 0.0,
 )

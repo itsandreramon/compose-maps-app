@@ -161,15 +161,18 @@ class PlacesViewModel(
                         uuid = "-1",
                         name = "Hamburg",
                         isBookmarked = true,
-                        searchedAtUtc = nowUtc()
+                        searchedAtUtc = nowUtc(),
+                        incidence = 44.3,
                     ),
                     PlaceEntity(
                         uuid = "-2",
-                        name = "Frankfurt"
+                        name = "Frankfurt",
+                        incidence = 23.7,
                     ),
                     PlaceEntity(
                         uuid = "-3",
-                        name = "Berlin"
+                        name = "Berlin",
+                        incidence = 55.1,
                     ),
                 )
             )

@@ -1,13 +1,18 @@
 package de.thb.ui.screens.places
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -18,7 +23,10 @@ import de.thb.core.domain.Severity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.places.RulonaPlaceCategory
+import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.theme.margin_small
+import de.thb.ui.theme.rulona_material_red_600
 import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
@@ -87,15 +95,38 @@ fun PlaceDetailsScreenContent(
     Column {
         RulonaAppBar(
             title = place.name,
-            back = Back(onClick = onBackClicked),
+            back = Back(onBackClicked),
             actions = listOf(
-                Notify(onClick = onNotifyClicked),
-                Share(onClick = onShareClicked)
+                Notify(onNotifyClicked),
+                Share(onShareClicked)
             )
         )
 
-        Column(Modifier.padding(horizontal = margin_medium)) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = margin_medium)
+                .padding(top = margin_large)
+        ) {
             var editState: EditState by state { EditState.Done() }
+
+            Column(Modifier.padding(horizontal = margin_small)) {
+                Row(Modifier.padding(vertical = margin_medium)) {
+                    Text(text = "Inzidenz")
+
+                    Image(
+                        imageVector = Icons.Default.ArrowDropUp,
+                        colorFilter = ColorFilter.tint(rulona_material_red_600),
+                        contentDescription = null
+                    )
+
+                    Text(text = "${place.incidence}")
+                }
+
+                Text(
+                    text = "Die offiziellen Regeln für Berlin lassen sich hier einsehen.",
+                    modifier = Modifier.padding(top = margin_medium, bottom = margin_large)
+                )
+            }
 
             RulonaHeaderEditable(
                 title = "Mein Filter",
@@ -103,9 +134,26 @@ fun PlaceDetailsScreenContent(
                 onEditStateChanged = { state -> editState = state }
             )
 
-            RulonaPlaceCategory(name = "Restaurants", Severity.RED)
-            RulonaPlaceCategory(name = "Bars", Severity.YELLOW)
-            RulonaPlaceCategory(name = "Biergärten", Severity.GREEN)
+            RulonaPlaceCategory(
+                name = "Restaurants",
+                severity = Severity.RED,
+                editState = editState,
+                onItemRemoved = {}
+            )
+
+            RulonaPlaceCategory(
+                name = "Bars",
+                severity = Severity.YELLOW,
+                editState = editState,
+                onItemRemoved = {}
+            )
+
+            RulonaPlaceCategory(
+                name = "Biergärten",
+                severity = Severity.GREEN,
+                editState = editState,
+                onItemRemoved = {}
+            )
         }
     }
 }
