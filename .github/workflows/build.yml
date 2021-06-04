@@ -3,7 +3,7 @@ on: [ push ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
@@ -47,3 +47,9 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew test
+
+      - name: Run integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew connectedCheck
