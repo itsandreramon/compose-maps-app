@@ -19,7 +19,6 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import de.thb.core.data.location.LocationDataSourceImpl
-import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.ScreenTitle
 import de.thb.ui.screens.route.RouteScreenUiState.PlaceDetailsUiState
@@ -29,11 +28,9 @@ import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.util.hasLocationPermission
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 sealed class RouteScreenUiState {
     data class SearchUiState(
@@ -55,41 +52,24 @@ class RouteViewModel(
     initialState: RouteState,
 ) : MavericksViewModel<RouteState>(initialState), KoinComponent {
 
-    private val placesLocalDataSource by inject<PlacesLocalDataSource>()
-
-    init {
-        onEach { state ->
-            when (val uiState = state.uiState) {
-                is SearchUiState -> {
-                    // ...
-                }
-                is PlaceDetailsUiState -> {
-                    placesLocalDataSource.getByUuid(uiState.place.uuid)
-                        .collect { setState { copy(uiState = uiState.copy(place = it)) } }
-                }
-            }
-        }
-    }
-
     fun action(useCase: RouteScreenUseCase) {
         when (useCase) {
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
-            is OpenPlaceDetailsUseCase -> setPlaceDetailsScreenState(useCase.place)
+            is OpenPlaceDetailsUseCase -> {
+                // ...
+            }
         }
-    }
-
-    private fun setPlaceDetailsScreenState(place: PlaceEntity) {
-        // ...
     }
 
     private fun requestLocationUpdates(context: Context) {
         val locationRepository = LocationDataSourceImpl.getInstance(context)
 
-        locationRepository
-            .requestLocationUpdates(LocationRequest.create())
-            .sample(periodMillis = 1000)
-            .onEach { setLocationState(it) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            locationRepository
+                .requestLocationUpdates(LocationRequest.create())
+                .sample(periodMillis = 1000)
+                .collect { setLocationState(it) }
+        }
     }
 
     private fun setLocationState(location: Location?) {
