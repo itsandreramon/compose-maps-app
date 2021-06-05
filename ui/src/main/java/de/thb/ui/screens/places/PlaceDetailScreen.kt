@@ -1,8 +1,10 @@
 package de.thb.ui.screens.places
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -202,28 +204,33 @@ fun PlaceDetailsEditFilters(
             back = Back(onBackClicked),
             actions = listOf()
         )
+        Column(Modifier.padding(horizontal = margin_medium)) {
+            AnimatedVisibility(addedFilters.isNotEmpty()) {
+                Column {
+                    RulonaFilterList(
+                        title = "Meine Filter",
+                        filters = addedFilters,
+                        isEditable = false,
+                        editState = EditState.Editing(),
+                        onEditStateChanged = {},
+                        onRemoveClicked = onFilterRemoved,
+                    )
 
-        if (addedFilters.isNotEmpty()) {
-            RulonaFilterList(
-                title = "Meine Filter",
-                filters = addedFilters,
-                isEditable = false,
-                editState = EditState.Editing(),
-                onEditStateChanged = {},
-                onRemoveClicked = onFilterRemoved,
-            )
-        }
+                    Spacer(modifier = Modifier.padding(top = margin_large))
+                }
+            }
 
-        if (notAddedFilters.isNotEmpty()) {
-            RulonaFilterList(
-                title = "Alle Filter",
-                filters = notAddedFilters,
-                isEditable = false,
-                editState = EditState.Adding(),
-                onEditStateChanged = {},
-                onRemoveClicked = onFilterRemoved,
-                onAddClicked = onFilterAdded,
-            )
+            AnimatedVisibility(notAddedFilters.isNotEmpty()) {
+                RulonaFilterList(
+                    title = "Alle Kategorien",
+                    filters = notAddedFilters,
+                    isEditable = false,
+                    editState = EditState.Adding(),
+                    onEditStateChanged = {},
+                    onRemoveClicked = onFilterRemoved,
+                    onAddClicked = onFilterAdded,
+                )
+            }
         }
     }
 }
