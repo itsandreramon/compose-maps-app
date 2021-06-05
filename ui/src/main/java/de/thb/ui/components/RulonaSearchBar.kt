@@ -72,9 +72,7 @@ fun RulonaSearchBar(
                 query = input
             },
             label = {
-                if (!isFocused) {
-                    Text("Search")
-                }
+                Text("Search")
             },
             trailingIcon = {
                 if (isFocused) {
