@@ -1,7 +1,7 @@
 package de.thb.ui.type
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -12,7 +12,7 @@ sealed class RulonaAppBarAction(
     val onClick: () -> Unit,
 ) {
     class Back(onClick: () -> Unit) : RulonaAppBarAction(
-        icon = Icons.Filled.ArrowBack,
+        icon = Icons.Filled.ChevronLeft,
         contentDescription = null,
         onClick = onClick,
     )

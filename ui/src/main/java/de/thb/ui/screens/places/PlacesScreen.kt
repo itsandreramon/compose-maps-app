@@ -4,13 +4,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
+import de.thb.core.data.filters.local.FiltersLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.domain.FilterEntity
 import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.Severity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
 import de.thb.ui.components.RulonaHeaderEditable
@@ -28,7 +34,6 @@ import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
 import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
@@ -66,6 +71,7 @@ class PlacesViewModel(
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
     private val placesLocalDataSource by inject<PlacesLocalDataSource>()
+    private val filtersLocalDataSource by inject<FiltersLocalDataSource>()
 
     init {
         populateDb()
@@ -77,28 +83,28 @@ class PlacesViewModel(
                         .filter { it.isBookmarked }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = BookmarksUiState(bookmarkedPlaces)) }
+                    setState { copy(uiState = uiState.copy(bookmarkedPlaces)) }
                 }
                 is RecentlySearchedUiState -> {
                     val recentlySearchedPlaces = places
                         .filter { it.searchedAtUtc != null }
                         .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
 
-                    setState { copy(uiState = RecentlySearchedUiState(recentlySearchedPlaces)) }
+                    setState { copy(uiState = uiState.copy(recentlySearchedPlaces)) }
                 }
                 is EditBookmarksUiState -> {
                     val bookmarkedPlaces = places
                         .filter { it.isBookmarked }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = EditBookmarksUiState(bookmarkedPlaces)) }
+                    setState { copy(uiState = uiState.copy(bookmarkedPlaces)) }
                 }
                 is SearchUiState -> {
                     val searchedPlaces = places.filter {
                         it.name.contains(uiState.query, ignoreCase = true)
                     }
 
-                    setState { copy(uiState = SearchUiState(uiState.query, searchedPlaces)) }
+                    setState { copy(uiState = uiState.copy(uiState.query, searchedPlaces)) }
                 }
             }
         }.launchIn(viewModelScope)
@@ -106,18 +112,10 @@ class PlacesViewModel(
 
     fun action(useCase: PlacesScreenUseCase) {
         when (useCase) {
-            is EditBookmarksUseCase -> {
-                setScreenEditState(useCase.editState)
-            }
-            is SearchUseCase -> {
-                setScreenSearchState(useCase.searchState)
-            }
-            is TogglePlaceBookmarkUseCase -> {
-                togglePlaceItemBookmark(useCase.place)
-            }
-            is SetPlaceSearchTimestampUseCase -> {
-                setPlaceSearchedTimestamp(useCase.place)
-            }
+            is EditBookmarksUseCase -> setScreenEditState(useCase.editState)
+            is SearchUseCase -> setScreenSearchState(useCase.searchState)
+            is TogglePlaceBookmarkUseCase -> togglePlaceItemBookmark(useCase.place)
+            is SetPlaceSearchTimestampUseCase -> setPlaceSearchedTimestamp(useCase.place)
         }
     }
 
@@ -176,6 +174,32 @@ class PlacesViewModel(
                     ),
                 )
             )
+
+            filtersLocalDataSource.insert(
+                listOf(
+                    FilterEntity(
+                        uuid = "-1",
+                        name = "Restaurants",
+                        severity = Severity.RED,
+                        description = "Dies ist die Beschreibung für Restaurants.",
+                        added = true
+                    ),
+                    FilterEntity(
+                        uuid = "-2",
+                        name = "Bars",
+                        severity = Severity.YELLOW,
+                        description = "Dies ist die Beschreibung für Bars.",
+                        added = true
+                    ),
+                    FilterEntity(
+                        uuid = "-3",
+                        name = "Biergärten",
+                        severity = Severity.GREEN,
+                        description = "Dies ist die Beschreibung für Biergärten.",
+                        added = true
+                    ),
+                )
+            )
         }
     }
 }
@@ -186,11 +210,14 @@ fun PlacesScreen(
     onPlaceClicked: (uuid: String) -> Unit
 ) {
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
+    val focusRequester = FocusRequester()
 
     Column(
         Modifier
             .statusBarsPadding()
             .padding(margin_medium)
+            .focusRequester(focusRequester)
+            .focusTarget()
     ) {
         ScreenTitle(title = "Places", Modifier.padding(vertical = margin_medium))
 
@@ -198,7 +225,7 @@ fun PlacesScreen(
             onSearchStateChanged = { searchState ->
                 viewModel.action(SearchUseCase(searchState))
             },
-            modifier = Modifier.padding(bottom = margin_small),
+            onFocusRequested = { focusRequester.requestFocus() }
         )
 
         when (val uiState = placesUiState.value) {
@@ -289,7 +316,11 @@ fun PlacesBookmarks(
     onEditStateChanged: (EditState) -> Unit,
     onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaHeaderEditable("Meine Orte", EditState.Done(), onEditStateChanged)
+    RulonaHeaderEditable(
+        title = "Meine Orte",
+        editState = EditState.Done(),
+        onEditStateChanged = onEditStateChanged
+    )
 
     if (bookmarkedPlaces.isNotEmpty()) {
         RulonaPlacesList(
@@ -306,7 +337,11 @@ fun PlacesEditBookmarks(
     onEditStateChanged: (EditState) -> Unit,
     onItemRemoveClicked: (PlaceEntity) -> Unit,
 ) {
-    RulonaHeaderEditable("Meine Orte", EditState.Editing(), onEditStateChanged)
+    RulonaHeaderEditable(
+        title = "Meine Orte",
+        editState = EditState.Editing(),
+        onEditStateChanged = onEditStateChanged
+    )
 
     if (bookmarkedPlaces.isNotEmpty()) {
         RulonaPlacesList(

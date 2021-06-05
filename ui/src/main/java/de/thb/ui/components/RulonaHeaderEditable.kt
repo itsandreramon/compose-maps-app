@@ -24,13 +24,13 @@ import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.theme.rulona_material_blue_600
 import de.thb.ui.type.EditState
-import de.thb.ui.type.toggleEditState
 
 @Composable
 fun RulonaHeaderEditable(
     title: String,
-    editState: EditState,
-    onEditStateChanged: (EditState) -> Unit,
+    isEditable: Boolean = true,
+    editState: EditState = EditState.Done(),
+    onEditStateChanged: (EditState) -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -45,29 +45,39 @@ fun RulonaHeaderEditable(
                 .padding(start = margin_medium),
         )
 
-        Surface(
-            shape = RoundedCornerShape(corner_size_medium),
-            modifier = Modifier.align(Alignment.CenterEnd),
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .clickable { onEditStateChanged(toggleEditState(editState)) }
-                    .padding(horizontal = margin_medium, vertical = margin_small)
-                    .align(Alignment.CenterEnd)
+        if (isEditable) {
+            Surface(
+                shape = RoundedCornerShape(corner_size_medium),
+                modifier = Modifier.align(Alignment.CenterEnd),
             ) {
-                if (editState is EditState.Editing) {
-                    Text(
-                        text = "Fertig",
-                        color = rulona_material_blue_600,
-                        fontWeight = FontWeight.Bold,
-                    )
-                } else {
-                    Image(
-                        imageVector = Icons.Default.Edit,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                        contentDescription = "Edit Places",
-                    )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .clickable {
+                            val newEditState = if (editState is EditState.Editing) {
+                                EditState.Done()
+                            } else {
+                                EditState.Editing()
+                            }
+
+                            onEditStateChanged(newEditState)
+                        }
+                        .padding(horizontal = margin_medium, vertical = margin_small)
+                        .align(Alignment.CenterEnd)
+                ) {
+                    if (editState is EditState.Editing) {
+                        Text(
+                            text = "Fertig",
+                            color = rulona_material_blue_600,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    } else {
+                        Image(
+                            imageVector = Icons.Default.Edit,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                            contentDescription = "Edit Places",
+                        )
+                    }
                 }
             }
         }

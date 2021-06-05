@@ -9,14 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
@@ -28,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import de.thb.core.domain.Filter
+import de.thb.core.domain.FilterEntity
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
@@ -36,12 +37,14 @@ import de.thb.ui.type.EditState
 import de.thb.ui.util.color
 import de.thb.ui.util.state
 
+// TODO Move callbacks into edit state
 @Composable
 fun RulonaFilter(
-    filter: Filter,
+    filter: FilterEntity,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
+    onItemAdded: () -> Unit,
 ) {
     var expanded by state { false }
 
@@ -49,20 +52,24 @@ fun RulonaFilter(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(vertical = margin_small)
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.align(Alignment.CenterStart)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = margin_small)
+            ) {
+                Row(
+                    Modifier.align(Alignment.CenterStart),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AnimatedVisibility(editState is EditState.Done) {
                         Image(
                             colorFilter = ColorFilter.tint(filter.severity.color()),
                             imageVector = Icons.Filled.Circle,
                             contentDescription = "Severity Indicator",
                             modifier = Modifier
-                                .height(16.dp)
                                 .padding(start = margin_medium)
-                                .align(Alignment.CenterVertically)
+                                .size(12.dp)
                         )
                     }
 
@@ -70,7 +77,6 @@ fun RulonaFilter(
 
                     Text(
                         text = filter.name,
-                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
@@ -85,27 +91,43 @@ fun RulonaFilter(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .clickable {
-                                if (editState is EditState.Done) {
-                                    expanded = !expanded
-                                } else {
-                                    onItemRemoved()
+                                when (editState) {
+                                    is EditState.Done -> {
+                                        expanded = !expanded
+                                    }
+                                    is EditState.Editing -> {
+                                        onItemRemoved()
+                                    }
+                                    is EditState.Adding -> {
+                                        onItemAdded()
+                                    }
                                 }
                             }
                             .padding(horizontal = margin_medium, vertical = margin_small),
                     ) {
-                        if (editState is EditState.Done) {
-                            Image(
-                                imageVector = Icons.Default.ChevronRight,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                                contentDescription = null,
-                                modifier = Modifier.rotate(rotation)
-                            )
-                        } else {
-                            Image(
-                                imageVector = Icons.Default.Close,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                                contentDescription = null,
-                            )
+                        when (editState) {
+                            is EditState.Done -> {
+                                Image(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                    modifier = Modifier.rotate(rotation)
+                                )
+                            }
+                            is EditState.Editing -> {
+                                Image(
+                                    imageVector = Icons.Default.Close,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                )
+                            }
+                            is EditState.Adding -> {
+                                Image(
+                                    imageVector = Icons.Default.Add,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                )
+                            }
                         }
                     }
                 }
@@ -113,7 +135,7 @@ fun RulonaFilter(
 
             AnimatedVisibility(visible = expanded) {
                 Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
-                    Text(text = "This is some text that is only visible after the user expanded the card.")
+                    Text(text = filter.description ?: "Keine Beschreibung verfügbar.")
                 }
             }
         }
