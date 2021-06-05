@@ -17,6 +17,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
@@ -36,12 +37,14 @@ import de.thb.ui.type.EditState
 import de.thb.ui.util.color
 import de.thb.ui.util.state
 
+// TODO Move callbacks into edit state
 @Composable
 fun RulonaFilter(
     filter: FilterEntity,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
+    onItemAdded: () -> Unit,
 ) {
     var expanded by state { false }
 
@@ -50,8 +53,15 @@ fun RulonaFilter(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Box(modifier = Modifier.fillMaxWidth().padding(vertical = margin_small)) {
-                Row(Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = margin_small)
+            ) {
+                Row(
+                    Modifier.align(Alignment.CenterStart),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AnimatedVisibility(editState is EditState.Done) {
                         Image(
                             colorFilter = ColorFilter.tint(filter.severity.color()),
@@ -81,27 +91,43 @@ fun RulonaFilter(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .clickable {
-                                if (editState is EditState.Done) {
-                                    expanded = !expanded
-                                } else {
-                                    onItemRemoved()
+                                when (editState) {
+                                    is EditState.Done -> {
+                                        expanded = !expanded
+                                    }
+                                    is EditState.Editing -> {
+                                        onItemRemoved()
+                                    }
+                                    is EditState.Adding -> {
+                                        onItemAdded()
+                                    }
                                 }
                             }
                             .padding(horizontal = margin_medium, vertical = margin_small),
                     ) {
-                        if (editState is EditState.Done) {
-                            Image(
-                                imageVector = Icons.Default.ChevronRight,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                                contentDescription = null,
-                                modifier = Modifier.rotate(rotation)
-                            )
-                        } else {
-                            Image(
-                                imageVector = Icons.Default.Close,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-                                contentDescription = null,
-                            )
+                        when (editState) {
+                            is EditState.Done -> {
+                                Image(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                    modifier = Modifier.rotate(rotation)
+                                )
+                            }
+                            is EditState.Editing -> {
+                                Image(
+                                    imageVector = Icons.Default.Close,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                )
+                            }
+                            is EditState.Adding -> {
+                                Image(
+                                    imageVector = Icons.Default.Add,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                                    contentDescription = null,
+                                )
+                            }
                         }
                     }
                 }

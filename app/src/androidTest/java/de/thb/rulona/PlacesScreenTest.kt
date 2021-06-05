@@ -90,7 +90,7 @@ class PlacesScreenTest {
         composeTestRule.onNodeWithText("Hamburg")
             .performClick()
 
-        composeTestRule.onNodeWithText("Mein Filter")
+        composeTestRule.onNodeWithText("Meine Filter")
             .assertIsDisplayed()
     }
 

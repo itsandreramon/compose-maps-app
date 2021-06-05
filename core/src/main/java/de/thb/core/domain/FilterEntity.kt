@@ -19,4 +19,7 @@ data class FilterEntity(
 
     @ColumnInfo(name = "description")
     val description: String? = "",
+
+    @ColumnInfo(name = "added")
+    val added: Boolean? = false,
 )

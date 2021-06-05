@@ -178,22 +178,25 @@ class PlacesViewModel(
             filtersLocalDataSource.insert(
                 listOf(
                     FilterEntity(
-                        "-1",
-                        "Restaurants",
-                        Severity.RED,
-                        "Dies ist die Beschreibung für Restaurants."
+                        uuid = "-1",
+                        name = "Restaurants",
+                        severity = Severity.RED,
+                        description = "Dies ist die Beschreibung für Restaurants.",
+                        added = true
                     ),
                     FilterEntity(
-                        "-2",
-                        "Bars",
-                        Severity.YELLOW,
-                        "Dies ist die Beschreibung für Bars."
+                        uuid = "-2",
+                        name = "Bars",
+                        severity = Severity.YELLOW,
+                        description = "Dies ist die Beschreibung für Bars.",
+                        added = true
                     ),
                     FilterEntity(
-                        "-3",
-                        "Biergärten",
-                        Severity.GREEN,
-                        "Dies ist die Beschreibung für Biergärten."
+                        uuid = "-3",
+                        name = "Biergärten",
+                        severity = Severity.GREEN,
+                        description = "Dies ist die Beschreibung für Biergärten.",
+                        added = true
                     ),
                 )
             )

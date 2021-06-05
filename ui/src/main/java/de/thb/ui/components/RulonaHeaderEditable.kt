@@ -24,7 +24,6 @@ import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.theme.rulona_material_blue_600
 import de.thb.ui.type.EditState
-import de.thb.ui.type.toggleEditState
 
 @Composable
 fun RulonaHeaderEditable(
@@ -54,7 +53,15 @@ fun RulonaHeaderEditable(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .clickable { onEditStateChanged(toggleEditState(editState)) }
+                        .clickable {
+                            val newEditState = if (editState is EditState.Editing) {
+                                EditState.Done()
+                            } else {
+                                EditState.Editing()
+                            }
+
+                            onEditStateChanged(newEditState)
+                        }
                         .padding(horizontal = margin_medium, vertical = margin_small)
                         .align(Alignment.CenterEnd)
                 ) {

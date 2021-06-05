@@ -10,17 +10,20 @@ import de.thb.ui.type.EditState
 @Composable
 fun RulonaFilterList(
     filters: List<FilterEntity>,
+    title: String,
     editState: EditState = EditState.Done(),
     isEditable: Boolean = true,
     onEditStateChanged: (EditState) -> Unit,
+    onRemoveClicked: (FilterEntity) -> Unit = {},
+    onAddClicked: (FilterEntity) -> Unit = {},
 ) {
     LazyColumn {
         item {
             RulonaHeaderEditable(
-                title = "Mein Filter",
+                title = title,
                 isEditable = isEditable,
                 editState = editState,
-                onEditStateChanged = onEditStateChanged
+                onEditStateChanged = onEditStateChanged,
             )
         }
 
@@ -28,7 +31,8 @@ fun RulonaFilterList(
             RulonaFilter(
                 filter = filter,
                 editState = editState,
-                onItemRemoved = {}
+                onItemRemoved = { onRemoveClicked(filter) },
+                onItemAdded = { onAddClicked(filter) },
             )
         }
     }
