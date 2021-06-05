@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -49,20 +49,17 @@ fun RulonaFilter(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(vertical = margin_small)
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.align(Alignment.CenterStart)) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = margin_small)) {
+                Row(Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
                     AnimatedVisibility(editState is EditState.Done) {
                         Image(
                             colorFilter = ColorFilter.tint(filter.severity.color()),
                             imageVector = Icons.Filled.Circle,
                             contentDescription = "Severity Indicator",
                             modifier = Modifier
-                                .height(16.dp)
                                 .padding(start = margin_medium)
-                                .align(Alignment.CenterVertically)
+                                .size(12.dp)
                         )
                     }
 
@@ -70,7 +67,6 @@ fun RulonaFilter(
 
                     Text(
                         text = filter.name,
-                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 

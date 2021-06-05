@@ -1,28 +1,21 @@
 package de.thb.ui.screens.route
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Context
 import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
-import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
-import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import com.google.maps.GeoApiContext
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.ui.components.MapView
-import de.thb.ui.components.ScreenTitle
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdates
-import de.thb.ui.theme.margin_medium
 import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import kotlinx.coroutines.flow.collect
@@ -70,22 +63,22 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
         }
     }
 
-    val deviceLocation by viewModel.collectAsState(RouteState::location)
-    PlacesScreenContent(deviceLocation = deviceLocation)
+    // val deviceLocation by viewModel.collectAsState(RouteState::location)
+    // PlacesScreenContent(deviceLocation = deviceLocation, context = context)
 }
 
 @Composable
 private fun PlacesScreenContent(
+    context: Context,
     deviceLocation: Location?,
     geoApiContext: GeoApiContext = get(),
 ) {
     val mapView = rememberMapViewWithLifecycle()
 
-    Column(Modifier.statusBarsPadding()) {
-        Column(Modifier.padding(margin_medium)) {
-            ScreenTitle(title = "Route", Modifier.padding(vertical = margin_medium))
-        }
-
-        MapView(mapView, LocalContext.current, deviceLocation, geoApiContext)
-    }
+    MapView(
+        map = mapView,
+        context = context,
+        deviceLocation = deviceLocation,
+        geoApiContext = geoApiContext
+    )
 }
