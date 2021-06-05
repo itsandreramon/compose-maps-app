@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -46,16 +47,14 @@ class LocationDataSourceImpl private constructor(
             Manifest.permission.ACCESS_FINE_LOCATION
         ]
     )
-    private fun FusedLocationProviderClient.locationFlow(
-        request: LocationRequest
+    fun FusedLocationProviderClient.locationFlow(
+        request: LocationRequest,
     ) = callbackFlow<Location> {
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
-                try {
-                    trySend(result.lastLocation)
-                } catch (e: Exception) {
-                    // swallow
+                for (location in result.locations) {
+                    trySend(location)
                 }
             }
         }
@@ -68,17 +67,20 @@ class LocationDataSourceImpl private constructor(
             close(e) // in case of exception, close the Flow
         }
 
-        // clean up when Flow collection ends
         awaitClose {
-            removeLocationUpdates(callback)
+            removeLocationUpdates(callback) // clean up when Flow collection ends
         }
     }
 
     companion object {
+
+        private var instance: LocationDataSource? = null
+
         fun getInstance(context: Context): LocationDataSource {
-            return LocationDataSourceImpl(
+            Log.d("Requesting instance", "$instance")
+            return instance ?: LocationDataSourceImpl(
                 LocationServices.getFusedLocationProviderClient(context)
-            )
+            ).also { instance = it }
         }
     }
 }

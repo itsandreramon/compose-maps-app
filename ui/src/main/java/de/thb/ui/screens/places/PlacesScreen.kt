@@ -122,7 +122,7 @@ class PlacesViewModel(
     private fun setScreenEditState(state: EditState) {
         when (state) {
             is EditState.Editing -> setState { copy(uiState = EditBookmarksUiState()) }
-            is EditState.Done -> setState { copy(uiState = BookmarksUiState()) }
+            else -> setState { copy(uiState = BookmarksUiState()) }
         }
     }
 
