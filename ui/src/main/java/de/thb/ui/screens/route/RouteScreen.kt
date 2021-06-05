@@ -3,7 +3,6 @@ package de.thb.ui.screens.route
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.Column
@@ -88,7 +87,6 @@ class RouteViewModel(
 
         locationRepository
             .requestLocationUpdates(LocationRequest.create())
-            .onEach { Log.e("Tag", "$it") }
             .sample(periodMillis = 1000)
             .onEach { setLocationState(it) }
             .launchIn(viewModelScope)
