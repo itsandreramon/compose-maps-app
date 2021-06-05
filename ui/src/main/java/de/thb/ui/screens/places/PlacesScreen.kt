@@ -34,7 +34,6 @@ import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
 import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
@@ -223,7 +222,6 @@ fun PlacesScreen(
             onSearchStateChanged = { searchState ->
                 viewModel.action(SearchUseCase(searchState))
             },
-            modifier = Modifier.padding(bottom = margin_small),
             onFocusRequested = { focusRequester.requestFocus() }
         )
 

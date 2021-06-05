@@ -160,6 +160,8 @@ fun PlaceDetailsEditFilters(
 
         RulonaFilterList(
             filters = filters,
+            isEditable = false,
+            editState = EditState.Editing(),
             onEditStateChanged = {}
         )
     }
