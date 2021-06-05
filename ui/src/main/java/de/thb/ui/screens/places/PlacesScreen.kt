@@ -12,8 +12,11 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
+import de.thb.core.data.filters.local.FiltersLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.domain.FilterEntity
 import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.Severity
 import de.thb.core.util.fromUtc
 import de.thb.core.util.nowUtc
 import de.thb.ui.components.RulonaHeaderEditable
@@ -69,6 +72,7 @@ class PlacesViewModel(
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
     private val placesLocalDataSource by inject<PlacesLocalDataSource>()
+    private val filtersLocalDataSource by inject<FiltersLocalDataSource>()
 
     init {
         populateDb()
@@ -168,6 +172,29 @@ class PlacesViewModel(
                         uuid = "-3",
                         name = "Berlin",
                         incidence = 55.1,
+                    ),
+                )
+            )
+
+            filtersLocalDataSource.insert(
+                listOf(
+                    FilterEntity(
+                        "-1",
+                        "Restaurants",
+                        Severity.RED,
+                        "Dies ist die Beschreibung für Restaurants."
+                    ),
+                    FilterEntity(
+                        "-2",
+                        "Bars",
+                        Severity.YELLOW,
+                        "Dies ist die Beschreibung für Bars."
+                    ),
+                    FilterEntity(
+                        "-3",
+                        "Biergärten",
+                        Severity.GREEN,
+                        "Dies ist die Beschreibung für Biergärten."
                     ),
                 )
             )

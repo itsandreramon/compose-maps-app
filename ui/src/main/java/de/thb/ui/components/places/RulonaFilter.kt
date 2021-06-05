@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import de.thb.core.domain.Filter
+import de.thb.core.domain.FilterEntity
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
@@ -38,7 +38,7 @@ import de.thb.ui.util.state
 
 @Composable
 fun RulonaFilter(
-    filter: Filter,
+    filter: FilterEntity,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
@@ -113,7 +113,7 @@ fun RulonaFilter(
 
             AnimatedVisibility(visible = expanded) {
                 Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
-                    Text(text = "This is some text that is only visible after the user expanded the card.")
+                    Text(text = filter.description ?: "Keine Beschreibung verfügbar.")
                 }
             }
         }

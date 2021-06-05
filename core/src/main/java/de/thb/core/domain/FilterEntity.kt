@@ -15,10 +15,8 @@ data class FilterEntity(
     val name: String,
 
     @ColumnInfo(name = "severity")
-    val severity: Int,
-)
-
-data class Filter(
-    val name: String,
     val severity: Severity,
+
+    @ColumnInfo(name = "description")
+    val description: String? = "",
 )

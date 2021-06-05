@@ -21,7 +21,7 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import de.thb.core.data.filters.local.FiltersLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.domain.Filter
+import de.thb.core.domain.FilterEntity
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.places.RulonaFilterList
@@ -44,11 +44,11 @@ import org.koin.core.component.inject
 sealed class PlaceDetailUiState {
     data class OverviewUiState(
         val place: PlaceEntity? = null,
-        val filters: List<Filter> = listOf(),
+        val filters: List<FilterEntity> = listOf(),
     ) : PlaceDetailUiState()
 
     data class EditFiltersUiState(
-        val filters: List<Filter> = listOf(),
+        val filters: List<FilterEntity> = listOf(),
     ) : PlaceDetailUiState()
 }
 
@@ -80,13 +80,13 @@ class PlaceDetailsViewModel(
             }
         }
 
-        stateFlow.combine(filtersLocalDataSource.getAll()) { state, _ ->
+        stateFlow.combine(filtersLocalDataSource.getAll()) { state, filters ->
             when (val uiState = state.uiState) {
                 is OverviewUiState -> {
-                    setState { copy(uiState = uiState.copy(filters = listOf())) }
+                    setState { copy(uiState = uiState.copy(filters = filters)) }
                 }
                 is EditFiltersUiState -> {
-                    setState { copy(uiState = uiState.copy(filters = listOf())) }
+                    setState { copy(uiState = uiState.copy(filters = filters)) }
                 }
             }
         }.launchIn(viewModelScope)
@@ -148,7 +148,7 @@ fun PlaceDetailsScreen(
 
 @Composable
 fun PlaceDetailsEditFilters(
-    filters: List<Filter>,
+    filters: List<FilterEntity>,
     onBackClicked: () -> Unit,
 ) {
     Column {
@@ -168,7 +168,7 @@ fun PlaceDetailsEditFilters(
 @Composable
 fun PlaceDetailsOverview(
     place: PlaceEntity?,
-    filters: List<Filter>,
+    filters: List<FilterEntity>,
     onBackClicked: () -> Unit,
     onNotifyClicked: () -> Unit,
     onShareClicked: () -> Unit,
@@ -184,7 +184,6 @@ fun PlaceDetailsOverview(
                     Share(onShareClicked)
                 )
             )
-
             Column(
                 modifier = Modifier
                     .padding(top = margin_large)

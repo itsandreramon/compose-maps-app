@@ -13,6 +13,7 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +57,7 @@ fun RulonaSearchBar(
         AnimatedVisibility(isFocused) {
             Image(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = null,
+                contentDescription = "Close Search Bar",
                 modifier = Modifier
                     .padding(end = margin_medium)
                     .clickable {
@@ -73,7 +74,24 @@ fun RulonaSearchBar(
                 query = input
             },
             label = { Text("Search") },
-            trailingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            trailingIcon = {
+                if (isFocused) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Clear Search Bar Icon",
+                        modifier = Modifier
+                            .clickable {
+                                query = TextFieldValue()
+                                onSearchStateChanged(SearchState.Active())
+                            }
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search Icon",
+                    )
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->

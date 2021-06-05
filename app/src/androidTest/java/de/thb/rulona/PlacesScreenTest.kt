@@ -93,4 +93,73 @@ class PlacesScreenTest {
         composeTestRule.onNodeWithText("Mein Filter")
             .assertIsDisplayed()
     }
+
+    @Test
+    fun clicking_on_close_inside_search_bar_resets_state() {
+        composeTestRule.onNodeWithText("Search")
+            .performTextInput("Ber")
+
+        composeTestRule.onNodeWithContentDescription("Clear Search Bar Icon")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Letzte Suchen")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun clicking_on_search_bar_changes_icon() {
+        composeTestRule.onNodeWithContentDescription("Search Icon")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Search")
+            .performClick()
+
+        composeTestRule.onNodeWithContentDescription("Clear Search Bar Icon")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithContentDescription("Search Icon")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun clicking_on_back_inside_search_bar_resets_state() {
+        composeTestRule.onNodeWithContentDescription("Close Search Bar")
+            .assertDoesNotExist()
+
+        composeTestRule.onNodeWithText("Search")
+            .performTextInput("Ber")
+
+        composeTestRule.onNodeWithContentDescription("Close Search Bar")
+            .performClick()
+
+        composeTestRule.onNodeWithContentDescription("Close Search Bar")
+            .assertDoesNotExist()
+
+        composeTestRule.onNodeWithText("Meine Orte")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun search_bar_clicking_on_back_removes_query() {
+        composeTestRule.onNodeWithText("Search")
+            .performTextInput("Ber")
+
+        composeTestRule.onNodeWithContentDescription("Close Search Bar")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Ber")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun search_bar_clicking_on_close_removes_query() {
+        composeTestRule.onNodeWithText("Search")
+            .performTextInput("Ber")
+
+        composeTestRule.onNodeWithContentDescription("Clear Search Bar Icon")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Ber")
+            .assertDoesNotExist()
+    }
 }
