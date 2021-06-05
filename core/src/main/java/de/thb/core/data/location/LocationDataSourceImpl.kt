@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -77,7 +76,6 @@ class LocationDataSourceImpl private constructor(
         private var instance: LocationDataSource? = null
 
         fun getInstance(context: Context): LocationDataSource {
-            Log.d("Requesting instance", "$instance")
             return instance ?: LocationDataSourceImpl(
                 LocationServices.getFusedLocationProviderClient(context)
             ).also { instance = it }
