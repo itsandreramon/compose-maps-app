@@ -9,8 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.SpanStyle
@@ -21,13 +19,15 @@ import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
+import de.thb.core.data.filters.local.FiltersLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.Filter
 import de.thb.core.domain.PlaceEntity
-import de.thb.core.domain.Severity
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.components.RulonaHeaderEditable
-import de.thb.ui.components.places.RulonaFilter
+import de.thb.ui.components.places.RulonaFilterList
+import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditFiltersUseCase
+import de.thb.ui.screens.places.PlaceDetailUiState.EditFiltersUiState
+import de.thb.ui.screens.places.PlaceDetailUiState.OverviewUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.rulona_material_red_600
@@ -35,17 +35,26 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
-import de.thb.ui.util.state
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+sealed class PlaceDetailUiState {
+    data class OverviewUiState(
+        val place: PlaceEntity? = null,
+        val filters: List<Filter> = listOf(),
+    ) : PlaceDetailUiState()
+
+    data class EditFiltersUiState(
+        val filters: List<Filter> = listOf(),
+    ) : PlaceDetailUiState()
+}
+
 data class PlaceDetailsState(
     val placeUuid: String? = null,
-    val place: PlaceEntity? = null,
+    val uiState: PlaceDetailUiState = OverviewUiState(),
 ) : MavericksState
 
 class PlaceDetailsViewModel(
@@ -53,12 +62,46 @@ class PlaceDetailsViewModel(
 ) : MavericksViewModel<PlaceDetailsState>(initialState), KoinComponent {
 
     private val placesLocalDataSource by inject<PlacesLocalDataSource>()
+    private val filtersLocalDataSource by inject<FiltersLocalDataSource>()
 
     init {
-        viewModelScope.launch {
-            stateFlow.filter { it.placeUuid != null }.flatMapLatest { state ->
-                placesLocalDataSource.getByUuid(state.placeUuid!!)
-            }.collect { setState { copy(place = it) } }
+        onEach { state ->
+            if (state.placeUuid != null) {
+                placesLocalDataSource.getByUuid(state.placeUuid).collect { place ->
+                    when (val uiState = state.uiState) {
+                        is OverviewUiState -> {
+                            setState { copy(uiState = uiState.copy(place = place)) }
+                        }
+                        is EditFiltersUiState -> {
+                            // ...
+                        }
+                    }
+                }
+            }
+        }
+
+        stateFlow.combine(filtersLocalDataSource.getAll()) { state, _ ->
+            when (val uiState = state.uiState) {
+                is OverviewUiState -> {
+                    setState { copy(uiState = uiState.copy(filters = listOf())) }
+                }
+                is EditFiltersUiState -> {
+                    setState { copy(uiState = uiState.copy(filters = listOf())) }
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun action(useCase: PlaceDetailScreenUseCase) {
+        when (useCase) {
+            is EditFiltersUseCase -> setScreenEditState(useCase.editState)
+        }
+    }
+
+    private fun setScreenEditState(editState: EditState) {
+        when (editState) {
+            is EditState.Editing -> setState { copy(uiState = EditFiltersUiState()) }
+            is EditState.Done -> setState { copy(uiState = OverviewUiState()) }
         }
     }
 
@@ -70,97 +113,113 @@ class PlaceDetailsViewModel(
 @Composable
 fun PlaceDetailsScreen(
     placeUuid: String,
+    viewModel: PlaceDetailsViewModel = mavericksViewModel(),
     onBackClicked: () -> Unit,
-    viewModel: PlaceDetailsViewModel = mavericksViewModel()
 ) {
-    val place by viewModel.collectAsState(PlaceDetailsState::place)
+    val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
 
     LaunchedEffect(placeUuid) {
         viewModel.setPlaceUuid(placeUuid)
     }
 
-    place?.let {
-        PlaceDetailsScreenContent(
-            place = it,
-            onBackClicked = onBackClicked,
-            onNotifyClicked = {},
-            onShareClicked = {},
+    when (val uiState = placeDetailUiState.value) {
+        is OverviewUiState -> {
+            PlaceDetailsOverview(
+                place = uiState.place,
+                filters = uiState.filters,
+                onBackClicked = onBackClicked,
+                onShareClicked = {},
+                onNotifyClicked = {},
+                onEditStateChanged = { editState ->
+                    viewModel.action(EditFiltersUseCase(editState))
+                }
+            )
+        }
+        is EditFiltersUiState -> {
+            PlaceDetailsEditFilters(
+                filters = uiState.filters,
+                onBackClicked = {
+                    viewModel.action(EditFiltersUseCase(EditState.Done()))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun PlaceDetailsEditFilters(
+    filters: List<Filter>,
+    onBackClicked: () -> Unit,
+) {
+    Column {
+        RulonaAppBar(
+            title = "Filter",
+            back = Back(onBackClicked),
+            actions = listOf()
+        )
+
+        RulonaFilterList(
+            filters = filters,
+            onEditStateChanged = {}
         )
     }
 }
 
 @Composable
-fun PlaceDetailsScreenContent(
-    place: PlaceEntity,
+fun PlaceDetailsOverview(
+    place: PlaceEntity?,
+    filters: List<Filter>,
     onBackClicked: () -> Unit,
     onNotifyClicked: () -> Unit,
     onShareClicked: () -> Unit,
+    onEditStateChanged: (EditState) -> Unit,
 ) {
-    Column {
-        RulonaAppBar(
-            title = place.name,
-            back = Back(onBackClicked),
-            actions = listOf(
-                Notify(onNotifyClicked),
-                Share(onShareClicked)
+    if (place != null) {
+        Column {
+            RulonaAppBar(
+                title = place.name,
+                back = Back(onBackClicked),
+                actions = listOf(
+                    Notify(onNotifyClicked),
+                    Share(onShareClicked)
+                )
             )
-        )
 
-        Column(
-            modifier = Modifier
-                .padding(top = margin_large)
-                .padding(horizontal = margin_medium)
-        ) {
-            var editState: EditState by state { EditState.Done() }
+            Column(
+                modifier = Modifier
+                    .padding(top = margin_large)
+                    .padding(horizontal = margin_medium)
+            ) {
+                Column(Modifier.padding(margin_medium)) {
+                    Row {
+                        Text(text = "Inzidenz")
 
-            Column(Modifier.padding(margin_medium)) {
-                Row {
-                    Text(text = "Inzidenz")
+                        Image(
+                            imageVector = Icons.Default.ArrowDropUp,
+                            colorFilter = ColorFilter.tint(rulona_material_red_600),
+                            contentDescription = null
+                        )
 
-                    Image(
-                        imageVector = Icons.Default.ArrowDropUp,
-                        colorFilter = ColorFilter.tint(rulona_material_red_600),
-                        contentDescription = null
+                        Text(text = "${place.incidence}")
+                    }
+
+                    Text(
+                        text = buildAnnotatedString {
+                            append("Die offiziellen Regeln für ${place.name} lassen sich ")
+                            withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                                append("hier")
+                            }
+                            append(" einsehen.")
+                        },
+                        modifier = Modifier.padding(top = margin_medium)
                     )
-
-                    Text(text = "${place.incidence}")
                 }
 
-                Text(
-                    text = buildAnnotatedString {
-                        append("Die offiziellen Regeln für ${place.name} lassen sich ")
-                        withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
-                            append("hier")
-                        }
-                        append(" einsehen.")
-                    },
-                    modifier = Modifier.padding(top = margin_medium)
+                RulonaFilterList(
+                    filters = filters,
+                    onEditStateChanged = onEditStateChanged
                 )
             }
-
-            RulonaHeaderEditable(
-                title = "Mein Filter",
-                editState = editState,
-                onEditStateChanged = { state -> editState = state }
-            )
-
-            RulonaFilter(
-                filter = Filter("Restaurants", Severity.RED),
-                editState = editState,
-                onItemRemoved = {}
-            )
-
-            RulonaFilter(
-                filter = Filter("Bars", Severity.YELLOW),
-                editState = editState,
-                onItemRemoved = {}
-            )
-
-            RulonaFilter(
-                filter = Filter("Biergärten", Severity.GREEN),
-                editState = editState,
-                onItemRemoved = {}
-            )
         }
     }
 }

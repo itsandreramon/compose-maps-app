@@ -3,6 +3,8 @@ package de.thb.core.di
 import android.content.Context
 import androidx.room.Room
 import de.thb.core.data.AppDatabase
+import de.thb.core.data.filters.local.FiltersLocalDataSource
+import de.thb.core.data.filters.local.FiltersLocalDataSourceImpl
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSourceImpl
 import de.thb.core.data.places.remote.PlacesRemoteDataSource
@@ -43,13 +45,21 @@ val coreModule = module {
         appDatabase: AppDatabase,
         dispatcherProvider: CoroutinesDispatcherProvider,
     ): PlacesLocalDataSource {
-        return PlacesLocalDataSourceImpl(appDatabase.placesLocalDataSource(), dispatcherProvider)
+        return PlacesLocalDataSourceImpl(appDatabase.placesDao(), dispatcherProvider)
+    }
+
+    fun provideFiltersLocalDataSource(
+        appDatabase: AppDatabase,
+        dispatcherProvider: CoroutinesDispatcherProvider,
+    ): FiltersLocalDataSource {
+        return FiltersLocalDataSourceImpl(appDatabase.filtersDao(), dispatcherProvider)
     }
 
     single { provideRetrofit() }
     single { providePlacesService(get()) }
     single { providePlacesRemoteDataSource(get()) }
     single { providePlacesLocalDataSource(get(), get()) }
+    single { provideFiltersLocalDataSource(get(), get()) }
     single { provideAppDatabase(get()) }
     single<CoroutinesDispatcherProvider> { DefaultDispatcherProvider() }
 }

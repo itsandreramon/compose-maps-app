@@ -47,6 +47,8 @@ dependencies {
     implementation libs.androidx.compose.material.material
     implementation libs.androidx.compose.material.icons
 
+    implementation libs.androidx.lifecycle.runtime
+
     implementation libs.google.maps.ktx
     implementation libs.google.maps.utils
     implementation libs.google.maps.services
