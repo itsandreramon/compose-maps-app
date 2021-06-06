@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import de.thb.ui.theme.margin_medium
@@ -55,6 +57,7 @@ fun RulonaSearchBar(
         AnimatedVisibility(isFocused) {
             Image(
                 imageVector = Icons.Default.ChevronLeft,
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                 contentDescription = "Close Search Bar",
                 modifier = Modifier
                     .padding(end = margin_medium)

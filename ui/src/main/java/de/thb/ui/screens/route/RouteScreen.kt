@@ -3,14 +3,18 @@ package de.thb.ui.screens.route
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
@@ -20,13 +24,14 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.core.domain.PlaceEntity
-import de.thb.ui.components.ScreenTitle
+import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.screens.route.RouteScreenUiState.PlaceDetailsUiState
 import de.thb.ui.screens.route.RouteScreenUiState.SearchUiState
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.util.hasLocationPermission
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
@@ -68,6 +73,7 @@ class RouteViewModel(
             locationRepository
                 .requestLocationUpdates(LocationRequest.create())
                 .sample(periodMillis = 1000)
+                .catch { Log.e("Error", "${it.message}") }
                 .collect { setLocationState(it) }
         }
     }
@@ -101,27 +107,38 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
         }
     }
 
-    val routeUiState = viewModel.collectAsState(RouteState::uiState)
+    val routeUiState by viewModel.collectAsState()
+    val focusRequester = FocusRequester()
 
     Column(
         Modifier
             .statusBarsPadding()
             .padding(margin_medium)
+            .focusRequester(focusRequester)
+            .focusTarget()
     ) {
-        ScreenTitle(title = "Route", Modifier.padding(vertical = margin_medium))
-
-        when (val uiState = routeUiState.value) {
+        when (val uiState = routeUiState.uiState) {
             is SearchUiState -> {
-                PlacesSearchScreen(uiState.location, uiState.query)
+                PlacesSearchScreen(
+                    location = uiState.location,
+                    query = uiState.query,
+                    onFocusRequested = { focusRequester.requestFocus() }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun PlacesSearchScreen(location: Location?, query: String) {
+private fun PlacesSearchScreen(
+    location: Location?,
+    query: String,
+    onFocusRequested: () -> Unit,
+) {
     Column {
-        Text(location.toString())
-        Text(query)
+        RulonaSearchBar(
+            onSearchStateChanged = {},
+            onFocusRequested = onFocusRequested,
+        )
     }
 }
