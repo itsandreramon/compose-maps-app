@@ -57,7 +57,7 @@ fun RulonaPlaceItem(
                         Trend.UP -> ColorFilter.tint(rulona_material_red_600)
                         Trend.DOWN -> ColorFilter.tint(rulona_material_green_600)
                     },
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
 

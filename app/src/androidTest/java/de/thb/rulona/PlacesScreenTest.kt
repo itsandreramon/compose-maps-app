@@ -162,4 +162,22 @@ class PlacesScreenTest {
         composeTestRule.onNodeWithText("Ber")
             .assertDoesNotExist()
     }
+
+    @Test
+    fun clicking_on_edit_filters_opens_filter_list() {
+        composeTestRule.onNodeWithText("Hamburg")
+            .performClick()
+
+        composeTestRule.onNodeWithContentDescription("Edit Places")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Meine Filter")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithContentDescription("Back")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Hamburg")
+            .assertIsDisplayed()
+    }
 }
