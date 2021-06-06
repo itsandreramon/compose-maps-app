@@ -13,7 +13,7 @@ sealed class RulonaAppBarAction(
 ) {
     class Back(onClick: () -> Unit) : RulonaAppBarAction(
         icon = Icons.Filled.ChevronLeft,
-        contentDescription = null,
+        contentDescription = "Back",
         onClick = onClick,
     )
 
