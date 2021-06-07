@@ -10,7 +10,6 @@ import de.thb.core.data.places.remote.PlacesRemoteDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.toEntities
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -29,18 +28,16 @@ class PlacesRepositoryImpl(
         )
     ).build()
 
-    override fun getAll(): Flow<List<PlaceEntity>> {
-        return flow<List<PlaceEntity>> {
-            store.stream(StoreRequest.cached(key = "all", refresh = true))
-                .flowOn(dispatcherProvider.io())
-                .collect { response ->
-                    when (response) {
-                        is StoreResponse.Loading -> emit(emptyList())
-                        is StoreResponse.Error -> emit(emptyList())
-                        is StoreResponse.Data -> emit(response.value)
-                        is StoreResponse.NoNewData -> emit(emptyList())
-                    }
+    override fun getAll() = flow<List<PlaceEntity>> {
+        store.stream(StoreRequest.cached(key = "all", refresh = true))
+            .flowOn(dispatcherProvider.io())
+            .collect { response ->
+                when (response) {
+                    is StoreResponse.Loading -> emit(emptyList())
+                    is StoreResponse.Error -> emit(emptyList())
+                    is StoreResponse.Data -> emit(response.value)
+                    is StoreResponse.NoNewData -> emit(emptyList())
                 }
-        }.flowOn(dispatcherProvider.io())
-    }
+            }
+    }.flowOn(dispatcherProvider.io())
 }
