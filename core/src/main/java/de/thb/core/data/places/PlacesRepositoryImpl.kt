@@ -21,7 +21,7 @@ class PlacesRepositoryImpl(
     private val dispatcherProvider: CoroutinesDispatcherProvider,
 ) : PlacesRepository {
 
-    private val placesStore = StoreBuilder.from(
+    private val store = StoreBuilder.from(
         fetcher = Fetcher.of { placesRemoteDataSource.getAll().toEntities() },
         sourceOfTruth = SourceOfTruth.of(
             reader = { placesLocalDataSource.getAll() },
@@ -31,7 +31,7 @@ class PlacesRepositoryImpl(
 
     override fun getAll(): Flow<List<PlaceEntity>> {
         return flow<List<PlaceEntity>> {
-            placesStore.stream(StoreRequest.cached(key = "all", refresh = true))
+            store.stream(StoreRequest.cached(key = "all", refresh = true))
                 .flowOn(dispatcherProvider.io())
                 .collect { response ->
                     when (response) {
