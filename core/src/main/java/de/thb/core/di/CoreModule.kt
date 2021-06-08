@@ -37,7 +37,10 @@ val coreModule = module {
         ).build()
     }
 
-    fun providePlacesRemoteDataSource(coroutinesDispatcherProvider: CoroutinesDispatcherProvider, service: PlacesService): PlacesRemoteDataSource {
+    fun providePlacesRemoteDataSource(
+        coroutinesDispatcherProvider: CoroutinesDispatcherProvider,
+        service: PlacesService,
+    ): PlacesRemoteDataSource {
         return PlacesRemoteDataSourceImpl(coroutinesDispatcherProvider, service)
     }
 
