@@ -12,13 +12,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
 import de.thb.core.domain.Trend
@@ -46,19 +46,26 @@ fun RulonaPlaceItem(
                 .fillMaxWidth()
         ) {
             Row(Modifier.height(margin_large)) {
-                Text(text = title)
-
                 Image(
-                    imageVector = when (trend) {
-                        Trend.UP -> Icons.Default.ArrowDropUp
-                        Trend.DOWN -> Icons.Default.ArrowDropDown
-                    },
+                    imageVector = Icons.Default.ArrowUpward,
                     colorFilter = when (trend) {
                         Trend.UP -> ColorFilter.tint(rulona_material_red_600)
+                        Trend.NEUTRAL -> ColorFilter.tint(MaterialTheme.colors.onBackground.copy(alpha = 0.3f))
                         Trend.DOWN -> ColorFilter.tint(rulona_material_green_600)
                     },
                     contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = margin_medium)
+                        .rotate(
+                            degrees = when (trend) {
+                                Trend.UP -> 45f
+                                Trend.NEUTRAL -> 90f
+                                Trend.DOWN -> 135f
+                            }
+                        )
                 )
+
+                Text(text = title)
             }
 
             if (isInEditMode) {
