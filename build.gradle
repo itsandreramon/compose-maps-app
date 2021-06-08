@@ -23,6 +23,12 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+
+        // Room Snapshots
+        def roomSnapshot = libs.versions.androidx.roomsnapshot.get()
+        if (roomSnapshot.length() > 1) {
+            maven { url "https://androidx.dev/snapshots/builds/$roomSnapshot/artifacts/repository/" }
+        }
     }
 }
 

@@ -3,7 +3,6 @@ plugins {
     id 'com.google.devtools.ksp' version '1.5.10-1.0.0-beta01'
     id 'com.google.secrets_gradle_plugin' version '0.6'
     id 'kotlin-android'
-    id 'kotlin-kapt'
 }
 
 android {
@@ -12,15 +11,6 @@ android {
     defaultConfig {
         minSdk buildConfig.minSdk
         targetSdk buildConfig.targetSdk
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.schemaLocation": "$projectDir/schemas".toString(),
-                        "room.incremental"   : "true"
-                ]
-            }
-        }
     }
 
     compileOptions {
@@ -34,11 +24,9 @@ android {
     }
 }
 
-// Temporarily disable KSP. See: https://github.com/google/ksp/issues/471
-
-// ksp {
-//     arg("room.schemaLocation", "$projectDir/schemas".toString())
-// }
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas".toString())
+}
 
 dependencies {
     coreLibraryDesugaring libs.android.desugar
@@ -47,7 +35,7 @@ dependencies {
 
     implementation libs.koin.core
 
-    kapt libs.androidx.room.compiler
+    ksp libs.androidx.room.compiler
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx
 
