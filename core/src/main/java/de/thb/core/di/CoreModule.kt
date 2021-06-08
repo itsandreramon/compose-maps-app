@@ -37,8 +37,8 @@ val coreModule = module {
         ).build()
     }
 
-    fun providePlacesRemoteDataSource(service: PlacesService): PlacesRemoteDataSource {
-        return PlacesRemoteDataSourceImpl(service)
+    fun providePlacesRemoteDataSource(coroutinesDispatcherProvider: CoroutinesDispatcherProvider, service: PlacesService): PlacesRemoteDataSource {
+        return PlacesRemoteDataSourceImpl(coroutinesDispatcherProvider, service)
     }
 
     fun providePlacesLocalDataSource(
@@ -57,7 +57,7 @@ val coreModule = module {
 
     single { provideRetrofit() }
     single { providePlacesService(get()) }
-    single { providePlacesRemoteDataSource(get()) }
+    single { providePlacesRemoteDataSource(get(), get()) }
     single { providePlacesLocalDataSource(get(), get()) }
     single { provideFiltersLocalDataSource(get(), get()) }
     single { provideAppDatabase(get()) }
