@@ -78,13 +78,13 @@ class RouteScreenTest {
         composeTestRule.onNodeWithText("Berlin")
             .assertIsDisplayed()
 
-        composeTestRule.onNodeWithContentDescription("Back", useUnmergedTree = true)
-            .performClick()
-
         composeTestRule.onNodeWithText("Google Map")
             .assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Berlin")
-            .assertDoesNotExist()
+        composeTestRule.onNodeWithContentDescription("Back")
+            .performClick()
+
+        composeTestRule.onNodeWithText("Search")
+            .assertIsDisplayed()
     }
 }
