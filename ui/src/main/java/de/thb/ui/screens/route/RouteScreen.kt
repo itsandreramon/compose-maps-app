@@ -57,7 +57,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.core.component.KoinComponent
@@ -125,7 +124,6 @@ class RouteViewModel(
         viewModelScope.launch {
             locationRepository
                 .requestLocationUpdates(LocationRequest.create())
-                .sample(periodMillis = 1000)
                 .catch { Log.e("Error", "${it.message}") }
                 .collect { setLocationState(it) }
         }
@@ -136,6 +134,7 @@ class RouteViewModel(
             when (val uiState = state.uiState) {
                 is PlaceDetailsUiState -> setState { copy(uiState = uiState.copy(location = location)) }
                 is SearchUiState -> setState { copy(uiState = uiState.copy(location = location)) }
+                is OverviewUiState -> setState { copy(uiState = uiState.copy(location = location)) }
             }
         }
     }

@@ -52,9 +52,7 @@ class LocationDataSourceImpl private constructor(
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
-                for (location in result.locations) {
-                    trySend(location)
-                }
+                offer(result.locations.first())
             }
         }
 
