@@ -34,9 +34,11 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
+import com.google.maps.GeoApiContext
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
+import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
@@ -49,6 +51,7 @@ import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.hasLocationPermission
+import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.state
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -56,6 +59,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -257,16 +261,10 @@ private fun PlacesSearchScreen(
 
 @Composable
 private fun PlacesOverviewScreen(location: Location?) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Blue)
-    ) {
-        Column(Modifier.align(Alignment.Center)) {
-            Text("Google Map")
-            Text("Location: $location")
-        }
-    }
+    val mapView = rememberMapViewWithLifecycle()
+    val geoApiContext = get<GeoApiContext>()
+
+    MapView(mapView, LocalContext.current, location, geoApiContext)
 }
 
 @Composable
