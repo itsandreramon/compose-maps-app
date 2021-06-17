@@ -59,21 +59,6 @@ class PlacesScreenTest {
     }
 
     @Test
-    fun search_bar_not_focused_resets_search_state() {
-        composeTestRule.onNodeWithText("Meine Orte")
-            .assertIsDisplayed()
-
-        composeTestRule.onNodeWithText("Search")
-            .performTextInput("Ber")
-
-        composeTestRule.onNodeWithText("Places")
-            .performClick()
-
-        composeTestRule.onNodeWithText("Meine Orte")
-            .assertIsDisplayed()
-    }
-
-    @Test
     fun edit_button_changes_edit_state() {
         composeTestRule.onNodeWithContentDescription("Open Place Details")
             .assertIsDisplayed()

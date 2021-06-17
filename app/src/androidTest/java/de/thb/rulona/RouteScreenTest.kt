@@ -41,12 +41,6 @@ class RouteScreenTest {
     }
 
     @Test
-    fun route_overview_screen_displays_google_map() {
-        composeTestRule.onNodeWithText("Google Map")
-            .assertIsDisplayed()
-    }
-
-    @Test
     fun search_bar_changes_state_correctly() {
         composeTestRule.onNodeWithText("Search")
             .performClick()
@@ -63,7 +57,7 @@ class RouteScreenTest {
         composeTestRule.onNodeWithContentDescription("Close Search Bar")
             .performClick()
 
-        composeTestRule.onNodeWithText("Google Map")
+        composeTestRule.onNodeWithText("Search")
             .assertIsDisplayed()
     }
 
@@ -78,10 +72,7 @@ class RouteScreenTest {
         composeTestRule.onNodeWithText("Berlin")
             .assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Google Map")
-            .assertIsDisplayed()
-
-        composeTestRule.onNodeWithContentDescription("Back")
+        composeTestRule.onNodeWithContentDescription("Close Search Bar")
             .performClick()
 
         composeTestRule.onNodeWithText("Search")
