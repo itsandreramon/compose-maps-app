@@ -49,12 +49,6 @@ subprojects {
             if (group == 'org.jetbrains.kotlin' && module.startsWith('kotlin-stdlib')) {
                 details.useVersion libs.versions.kotlin.get()
             }
-
-            if (group == 'org.xerial' && module.startsWith('sqlite-jdbc')) {
-                // workaround for Apple Silicon
-                // see: https://issuetracker.google.com/issues/174695268
-                details.useTarget "org.xerial:sqlite-jdbc:3.34.0"
-            }
         }
     }
 }
