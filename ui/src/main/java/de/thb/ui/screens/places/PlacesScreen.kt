@@ -219,7 +219,7 @@ fun PlacesScreen(
             .focusRequester(focusRequester)
             .focusTarget()
     ) {
-        ScreenTitle(title = "Places", Modifier.padding(vertical = margin_medium))
+        ScreenTitle(title = "Orte", Modifier.padding(vertical = margin_medium))
 
         RulonaSearchBar(
             onSearchStateChanged = { searchState ->

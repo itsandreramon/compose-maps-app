@@ -40,13 +40,14 @@ import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.components.RulonaSearchBar
+import de.thb.ui.components.RulonaSearchBarFilled
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.SearchUseCase
 import de.thb.ui.screens.route.RouteUiState.OverviewUiState
 import de.thb.ui.screens.route.RouteUiState.PlaceDetailsUiState
 import de.thb.ui.screens.route.RouteUiState.SearchUiState
+import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
@@ -218,13 +219,9 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                     .statusBarsPadding()
                     .padding(horizontal = margin_medium)
             ) {
-                RulonaSearchBar(
+                RulonaSearchBarFilled(
                     onSearchStateChanged = { searchState ->
-                        viewModel.action(
-                            SearchUseCase(
-                                searchState
-                            )
-                        )
+                        viewModel.action(SearchUseCase(searchState))
                     },
                     onFocusRequested = { focusRequester.requestFocus() },
                 )
@@ -244,17 +241,23 @@ private fun PlacesSearchScreen(
             .padding(top = 84.dp)
     ) {
         items(currentlySearchedPlaces) { place ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onPlaceClicked(place)
-                    }
-                    .padding(margin_medium)
-            ) {
-                Text(place.name)
-            }
+            PlaceSearchRouteItem(onPlaceClicked, place)
         }
+    }
+}
+
+@Composable
+private fun PlaceSearchRouteItem(
+    onPlaceClicked: (PlaceEntity) -> Unit,
+    place: PlaceEntity
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onPlaceClicked(place) }
+            .padding(vertical = margin_medium, horizontal = margin_large)
+    ) {
+        Text(place.name)
     }
 }
 

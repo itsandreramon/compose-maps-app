@@ -49,6 +49,6 @@ fun NavContainer(navController: NavHostController) {
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector?) {
     object Route : Screen("route", "Route", Icons.Filled.Directions)
-    object Places : Screen("places", "Places", Icons.Filled.Explore)
+    object Places : Screen("places", "Orte", Icons.Filled.Explore)
     object PlaceDetails : Screen("place_details/{place_uuid}", "Place Details", null)
 }

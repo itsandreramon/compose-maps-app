@@ -75,9 +75,7 @@ fun RulonaSearchBar(
                 onSearchStateChanged(getSearchState(input.text, isFocused))
                 query = input
             },
-            label = {
-                Text("Search")
-            },
+            label = { Text("Search") },
             trailingIcon = {
                 if (isFocused) {
                     Icon(
