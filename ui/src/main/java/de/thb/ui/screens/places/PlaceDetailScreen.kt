@@ -39,6 +39,7 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
+import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -158,6 +159,8 @@ fun PlaceDetailsScreen(
     LaunchedEffect(placeUuid) {
         viewModel.setPlaceUuid(placeUuid)
     }
+
+    setStatusBarIconColorInSideEffect(darkIcons = false)
 
     when (val uiState = placeDetailUiState.value) {
         is OverviewUiState -> {

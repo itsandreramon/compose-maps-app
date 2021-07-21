@@ -4,6 +4,5 @@
 
     <style name="Theme.Rulona" parent="Theme.Rulona.Base">
         <item name="android:statusBarColor">#00000000</item>
-        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

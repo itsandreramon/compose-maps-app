@@ -58,5 +58,7 @@ dependencies {
     implementation libs.google.play.location
 
     implementation libs.airbnb.mavericks.compose
+
     implementation libs.google.accompanist.insets
+    implementation libs.google.accompanist.systemuicontroller
 }

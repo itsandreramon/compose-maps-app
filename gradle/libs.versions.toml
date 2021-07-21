@@ -79,6 +79,8 @@ google-maps-utils = { module = "com.google.maps.android:maps-utils-ktx", version
 google-maps-services = { module = "com.google.maps:google-maps-services", version.ref = "google_maps_services" }
 
 google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }
+google-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "google_accompanist" }
+
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
 dropbox-store = { module = "com.dropbox.mobile.store:store4", version.ref = "dropbox_store" }
 pinterest-ktlint = { module = "com.pinterest:ktlint", version.ref = "pinterest_ktlint" }

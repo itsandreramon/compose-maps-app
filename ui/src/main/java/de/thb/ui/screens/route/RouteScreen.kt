@@ -53,6 +53,7 @@ import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
+import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import de.thb.ui.util.state
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -160,6 +161,8 @@ class RouteViewModel(
 
 @Composable
 fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
+    setStatusBarIconColorInSideEffect()
+
     val context = LocalContext.current
 
     val requestLocationPermissionLauncher =
