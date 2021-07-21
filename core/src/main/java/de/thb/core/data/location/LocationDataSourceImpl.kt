@@ -52,7 +52,7 @@ class LocationDataSourceImpl private constructor(
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
-                offer(result.locations.first())
+                trySend(result.locations.first())
             }
         }
 
@@ -61,7 +61,7 @@ class LocationDataSourceImpl private constructor(
             callback,
             Looper.getMainLooper()
         ).addOnFailureListener { e ->
-            close(e) // in case of exception, close the Flow
+            close(e)
         }
 
         awaitClose {
