@@ -14,6 +14,8 @@ import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.google.maps.PendingResult
 import com.google.maps.model.DirectionsResult
+import de.thb.core.util.LatLng
+import de.thb.core.util.MapLatLng
 import de.thb.core.util.Result
 import de.thb.ui.R
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -58,18 +60,22 @@ private fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserv
     }
 }
 
+fun LatLng.toMapLatLng(): MapLatLng {
+    return MapLatLng(lat, lng)
+}
+
 fun Location.toMapLatLng(): MapLatLng {
     return MapLatLng(latitude, longitude)
 }
 
-fun Location.toGmsLatLng(): GmsLatLng {
-    return GmsLatLng(latitude, longitude)
+fun Location.toLatLng(): LatLng {
+    return LatLng(latitude, longitude)
 }
 
 suspend fun calculateDirections(
     geoApiContext: GeoApiContext,
-    destination: GmsLatLng,
-    origin: GmsLatLng,
+    destination: LatLng,
+    origin: LatLng,
 ): Result<DirectionsResult> {
     return suspendCancellableCoroutine { cont ->
         DirectionsApiRequest(geoApiContext).apply {

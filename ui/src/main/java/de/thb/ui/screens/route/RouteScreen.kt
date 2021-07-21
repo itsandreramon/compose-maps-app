@@ -2,7 +2,7 @@ package de.thb.ui.screens.route
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
-import android.location.Location
+import android.location.Geocoder
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -19,8 +19,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -34,10 +34,12 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.GeoApiContext
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.domain.PlaceEntity
+import de.thb.core.util.MapLatLng
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaSearchBarFilled
@@ -55,11 +57,13 @@ import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import de.thb.ui.util.state
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -67,17 +71,17 @@ import org.koin.core.component.inject
 sealed class RouteUiState {
     data class SearchUiState(
         val query: String = "",
-        val location: Location? = null,
+        val location: LatLng? = null,
         val searchedPlaces: List<PlaceEntity> = listOf(),
     ) : RouteUiState()
 
     data class OverviewUiState(
-        val location: Location? = null,
+        val location: LatLng? = null,
     ) : RouteUiState()
 
     data class PlaceDetailsUiState(
         val place: PlaceEntity,
-        val location: Location? = null,
+        val location: LatLng? = null,
     ) : RouteUiState()
 }
 
@@ -131,7 +135,7 @@ class RouteViewModel(
         }
     }
 
-    private fun setLocationState(location: Location?) {
+    private fun setLocationState(location: LatLng?) {
         withState { state ->
             when (val uiState = state.uiState) {
                 is PlaceDetailsUiState -> setState { copy(uiState = uiState.copy(location = location)) }
@@ -265,7 +269,7 @@ private fun PlaceSearchRouteItem(
 }
 
 @Composable
-private fun PlacesOverviewScreen(location: Location?) {
+private fun PlacesOverviewScreen(location: LatLng?) {
     val mapView = rememberMapViewWithLifecycle()
     val geoApiContext = get<GeoApiContext>()
 
@@ -274,6 +278,21 @@ private fun PlacesOverviewScreen(location: Location?) {
 
 @Composable
 private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
+    setStatusBarIconColorInSideEffect(darkIcons = false)
+
+    val mapView = rememberMapViewWithLifecycle()
+    val geoApiContext = get<GeoApiContext>()
+    val geocoder = Geocoder(LocalContext.current)
+
+    val placeLocation by produceState<MapLatLng?>(initialValue = null) {
+        withContext(Dispatchers.IO) {
+            value = runCatching {
+                val result = geocoder.getFromLocationName(place.name, 1)[0]
+                MapLatLng(result.latitude, result.longitude)
+            }.getOrNull()
+        }
+    }
+
     Box(
         Modifier
             .fillMaxSize()
@@ -285,9 +304,7 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
                 back = Back { onBackClicked() }
             )
 
-            Box(Modifier.fillMaxSize()) {
-                Text("Google Map", modifier = Modifier.align(Alignment.Center))
-            }
+            MapView(mapView, LocalContext.current, placeLocation, geoApiContext)
         }
     }
 }

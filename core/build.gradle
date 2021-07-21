@@ -42,6 +42,9 @@ dependencies {
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.play
 
+    implementation libs.google.maps.services
+
+    implementation libs.google.play.maps
     implementation libs.google.play.location
     implementation libs.google.play.ktx
 

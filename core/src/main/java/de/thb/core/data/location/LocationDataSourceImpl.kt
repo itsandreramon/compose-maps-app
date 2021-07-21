@@ -2,7 +2,6 @@ package de.thb.core.data.location
 
 import android.Manifest
 import android.content.Context
-import android.location.Location
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -10,6 +9,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import de.thb.core.util.MapLatLng
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,7 +27,8 @@ class LocationDataSourceImpl private constructor(
         ]
     )
     override fun getLastLocation() = flow {
-        emit(locationClient.lastLocation.await())
+        val location = locationClient.lastLocation.await()
+        emit(MapLatLng(location.latitude, location.longitude))
     }
 
     @RequiresPermission(
@@ -38,7 +39,7 @@ class LocationDataSourceImpl private constructor(
     )
     override fun requestLocationUpdates(
         request: LocationRequest
-    ): Flow<Location> = locationClient.locationFlow(request)
+    ): Flow<MapLatLng> = locationClient.locationFlow(request)
 
     @RequiresPermission(
         anyOf = [
@@ -48,11 +49,12 @@ class LocationDataSourceImpl private constructor(
     )
     fun FusedLocationProviderClient.locationFlow(
         request: LocationRequest,
-    ) = callbackFlow<Location> {
+    ) = callbackFlow {
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
-                trySend(result.locations.first())
+                val location = result.locations.first()
+                trySend(MapLatLng(location.latitude, location.longitude))
             }
         }
 

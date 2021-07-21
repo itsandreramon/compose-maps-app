@@ -2,7 +2,6 @@ package de.thb.ui.components
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -18,18 +17,17 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.GeoApiContext
 import com.google.maps.android.ktx.awaitMap
-import de.thb.ui.util.GmsLatLng
+import de.thb.core.util.LatLng
+import de.thb.core.util.MapLatLng
 import de.thb.ui.util.calculateDirections
 import de.thb.ui.util.hasLocationPermission
-import de.thb.ui.util.toGmsLatLng
-import de.thb.ui.util.toMapLatLng
 
 @SuppressLint("MissingPermission")
 @Composable
 fun MapView(
     map: MapView,
     context: Context,
-    deviceLocation: Location?,
+    location: MapLatLng?,
     geoApiContext: GeoApiContext
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -46,14 +44,14 @@ fun MapView(
                     isMyLocationEnabled = true
                     uiSettings.isMyLocationButtonEnabled = false
 
-                    if (deviceLocation != null && isShownFirstTime.value) {
-                        centerOnLocation(deviceLocation)
+                    if (location != null && isShownFirstTime.value) {
+                        centerOnLocation(location)
                         isShownFirstTime.value = false
 
                         calculateDirections(
                             geoApiContext = geoApiContext,
-                            destination = GmsLatLng(52.520008, 13.404954),
-                            origin = deviceLocation.toGmsLatLng()
+                            destination = LatLng(52.520008, 13.404954),
+                            origin = LatLng(location.latitude, location.longitude)
                         ).also { Log.d("Map", "$it") }
                     }
                 }
@@ -62,12 +60,10 @@ fun MapView(
     }
 }
 
-private fun GoogleMap.centerOnLocation(location: Location) {
+private fun GoogleMap.centerOnLocation(latLng: MapLatLng) {
     animateCamera(
         CameraUpdateFactory.newCameraPosition(
-            CameraPosition.fromLatLngZoom(
-                location.toMapLatLng(), 10f
-            )
+            CameraPosition.fromLatLngZoom(latLng, 10f)
         )
     )
 }
