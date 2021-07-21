@@ -2,22 +2,52 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7b3edea8ce16f2f885cd2029bd65836b",
+    "identityHash": "a132009391fcb11e946e1acd2cd3d813",
     "entities": [
       {
         "tableName": "places",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `is_bookmarked` INTEGER NOT NULL, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `incidence` REAL NOT NULL, `trend` TEXT NOT NULL, `website` TEXT NOT NULL, `example` INTEGER NOT NULL, `is_bookmarked` INTEGER NOT NULL, `searched_at_utc` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
-            "fieldPath": "uuid",
-            "columnName": "uuid",
+            "fieldPath": "id",
+            "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "name",
-            "columnName": "title",
+            "columnName": "name",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incidence",
+            "columnName": "incidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trend",
+            "columnName": "trend",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "website",
+            "columnName": "website",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "example",
+            "columnName": "example",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -25,11 +55,49 @@
             "columnName": "is_bookmarked",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "searchedAtUtc",
+            "columnName": "searched_at_utc",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid"
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `added` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "added",
+            "columnName": "added",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
           ],
           "autoGenerate": false
         },
@@ -40,7 +108,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7b3edea8ce16f2f885cd2029bd65836b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a132009391fcb11e946e1acd2cd3d813')"
     ]
   }
 }

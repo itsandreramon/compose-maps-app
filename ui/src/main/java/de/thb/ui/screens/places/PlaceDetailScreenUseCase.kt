@@ -1,6 +1,6 @@
 package de.thb.ui.screens.places
 
-import de.thb.core.domain.FilterEntity
+import de.thb.core.domain.category.CategoryEntity
 import de.thb.ui.type.EditState
 
 sealed class PlaceDetailScreenUseCase {
@@ -9,10 +9,10 @@ sealed class PlaceDetailScreenUseCase {
     ) : PlaceDetailScreenUseCase()
 
     data class RemoveFilterUseCase(
-        val filter: FilterEntity,
+        val category: CategoryEntity,
     ) : PlaceDetailScreenUseCase()
 
     data class AddFilterUseCase(
-        val filter: FilterEntity,
+        val category: CategoryEntity,
     ) : PlaceDetailScreenUseCase()
 }

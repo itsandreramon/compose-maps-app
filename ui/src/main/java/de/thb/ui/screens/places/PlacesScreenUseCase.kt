@@ -1,6 +1,6 @@
 package de.thb.ui.screens.places
 
-import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.place.PlaceEntity
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 

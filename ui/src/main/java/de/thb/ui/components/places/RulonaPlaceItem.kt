@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
-import de.thb.core.domain.Trend
+import de.thb.core.domain.place.PlaceTrend
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.rulona_material_green_600
@@ -31,7 +31,7 @@ import de.thb.ui.theme.rulona_material_red_600
 fun RulonaPlaceItem(
     title: String,
     isInEditMode: Boolean,
-    trend: Trend = Trend.UP,
+    placeTrend: PlaceTrend = PlaceTrend.UP,
     onClick: () -> Unit,
     onRemoved: () -> Unit,
 ) {
@@ -48,19 +48,19 @@ fun RulonaPlaceItem(
             Row(Modifier.height(margin_large)) {
                 Image(
                     imageVector = Icons.Default.ArrowUpward,
-                    colorFilter = when (trend) {
-                        Trend.UP -> ColorFilter.tint(rulona_material_red_600)
-                        Trend.NEUTRAL -> ColorFilter.tint(MaterialTheme.colors.onBackground.copy(alpha = 0.3f))
-                        Trend.DOWN -> ColorFilter.tint(rulona_material_green_600)
+                    colorFilter = when (placeTrend) {
+                        PlaceTrend.UP -> ColorFilter.tint(rulona_material_red_600)
+                        PlaceTrend.NEUTRAL -> ColorFilter.tint(MaterialTheme.colors.onBackground.copy(alpha = 0.3f))
+                        PlaceTrend.DOWN -> ColorFilter.tint(rulona_material_green_600)
                     },
                     contentDescription = null,
                     modifier = Modifier
                         .padding(end = margin_medium)
                         .rotate(
-                            degrees = when (trend) {
-                                Trend.UP -> 45f
-                                Trend.NEUTRAL -> 90f
-                                Trend.DOWN -> 135f
+                            degrees = when (placeTrend) {
+                                PlaceTrend.UP -> 45f
+                                PlaceTrend.NEUTRAL -> 90f
+                                PlaceTrend.DOWN -> 135f
                             }
                         )
                 )

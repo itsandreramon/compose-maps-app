@@ -52,6 +52,7 @@ dependencies {
     implementation libs.square.retrofit.moshi
 
     implementation libs.dropbox.store
+    implementation libs.slack.eithernet
 
     testImplementation libs.junit
     testImplementation libs.mockk

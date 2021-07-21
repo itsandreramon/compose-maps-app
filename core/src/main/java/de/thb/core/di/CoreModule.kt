@@ -3,8 +3,12 @@ package de.thb.core.di
 import android.content.Context
 import androidx.room.Room
 import de.thb.core.data.AppDatabase
-import de.thb.core.data.filters.local.FiltersLocalDataSource
-import de.thb.core.data.filters.local.FiltersLocalDataSourceImpl
+import de.thb.core.data.categories.CategoriesRepositoryImpl
+import de.thb.core.data.categories.CategoriesRepsitory
+import de.thb.core.data.categories.local.CategoriesLocalDataSource
+import de.thb.core.data.categories.local.CategoriesLocalDataSourceImpl
+import de.thb.core.data.places.PlacesRepository
+import de.thb.core.data.places.PlacesRepositoryImpl
 import de.thb.core.data.places.local.PlacesLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSourceImpl
 import de.thb.core.data.places.remote.PlacesRemoteDataSource
@@ -20,7 +24,7 @@ val coreModule = module {
 
     fun provideRetrofit(): Retrofit.Builder {
         return Retrofit.Builder()
-            .baseUrl("localhost")
+            .baseUrl("https://dev-backend-rulona.ci.beilich.de")
             .addConverterFactory(MoshiConverterFactory.create())
     }
 
@@ -54,8 +58,8 @@ val coreModule = module {
     fun provideFiltersLocalDataSource(
         appDatabase: AppDatabase,
         dispatcherProvider: CoroutinesDispatcherProvider,
-    ): FiltersLocalDataSource {
-        return FiltersLocalDataSourceImpl(appDatabase.filtersDao(), dispatcherProvider)
+    ): CategoriesLocalDataSource {
+        return CategoriesLocalDataSourceImpl(appDatabase.filtersDao(), dispatcherProvider)
     }
 
     single { provideRetrofit() }
@@ -64,5 +68,7 @@ val coreModule = module {
     single { providePlacesLocalDataSource(get(), get()) }
     single { provideFiltersLocalDataSource(get(), get()) }
     single { provideAppDatabase(get()) }
+    single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
+    single<CategoriesRepsitory> { CategoriesRepositoryImpl(get(), get()) }
     single<CoroutinesDispatcherProvider> { DefaultDispatcherProvider() }
 }

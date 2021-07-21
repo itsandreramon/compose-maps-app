@@ -3,7 +3,7 @@ package de.thb.ui.components.search
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.place.PlaceEntity
 
 @Composable
 fun RulonaSearchList(

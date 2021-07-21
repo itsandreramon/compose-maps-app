@@ -1,5 +1,7 @@
 package de.thb.core.domain
 
-enum class Severity {
-    GREEN, YELLOW, RED
+enum class Severity(val value: String) {
+    GREEN("green"),
+    YELLOW("yellow"),
+    RED("red"),
 }

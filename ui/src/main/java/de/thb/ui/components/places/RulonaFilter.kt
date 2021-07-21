@@ -27,20 +27,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import de.thb.core.domain.FilterEntity
+import de.thb.core.domain.category.CategoryEntity
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
-import de.thb.ui.util.color
 import de.thb.ui.util.state
 
 // TODO Move callbacks into edit state
 @Composable
 fun RulonaFilter(
-    filter: FilterEntity,
+    category: CategoryEntity,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
@@ -64,7 +64,7 @@ fun RulonaFilter(
                 ) {
                     AnimatedVisibility(editState is EditState.Done) {
                         Image(
-                            colorFilter = ColorFilter.tint(filter.severity.color()),
+                            colorFilter = ColorFilter.tint(Color.Gray),
                             imageVector = Icons.Filled.Circle,
                             contentDescription = "Severity Indicator",
                             modifier = Modifier
@@ -76,7 +76,7 @@ fun RulonaFilter(
                     Spacer(modifier = Modifier.padding(end = margin_medium))
 
                     Text(
-                        text = filter.name,
+                        text = category.name,
                     )
                 }
 
@@ -135,7 +135,7 @@ fun RulonaFilter(
 
             AnimatedVisibility(visible = expanded) {
                 Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
-                    Text(text = filter.description ?: "Keine Beschreibung verfügbar.")
+                    Text(text = category.name)
                 }
             }
         }

@@ -12,13 +12,9 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
-import de.thb.core.data.filters.local.FiltersLocalDataSource
-import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.domain.FilterEntity
-import de.thb.core.domain.PlaceEntity
-import de.thb.core.domain.Severity
+import de.thb.core.data.places.PlacesRepository
+import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.util.fromUtc
-import de.thb.core.util.nowUtc
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.RulonaSearchBar
 import de.thb.ui.components.ScreenTitle
@@ -71,13 +67,10 @@ class PlacesViewModel(
     initialState: PlacesState,
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
-    private val placesLocalDataSource by inject<PlacesLocalDataSource>()
-    private val filtersLocalDataSource by inject<FiltersLocalDataSource>()
+    private val placesRepository by inject<PlacesRepository>()
 
     init {
-        populateDb()
-
-        stateFlow.combine(placesLocalDataSource.getAll()) { state, places ->
+        stateFlow.combine(placesRepository.getAll()) { state, places ->
             when (val uiState = state.uiState) {
                 is BookmarksUiState -> {
                     val bookmarkedPlaces = places
@@ -138,69 +131,14 @@ class PlacesViewModel(
     private fun togglePlaceItemBookmark(place: PlaceEntity) {
         viewModelScope.launch {
             val updatedPlace = place.copy(isBookmarked = !place.isBookmarked)
-            placesLocalDataSource.insert(updatedPlace)
+            placesRepository.insert(updatedPlace)
         }
     }
 
     private fun setPlaceSearchedTimestamp(place: PlaceEntity) {
         viewModelScope.launch {
             val updatedPlace = place.copy(searchedAtUtc = Instant.now().toString())
-            placesLocalDataSource.insert(updatedPlace)
-        }
-    }
-
-    /**
-     * Temporary initialization until we have real data.
-     */
-    private fun populateDb() {
-        viewModelScope.launch {
-            placesLocalDataSource.insert(
-                listOf(
-                    PlaceEntity(
-                        uuid = "-1",
-                        name = "Hamburg",
-                        isBookmarked = true,
-                        searchedAtUtc = nowUtc(),
-                        incidence = 44.3,
-                    ),
-                    PlaceEntity(
-                        uuid = "-2",
-                        name = "Frankfurt",
-                        incidence = 23.7,
-                    ),
-                    PlaceEntity(
-                        uuid = "-3",
-                        name = "Berlin",
-                        incidence = 55.1,
-                    ),
-                )
-            )
-
-            filtersLocalDataSource.insert(
-                listOf(
-                    FilterEntity(
-                        uuid = "-1",
-                        name = "Restaurants",
-                        severity = Severity.RED,
-                        description = "Dies ist die Beschreibung für Restaurants.",
-                        added = true
-                    ),
-                    FilterEntity(
-                        uuid = "-2",
-                        name = "Bars",
-                        severity = Severity.YELLOW,
-                        description = "Dies ist die Beschreibung für Bars.",
-                        added = true
-                    ),
-                    FilterEntity(
-                        uuid = "-3",
-                        name = "Biergärten",
-                        severity = Severity.GREEN,
-                        description = "Dies ist die Beschreibung für Biergärten.",
-                        added = true
-                    ),
-                )
-            )
+            placesRepository.insert(updatedPlace)
         }
     }
 }
@@ -236,7 +174,7 @@ fun PlacesScreen(
                 PlacesBookmarks(
                     bookmarkedPlaces = uiState.bookmarkedPlaces,
                     onEditStateChanged = { viewModel.action(EditBookmarksUseCase(it)) },
-                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
                 )
             }
             is EditBookmarksUiState -> {
@@ -256,7 +194,7 @@ fun PlacesScreen(
                     onItemBookmarkClicked = { place ->
                         viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
-                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
                 )
             }
             is SearchUiState -> {
@@ -268,7 +206,7 @@ fun PlacesScreen(
                     onPlaceSearched = { place ->
                         viewModel.action(SetPlaceSearchTimestampUseCase(place))
                     },
-                    onPlaceClicked = { place -> onPlaceClicked(place.uuid) },
+                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
                 )
             }
         }

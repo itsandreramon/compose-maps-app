@@ -1,7 +1,9 @@
 package de.thb.core.data.places.local
 
-import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.util.CoroutinesDispatcherProvider
+import de.thb.core.util.PlaceUtils.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
@@ -23,13 +25,37 @@ class PlacesLocalDataSourceImpl(
         }
     }
 
+    override suspend fun insertOrUpdate(placeResponse: PlaceResponse) {
+        val existingPlaceMaybe = getByIdOnce(placeResponse.id)
+
+        if (existingPlaceMaybe != null) {
+            if (existingPlaceMaybe != placeResponse.toEntity()) {
+                insert(placeResponse.toEntity(existingPlaceMaybe))
+            }
+        } else {
+            insert(placeResponse.toEntity())
+        }
+    }
+
+    override suspend fun getByIdOnce(id: String): PlaceEntity? {
+        return withContext(dispatcherProvider.database()) {
+            placesRoomDao.getByIdOnce(id)
+        }
+    }
+
     override fun getAll(): Flow<List<PlaceEntity>> {
         return placesRoomDao.getAll()
             .flowOn(dispatcherProvider.database())
     }
 
-    override fun getByUuid(uuid: String): Flow<PlaceEntity> {
-        return placesRoomDao.getByUuid(uuid)
+    override suspend fun getAllOnce(): List<PlaceEntity> {
+        return withContext(dispatcherProvider.database()) {
+            placesRoomDao.getAllOnce()
+        }
+    }
+
+    override fun getById(id: String): Flow<PlaceEntity> {
+        return placesRoomDao.getById(id)
             .flowOn(dispatcherProvider.database())
     }
 }

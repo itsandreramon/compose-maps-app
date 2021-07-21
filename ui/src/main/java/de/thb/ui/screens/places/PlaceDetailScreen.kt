@@ -21,10 +21,10 @@ import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
-import de.thb.core.data.filters.local.FiltersLocalDataSource
+import de.thb.core.data.categories.local.CategoriesLocalDataSource
 import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.domain.FilterEntity
-import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.category.CategoryEntity
+import de.thb.core.domain.place.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.places.RulonaFilterList
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddFilterUseCase
@@ -50,12 +50,12 @@ import org.koin.core.component.inject
 sealed class PlaceDetailUiState {
     data class OverviewUiState(
         val place: PlaceEntity? = null,
-        val filters: List<FilterEntity> = listOf(),
+        val categories: List<CategoryEntity> = listOf(),
     ) : PlaceDetailUiState()
 
     data class EditFiltersUiState(
-        val notAddedFilters: List<FilterEntity> = listOf(),
-        val addedFilters: List<FilterEntity> = listOf(),
+        val notAddedCategories: List<CategoryEntity> = listOf(),
+        val addedCategories: List<CategoryEntity> = listOf(),
     ) : PlaceDetailUiState()
 }
 
@@ -69,12 +69,12 @@ class PlaceDetailsViewModel(
 ) : MavericksViewModel<PlaceDetailsState>(initialState), KoinComponent {
 
     private val placesLocalDataSource by inject<PlacesLocalDataSource>()
-    private val filtersLocalDataSource by inject<FiltersLocalDataSource>()
+    private val filtersLocalDataSource by inject<CategoriesLocalDataSource>()
 
     init {
         onEach { state ->
             if (state.placeUuid != null) {
-                placesLocalDataSource.getByUuid(state.placeUuid).collect { place ->
+                placesLocalDataSource.getById(state.placeUuid).collect { place ->
                     when (val uiState = state.uiState) {
                         is OverviewUiState -> {
                             setState { copy(uiState = uiState.copy(place = place)) }
@@ -94,7 +94,7 @@ class PlaceDetailsViewModel(
                         .filter { it.added == true }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = uiState.copy(filters = addedFilters)) }
+                    setState { copy(uiState = uiState.copy(categories = addedFilters)) }
                 }
                 is EditFiltersUiState -> {
                     val (addedFilters, notAddedFilters) = filters
@@ -104,8 +104,8 @@ class PlaceDetailsViewModel(
                     setState {
                         copy(
                             uiState = uiState.copy(
-                                notAddedFilters = notAddedFilters,
-                                addedFilters = addedFilters,
+                                notAddedCategories = notAddedFilters,
+                                addedCategories = addedFilters,
                             )
                         )
                     }
@@ -117,8 +117,8 @@ class PlaceDetailsViewModel(
     fun action(useCase: PlaceDetailScreenUseCase) {
         when (useCase) {
             is EditFiltersUseCase -> setScreenEditState(useCase.editState)
-            is RemoveFilterUseCase -> removeFilter(useCase.filter)
-            is AddFilterUseCase -> addFilter(useCase.filter)
+            is RemoveFilterUseCase -> removeFilter(useCase.category)
+            is AddFilterUseCase -> addFilter(useCase.category)
         }
     }
 
@@ -129,16 +129,16 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun removeFilter(filter: FilterEntity) {
+    private fun removeFilter(category: CategoryEntity) {
         viewModelScope.launch {
-            val updatedFilter = filter.copy(added = false)
+            val updatedFilter = category.copy(added = false)
             filtersLocalDataSource.insert(updatedFilter)
         }
     }
 
-    private fun addFilter(filter: FilterEntity) {
+    private fun addFilter(category: CategoryEntity) {
         viewModelScope.launch {
-            val updatedFilter = filter.copy(added = true)
+            val updatedFilter = category.copy(added = true)
             filtersLocalDataSource.insert(updatedFilter)
         }
     }
@@ -166,7 +166,7 @@ fun PlaceDetailsScreen(
         is OverviewUiState -> {
             PlaceDetailsOverview(
                 place = uiState.place,
-                filters = uiState.filters,
+                categories = uiState.categories,
                 onBackClicked = onBackClicked,
                 onShareClicked = {},
                 onNotifyClicked = {},
@@ -177,8 +177,8 @@ fun PlaceDetailsScreen(
         }
         is EditFiltersUiState -> {
             PlaceDetailsEditFilters(
-                addedFilters = uiState.addedFilters,
-                notAddedFilters = uiState.notAddedFilters,
+                addedCategories = uiState.addedCategories,
+                notAddedCategories = uiState.notAddedCategories,
                 onBackClicked = {
                     viewModel.action(EditFiltersUseCase(EditState.Done()))
                 },
@@ -195,11 +195,11 @@ fun PlaceDetailsScreen(
 
 @Composable
 fun PlaceDetailsEditFilters(
-    addedFilters: List<FilterEntity>,
-    notAddedFilters: List<FilterEntity>,
+    addedCategories: List<CategoryEntity>,
+    notAddedCategories: List<CategoryEntity>,
     onBackClicked: () -> Unit,
-    onFilterRemoved: (FilterEntity) -> Unit,
-    onFilterAdded: (FilterEntity) -> Unit,
+    onFilterRemoved: (CategoryEntity) -> Unit,
+    onFilterAdded: (CategoryEntity) -> Unit,
 ) {
     Column {
         RulonaAppBar(
@@ -208,11 +208,11 @@ fun PlaceDetailsEditFilters(
             actions = listOf()
         )
         Column(Modifier.padding(horizontal = margin_medium)) {
-            AnimatedVisibility(addedFilters.isNotEmpty()) {
+            AnimatedVisibility(addedCategories.isNotEmpty()) {
                 Column {
                     RulonaFilterList(
                         title = "Meine Filter",
-                        filters = addedFilters,
+                        categories = addedCategories,
                         isEditable = false,
                         editState = EditState.Editing(),
                         onEditStateChanged = {},
@@ -223,10 +223,10 @@ fun PlaceDetailsEditFilters(
                 }
             }
 
-            AnimatedVisibility(notAddedFilters.isNotEmpty()) {
+            AnimatedVisibility(notAddedCategories.isNotEmpty()) {
                 RulonaFilterList(
                     title = "Alle Kategorien",
-                    filters = notAddedFilters,
+                    categories = notAddedCategories,
                     isEditable = false,
                     editState = EditState.Adding(),
                     onEditStateChanged = {},
@@ -241,7 +241,7 @@ fun PlaceDetailsEditFilters(
 @Composable
 fun PlaceDetailsOverview(
     place: PlaceEntity?,
-    filters: List<FilterEntity>,
+    categories: List<CategoryEntity>,
     onBackClicked: () -> Unit,
     onNotifyClicked: () -> Unit,
     onShareClicked: () -> Unit,
@@ -289,7 +289,7 @@ fun PlaceDetailsOverview(
 
                 RulonaFilterList(
                     title = "Meine Filter",
-                    filters = filters,
+                    categories = categories,
                     onEditStateChanged = onEditStateChanged
                 )
             }

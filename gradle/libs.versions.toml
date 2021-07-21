@@ -25,6 +25,7 @@ square_timber = '4.7.1'
 airbnb_mavericks = '2.1.0-alpha02'
 dropbox_store = '4.0.2-KT15'
 pinterest_ktlint = '0.41.0'
+slack_eithernet = '1.0.0-rc01'
 junit = '4.13.1'
 
 [libraries]
@@ -84,5 +85,6 @@ google-accompanist-systemuicontroller = { module = "com.google.accompanist:accom
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
 dropbox-store = { module = "com.dropbox.mobile.store:store4", version.ref = "dropbox_store" }
 pinterest-ktlint = { module = "com.pinterest:ktlint", version.ref = "pinterest_ktlint" }
+slack-eithernet = { module = "com.slack.eithernet:eithernet", version.ref = "slack_eithernet" }
 
 junit = { module = "junit:junit", version.ref = "junit" }

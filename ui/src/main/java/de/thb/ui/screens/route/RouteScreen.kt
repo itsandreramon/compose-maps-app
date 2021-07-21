@@ -38,7 +38,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.GeoApiContext
 import de.thb.core.data.location.LocationDataSourceImpl
 import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.domain.PlaceEntity
+import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.util.MapLatLng
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
