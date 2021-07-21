@@ -20,7 +20,7 @@ data class PlaceResponse(
     val trend: Int,
 
     @Json(name = "website")
-    val website: String,
+    val website: String?,
 
     @Json(name = "example")
     val example: Boolean,

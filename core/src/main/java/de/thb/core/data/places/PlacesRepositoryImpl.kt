@@ -63,8 +63,6 @@ class PlacesRepositoryImpl(
             }
         }
 
-        val entitiesToInsert = toInsert.toEntities() // TODO hangs
-
-        placesLocalDataSource.insert(entitiesToInsert)
+        placesLocalDataSource.insert(toInsert.toEntities())
     }
 }

@@ -48,7 +48,7 @@ object PlaceUtils {
             type = type,
             trend = trend,
             incidence = incidence,
-            website = website,
+            website = website ?: "",
             example = example,
         )
     }
@@ -65,7 +65,7 @@ object PlaceUtils {
             name = name,
             type = type,
             incidence = incidence,
-            website = website,
+            website = website ?: "",
             example = example,
             searchedAtUtc = placeEntity.searchedAtUtc,
             isBookmarked = placeEntity.isBookmarked,
