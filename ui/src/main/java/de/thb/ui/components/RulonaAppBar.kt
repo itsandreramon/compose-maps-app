@@ -1,6 +1,5 @@
 package de.thb.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -20,11 +19,11 @@ fun RulonaAppBar(
     back: RulonaAppBarAction.Back? = null,
     actions: List<RulonaAppBarAction> = listOf()
 ) {
-    Surface(elevation = 4.dp) {
+    Surface(elevation = 4.dp, color = MaterialTheme.colors.primary) {
         Surface(
+            color = Color.Transparent,
             modifier = Modifier
-                .statusBarsPadding()
-                .background(MaterialTheme.colors.background)
+                .statusBarsPadding(),
         ) {
             TopAppBar(
                 title = { Text(title) },

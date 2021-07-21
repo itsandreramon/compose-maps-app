@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val RulonaLightColors = lightColors(
-    primary = Color.Black,
+    primary = rulona_primary_petrol,
     secondary = Color.Black,
     onPrimary = Color.White,
     onSecondary = Color.White,
