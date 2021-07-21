@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a132009391fcb11e946e1acd2cd3d813",
+    "identityHash": "1d32409f574f3b53ee5490862fcfe0df",
     "entities": [
       {
         "tableName": "places",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `incidence` REAL NOT NULL, `trend` TEXT NOT NULL, `website` TEXT NOT NULL, `example` INTEGER NOT NULL, `is_bookmarked` INTEGER NOT NULL, `searched_at_utc` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `incidence` REAL NOT NULL, `trend` INTEGER NOT NULL, `website` TEXT NOT NULL, `example` INTEGER NOT NULL, `is_bookmarked` INTEGER NOT NULL, `searched_at_utc` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -35,7 +35,7 @@
           {
             "fieldPath": "trend",
             "columnName": "trend",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -108,7 +108,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a132009391fcb11e946e1acd2cd3d813')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1d32409f574f3b53ee5490862fcfe0df')"
     ]
   }
 }

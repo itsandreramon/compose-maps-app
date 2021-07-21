@@ -46,6 +46,7 @@ object PlaceUtils {
             id = id,
             name = name,
             type = type,
+            trend = trend,
             incidence = incidence,
             website = website,
             example = example,

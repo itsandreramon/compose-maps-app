@@ -1,15 +1,14 @@
 package de.thb.core.domain.place
 
-import com.squareup.moshi.Json
-
 enum class PlaceType(val value: String) {
-
-    @Json(name = "staat")
     STAAT("staat"),
-
-    @Json(name = "bundesland")
     BUNDESLAND("bundesland"),
+    LANDKREIS("landkreis"),
+    UNDEFINED("undefined")
+}
 
-    @Json(name = "landkreis")
-    LANDKREIS("landkreis")
+fun placeTypeFromString(value: String): PlaceType {
+    return PlaceType.values()
+        .firstOrNull { it.value.equals(value, ignoreCase = true) }
+        ?: PlaceType.UNDEFINED
 }

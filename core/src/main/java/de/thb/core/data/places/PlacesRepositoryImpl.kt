@@ -11,10 +11,8 @@ import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.util.PlaceUtils.toEntities
 import de.thb.core.util.PlaceUtils.toEntity
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 
 class PlacesRepositoryImpl(
     private val placesLocalDataSource: PlacesLocalDataSource,
@@ -44,7 +42,7 @@ class PlacesRepositoryImpl(
         placesLocalDataSource.insert(place)
     }
 
-    override suspend fun insert(placesResponse: List<PlaceResponse>) = coroutineScope {
+    override suspend fun insert(placesResponse: List<PlaceResponse>) {
         val localPlaces = placesLocalDataSource.getAllOnce()
 
         val (toUpdate, toInsert) = placesResponse.partition { response ->
@@ -53,20 +51,20 @@ class PlacesRepositoryImpl(
             }
         }
 
-        launch {
-            toUpdate.mapNotNull { response ->
-                val localPlaceMaybe = localPlaces.firstOrNull { entity -> response.id == entity.id }
+        toUpdate.mapNotNull { response ->
+            val localPlaceMaybe = localPlaces.firstOrNull { entity -> response.id == entity.id }
 
-                localPlaceMaybe?.let { entity ->
-                    response.toEntity(entity)
-                }
-            }.let { updatedPlaces ->
+            localPlaceMaybe?.let { entity ->
+                response.toEntity(entity)
+            }
+        }.let { updatedPlaces ->
+            if (updatedPlaces.isNotEmpty()) {
                 placesLocalDataSource.insert(updatedPlaces)
             }
         }
 
-        launch {
-            placesLocalDataSource.insert(toInsert.toEntities())
-        }
+        val entitiesToInsert = toInsert.toEntities() // TODO hangs
+
+        placesLocalDataSource.insert(entitiesToInsert)
     }
 }

@@ -8,20 +8,19 @@ import androidx.room.PrimaryKey
 data class PlaceEntity(
 
     @PrimaryKey
-    @ColumnInfo(name = "id")
     val id: String,
 
     @ColumnInfo(name = "name")
     val name: String,
 
     @ColumnInfo(name = "type")
-    val type: PlaceType,
+    val type: String,
 
     @ColumnInfo(name = "incidence")
     val incidence: Double,
 
     @ColumnInfo(name = "trend")
-    val trend: PlaceTrend = PlaceTrend.NEUTRAL,
+    val trend: Int = 0,
 
     @ColumnInfo(name = "website")
     val website: String,

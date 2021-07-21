@@ -20,10 +20,10 @@ interface PlacesRoomDao {
     suspend fun getByIdOnce(id: String): PlaceEntity?
 
     @Query("SELECT * FROM places")
-    fun getAll(): Flow<List<PlaceEntity>>
+    suspend fun getAllOnce(): List<PlaceEntity>
 
     @Query("SELECT * FROM places")
-    fun getAllOnce(): List<PlaceEntity>
+    fun getAll(): Flow<List<PlaceEntity>>
 
     @Query("SELECT * FROM places WHERE id = :id LIMIT 1")
     fun getById(id: String): Flow<PlaceEntity>

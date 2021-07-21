@@ -13,6 +13,10 @@ class PlacesLocalDataSourceImpl(
     private val dispatcherProvider: CoroutinesDispatcherProvider,
 ) : PlacesLocalDataSource {
 
+    companion object {
+        const val TAG = "PlacesLocalDataSource"
+    }
+
     override suspend fun insert(places: List<PlaceEntity>) {
         withContext(dispatcherProvider.database()) {
             placesRoomDao.insert(places)

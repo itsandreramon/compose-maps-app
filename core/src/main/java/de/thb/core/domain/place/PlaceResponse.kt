@@ -11,7 +11,7 @@ data class PlaceResponse(
     val name: String,
 
     @Json(name = "type")
-    val type: PlaceType,
+    val type: String,
 
     @Json(name = "incidence")
     val incidence: Double,

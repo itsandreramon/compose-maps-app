@@ -9,9 +9,14 @@ class PlacesRemoteDataSourceImpl(
     private val placesService: PlacesService
 ) : PlacesRemoteDataSource {
 
+    companion object {
+        const val TAG = "PlacesRemoteDataSource"
+    }
+
     override suspend fun getAll(): List<PlaceResponse> {
         return withContext(dispatcherProvider.io()) {
-            placesService.getAll()
+            val result = placesService.getAll()
+            result
         }
     }
 }
