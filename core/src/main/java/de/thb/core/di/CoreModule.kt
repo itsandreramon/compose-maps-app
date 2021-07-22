@@ -16,6 +16,7 @@ import de.thb.core.data.places.remote.PlacesRemoteDataSourceImpl
 import de.thb.core.data.places.remote.PlacesService
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.DefaultDispatcherProvider
+import kotlinx.coroutines.CoroutineScope
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -51,22 +52,32 @@ val coreModule = module {
     fun providePlacesLocalDataSource(
         appDatabase: AppDatabase,
         dispatcherProvider: CoroutinesDispatcherProvider,
+        applicationScope: CoroutineScope,
     ): PlacesLocalDataSource {
-        return PlacesLocalDataSourceImpl(appDatabase.placesDao(), dispatcherProvider)
+        return PlacesLocalDataSourceImpl(
+            placesRoomDao = appDatabase.placesDao(),
+            dispatcherProvider = dispatcherProvider,
+            applicationScope = applicationScope,
+        )
     }
 
     fun provideFiltersLocalDataSource(
         appDatabase: AppDatabase,
         dispatcherProvider: CoroutinesDispatcherProvider,
+        applicationScope: CoroutineScope,
     ): CategoriesLocalDataSource {
-        return CategoriesLocalDataSourceImpl(appDatabase.filtersDao(), dispatcherProvider)
+        return CategoriesLocalDataSourceImpl(
+            categoriesRoomDao = appDatabase.filtersDao(),
+            dispatcherProvider = dispatcherProvider,
+            applicationScope = applicationScope
+        )
     }
 
     single { provideRetrofit() }
     single { providePlacesService(get()) }
     single { providePlacesRemoteDataSource(get(), get()) }
-    single { providePlacesLocalDataSource(get(), get()) }
-    single { provideFiltersLocalDataSource(get(), get()) }
+    single { providePlacesLocalDataSource(get(), get(), get()) }
+    single { provideFiltersLocalDataSource(get(), get(), get()) }
     single { provideAppDatabase(get()) }
     single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
     single<CategoriesRepsitory> { CategoriesRepositoryImpl(get(), get()) }

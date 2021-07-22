@@ -4,28 +4,32 @@ import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.PlaceUtils.toEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlacesLocalDataSourceImpl(
+    private val applicationScope: CoroutineScope,
     private val placesRoomDao: PlacesRoomDao,
     private val dispatcherProvider: CoroutinesDispatcherProvider,
 ) : PlacesLocalDataSource {
 
-    companion object {
-        const val TAG = "PlacesLocalDataSource"
-    }
-
     override suspend fun insert(places: List<PlaceEntity>) {
         withContext(dispatcherProvider.database()) {
-            placesRoomDao.insert(places)
+            applicationScope.launch {
+                placesRoomDao.insert(places)
+            }.join()
         }
     }
 
     override suspend fun insert(place: PlaceEntity) {
         withContext(dispatcherProvider.database()) {
-            placesRoomDao.insert(place)
+            applicationScope.launch {
+                placesRoomDao.insert(place)
+            }.join()
         }
     }
 
@@ -43,7 +47,9 @@ class PlacesLocalDataSourceImpl(
 
     override suspend fun getByIdOnce(id: String): PlaceEntity? {
         return withContext(dispatcherProvider.database()) {
-            placesRoomDao.getByIdOnce(id)
+            applicationScope.async {
+                placesRoomDao.getByIdOnce(id)
+            }.await()
         }
     }
 

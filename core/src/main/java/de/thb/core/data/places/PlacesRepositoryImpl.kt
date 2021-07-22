@@ -42,7 +42,7 @@ class PlacesRepositoryImpl(
         placesLocalDataSource.insert(place)
     }
 
-    override suspend fun insert(placesResponse: List<PlaceResponse>) {
+    private suspend fun insert(placesResponse: List<PlaceResponse>) {
         val localPlaces = placesLocalDataSource.getAllOnce()
 
         val (toUpdate, toInsert) = placesResponse.partition { response ->
