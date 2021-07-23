@@ -14,13 +14,13 @@ data class PlaceResponse(
     val type: String,
 
     @Json(name = "incidence")
-    val incidence: Double,
+    val incidence: Double?,
 
     @Json(name = "trend")
     val trend: Int,
 
     @Json(name = "website")
-    val website: String?,
+    val website: String? = null,
 
     @Json(name = "example")
     val example: Boolean,

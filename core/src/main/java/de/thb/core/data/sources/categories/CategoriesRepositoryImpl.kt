@@ -10,7 +10,7 @@ import de.thb.core.data.sources.categories.remote.CategoriesRemoteDataSource
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.util.CategoryUtils.toEntity
-import de.thb.core.util.responseToEntityIfExistsElseReponse
+import de.thb.core.util.responseToEntityIfExistsElseResponse
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
@@ -18,6 +18,10 @@ class CategoriesRepositoryImpl(
     private val categoriesLocalDataSource: CategoriesLocalDataSource,
     private val categoriesRemoteDataSource: CategoriesRemoteDataSource,
 ) : CategoriesRepsitory {
+
+    companion object {
+        const val TAG = "CategoriesRepsitory"
+    }
 
     private val store = StoreBuilder.from(
         fetcher = Fetcher.of { categoriesRemoteDataSource.getAll() },
@@ -43,7 +47,7 @@ class CategoriesRepositoryImpl(
     }
 
     private suspend fun insert(categoriesResponse: List<CategoryResponse>) {
-        responseToEntityIfExistsElseReponse(
+        responseToEntityIfExistsElseResponse(
             responseData = categoriesResponse,
             localData = categoriesLocalDataSource.getAllOnce(),
             predicate = { response, entity -> response.id == entity.id },

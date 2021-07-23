@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.SpanStyle
@@ -40,9 +41,11 @@ import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
 import de.thb.ui.util.setStatusBarIconColorInSideEffect
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -60,7 +63,6 @@ sealed class PlaceDetailUiState {
 }
 
 data class PlaceDetailsState(
-    val placeId: String? = null,
     val uiState: PlaceDetailUiState = OverviewUiState(),
 ) : MavericksState
 
@@ -68,44 +70,35 @@ class PlaceDetailsViewModel(
     initialState: PlaceDetailsState,
 ) : MavericksViewModel<PlaceDetailsState>(initialState), KoinComponent {
 
+    companion object {
+        const val TAG = "PlaceDetailsViewModel"
+    }
+
     private val placesRepository by inject<PlacesRepository>()
     private val categoriesRepository by inject<CategoriesRepsitory>()
 
     init {
-        onEach { state ->
-            if (state.placeId != null) {
-                placesRepository.getById(state.placeId).collect { place ->
-                    when (val uiState = state.uiState) {
-                        is OverviewUiState -> {
-                            setState { copy(uiState = uiState.copy(place = place)) }
-                        }
-                        is EditCategoriesUiState -> {
-                            // ...
-                        }
-                    }
-                }
-            }
-        }
-
-        stateFlow.combine(categoriesRepository.getAll()) { state, filters ->
+        stateFlow.combine(categoriesRepository.getAll()) { state, categories ->
             when (val uiState = state.uiState) {
                 is OverviewUiState -> {
-                    val addedFilters = filters
+                    val addedCategories = categories
                         .filter { it.added == true }
                         .sortedBy { it.name }
 
-                    setState { copy(uiState = uiState.copy(categories = addedFilters)) }
+                    if (uiState.place != null) {
+                        setState { copy(uiState = uiState.copy(categories = addedCategories)) }
+                    }
                 }
                 is EditCategoriesUiState -> {
-                    val (addedFilters, notAddedFilters) = filters
+                    val (addedCategories, notAddedCategories) = categories
                         .sortedBy { it.name }
                         .partition { it.added == true }
 
                     setState {
                         copy(
                             uiState = uiState.copy(
-                                notAddedCategories = notAddedFilters,
-                                addedCategories = addedFilters,
+                                notAddedCategories = notAddedCategories,
+                                addedCategories = addedCategories,
                             )
                         )
                     }
@@ -143,27 +136,44 @@ class PlaceDetailsViewModel(
         }
     }
 
-    fun setPlaceUuid(uuid: String) {
-        setState { copy(placeId = uuid) }
+    fun loadPlace(id: String) {
+        placesRepository.getById(id)
+            .filterNotNull()
+            .distinctUntilChanged()
+            .onEach { place ->
+                withState { state ->
+                    when (val uiState = state.uiState) {
+                        is OverviewUiState -> {
+                            setState { copy(uiState = uiState.copy(place = place)) }
+                        }
+                        is EditCategoriesUiState -> {
+                            // ...
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope)
     }
 }
 
 @Composable
 fun PlaceDetailsScreen(
-    placeUuid: String,
+    placeId: String,
     viewModel: PlaceDetailsViewModel = mavericksViewModel(),
     onBackClicked: () -> Unit,
 ) {
-    val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
+    Log.e("Recomposition", "PlaceDetailsScreen")
 
-    LaunchedEffect(placeUuid) {
-        viewModel.setPlaceUuid(placeUuid)
-    }
+    val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
 
     setStatusBarIconColorInSideEffect(darkIcons = false)
 
     when (val uiState = placeDetailUiState.value) {
         is OverviewUiState -> {
+            if (uiState.place == null) {
+                // try reloading if place is set to null
+                SideEffect { viewModel.loadPlace(placeId) }
+            }
+
             PlaceDetailsOverview(
                 place = uiState.place,
                 categories = uiState.categories,
@@ -203,7 +213,7 @@ fun PlaceDetailsEditFilters(
 ) {
     Column {
         RulonaAppBar(
-            title = "Filter",
+            title = "Kategorien",
             back = Back(onBackClicked),
             actions = listOf()
         )

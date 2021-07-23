@@ -1,5 +1,6 @@
 package de.thb.core.util
 
+import android.util.Log
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.domain.place.PlaceEntity
@@ -47,7 +48,7 @@ object PlaceUtils {
             name = name,
             type = type,
             trend = trend,
-            incidence = incidence,
+            incidence = incidence ?: 0.0,
             website = website ?: "",
             example = example,
         )
@@ -64,8 +65,8 @@ object PlaceUtils {
             id = id,
             name = name,
             type = type,
-            incidence = incidence,
-            website = website ?: "",
+            incidence = incidence ?: placeEntity.incidence,
+            website = website ?: placeEntity.website,
             example = example,
             searchedAtUtc = placeEntity.searchedAtUtc,
             isBookmarked = placeEntity.isBookmarked,
@@ -100,7 +101,7 @@ object PlaceUtils {
  * @param onUpdateRequested Callback that is being called with updated data
  * @param onInsertRequested Callback that is being called with mapped data
  */
-suspend fun <R, T> responseToEntityIfExistsElseReponse(
+suspend fun <R, T> responseToEntityIfExistsElseResponse(
     responseData: List<R>,
     localData: List<T>,
     predicate: (R, T) -> Boolean,
@@ -109,6 +110,8 @@ suspend fun <R, T> responseToEntityIfExistsElseReponse(
     onUpdateRequested: suspend (List<T>) -> Unit,
     onInsertRequested: suspend (List<T>) -> Unit,
 ) {
+    Log.e("mapper", "got response: $responseData")
+
     val (toUpdate, toInsert) = responseData.partition { response ->
         localData.any { entity -> predicate(response, entity) }
     }

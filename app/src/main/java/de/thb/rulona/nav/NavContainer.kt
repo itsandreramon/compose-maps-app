@@ -34,7 +34,7 @@ fun NavContainer(navController: NavHostController) {
 
             if (placeUuid != null) {
                 PlaceDetailsScreen(
-                    placeUuid = placeUuid,
+                    placeId = placeUuid,
                     onBackClicked = {
                         navController.popBackStack()
                     }

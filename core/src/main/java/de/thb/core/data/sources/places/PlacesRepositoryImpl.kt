@@ -1,5 +1,6 @@
 package de.thb.core.data.sources.places
 
+import android.util.Log
 import com.dropbox.android.external.store4.Fetcher
 import com.dropbox.android.external.store4.SourceOfTruth
 import com.dropbox.android.external.store4.StoreBuilder
@@ -10,7 +11,7 @@ import de.thb.core.data.sources.places.remote.PlacesRemoteDataSource
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.util.PlaceUtils.toEntity
-import de.thb.core.util.responseToEntityIfExistsElseReponse
+import de.thb.core.util.responseToEntityIfExistsElseResponse
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 
@@ -19,8 +20,12 @@ class PlacesRepositoryImpl(
     private val placesRemoteDataSource: PlacesRemoteDataSource,
 ) : PlacesRepository {
 
+    companion object {
+        const val TAG = "PlacesRepository"
+    }
+
     private val getAllStore = StoreBuilder.from(
-        fetcher = Fetcher.of { placesRemoteDataSource.getAll() },
+        fetcher = Fetcher.of { placesRemoteDataSource.getAll().also { Log.e(TAG, "fetched: $it") } },
         sourceOfTruth = SourceOfTruth.of(
             reader = { placesLocalDataSource.getAll() },
             writer = { _, input -> insert(input) },
@@ -58,17 +63,19 @@ class PlacesRepositoryImpl(
     }
 
     private suspend fun insert(placesResponse: List<PlaceResponse>) {
-        responseToEntityIfExistsElseReponse(
+        responseToEntityIfExistsElseResponse(
             responseData = placesResponse,
             localData = placesLocalDataSource.getAllOnce(),
             predicate = { response, entity -> response.id == entity.id },
             updater = { response, entity -> response.toEntity(entity) },
             mapper = { response -> response.toEntity() },
-            onUpdateRequested = { categories ->
-                placesLocalDataSource.insert(categories)
+            onUpdateRequested = { places ->
+                Log.e(TAG, "updating places: $places")
+                placesLocalDataSource.insert(places)
             },
-            onInsertRequested = { categories ->
-                placesLocalDataSource.insert(categories)
+            onInsertRequested = { places ->
+                Log.e(TAG, "inserting places: $places")
+                placesLocalDataSource.insert(places)
             }
         )
     }

@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -67,10 +68,17 @@ class PlacesViewModel(
     initialState: PlacesState,
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
+    companion object {
+        const val TAG = "PlacesViewModel"
+    }
+
     private val placesRepository by inject<PlacesRepository>()
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
+            Log.e(TAG, "new state: $state")
+            Log.e(TAG, "new places: $places")
+
             when (val uiState = state.uiState) {
                 is BookmarksUiState -> {
                     val bookmarkedPlaces = places
@@ -148,6 +156,8 @@ fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
     onPlaceClicked: (uuid: String) -> Unit
 ) {
+    Log.e("Recomposition", "PlacesScreen")
+
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val focusRequester = FocusRequester()
 
