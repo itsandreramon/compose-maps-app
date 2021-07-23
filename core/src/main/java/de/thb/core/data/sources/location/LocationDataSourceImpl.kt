@@ -1,4 +1,4 @@
-package de.thb.core.data.location
+package de.thb.core.data.sources.location
 
 import android.Manifest
 import android.content.Context

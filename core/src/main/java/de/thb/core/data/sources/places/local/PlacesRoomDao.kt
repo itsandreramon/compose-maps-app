@@ -1,4 +1,4 @@
-package de.thb.core.data.places.local
+package de.thb.core.data.sources.places.local
 
 import androidx.room.Dao
 import androidx.room.Insert

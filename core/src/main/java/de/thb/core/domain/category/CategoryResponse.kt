@@ -5,7 +5,7 @@ import com.squareup.moshi.Json
 data class CategoryResponse(
 
     @Json(name = "id")
-    val id: Int,
+    val id: Long,
 
     @Json(name = "name")
     val name: String,

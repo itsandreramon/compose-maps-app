@@ -1,4 +1,4 @@
-package de.thb.core.data.places.remote
+package de.thb.core.data.sources.places.remote
 
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.domain.rule.RuleReponse

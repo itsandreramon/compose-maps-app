@@ -3,17 +3,20 @@ package de.thb.core.di
 import android.content.Context
 import androidx.room.Room
 import de.thb.core.data.AppDatabase
-import de.thb.core.data.categories.CategoriesRepositoryImpl
-import de.thb.core.data.categories.CategoriesRepsitory
-import de.thb.core.data.categories.local.CategoriesLocalDataSource
-import de.thb.core.data.categories.local.CategoriesLocalDataSourceImpl
-import de.thb.core.data.places.PlacesRepository
-import de.thb.core.data.places.PlacesRepositoryImpl
-import de.thb.core.data.places.local.PlacesLocalDataSource
-import de.thb.core.data.places.local.PlacesLocalDataSourceImpl
-import de.thb.core.data.places.remote.PlacesRemoteDataSource
-import de.thb.core.data.places.remote.PlacesRemoteDataSourceImpl
-import de.thb.core.data.places.remote.PlacesService
+import de.thb.core.data.sources.categories.CategoriesRepositoryImpl
+import de.thb.core.data.sources.categories.CategoriesRepsitory
+import de.thb.core.data.sources.categories.local.CategoriesLocalDataSource
+import de.thb.core.data.sources.categories.local.CategoriesLocalDataSourceImpl
+import de.thb.core.data.sources.categories.remote.CategoriesRemoteDataSource
+import de.thb.core.data.sources.categories.remote.CategoriesRemoteDataSourceImpl
+import de.thb.core.data.sources.categories.remote.CategoriesService
+import de.thb.core.data.sources.places.PlacesRepository
+import de.thb.core.data.sources.places.PlacesRepositoryImpl
+import de.thb.core.data.sources.places.local.PlacesLocalDataSource
+import de.thb.core.data.sources.places.local.PlacesLocalDataSourceImpl
+import de.thb.core.data.sources.places.remote.PlacesRemoteDataSource
+import de.thb.core.data.sources.places.remote.PlacesRemoteDataSourceImpl
+import de.thb.core.data.sources.places.remote.PlacesService
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.DefaultDispatcherProvider
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +36,12 @@ val coreModule = module {
         return retrofit
             .build()
             .create(PlacesService::class.java)
+    }
+
+    fun provideCategoriesService(retrofit: Retrofit.Builder): CategoriesService {
+        return retrofit
+            .build()
+            .create(CategoriesService::class.java)
     }
 
     fun provideAppDatabase(applicationContext: Context): AppDatabase {
@@ -61,7 +70,7 @@ val coreModule = module {
         )
     }
 
-    fun provideFiltersLocalDataSource(
+    fun provideCategoriesLocalDataSource(
         appDatabase: AppDatabase,
         dispatcherProvider: CoroutinesDispatcherProvider,
         applicationScope: CoroutineScope,
@@ -73,13 +82,25 @@ val coreModule = module {
         )
     }
 
+    fun provideCategoriesRemoteDataSource(
+        coroutinesDispatcherProvider: CoroutinesDispatcherProvider,
+        service: CategoriesService,
+    ): CategoriesRemoteDataSource {
+        return CategoriesRemoteDataSourceImpl(coroutinesDispatcherProvider, service)
+    }
+
     single { provideRetrofit() }
+
     single { providePlacesService(get()) }
     single { providePlacesRemoteDataSource(get(), get()) }
     single { providePlacesLocalDataSource(get(), get(), get()) }
-    single { provideFiltersLocalDataSource(get(), get(), get()) }
-    single { provideAppDatabase(get()) }
     single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
+
+    single { provideCategoriesService(get()) }
+    single { provideCategoriesRemoteDataSource(get(), get()) }
+    single { provideCategoriesLocalDataSource(get(), get(), get()) }
     single<CategoriesRepsitory> { CategoriesRepositoryImpl(get(), get()) }
+
+    single { provideAppDatabase(get()) }
     single<CoroutinesDispatcherProvider> { DefaultDispatcherProvider() }
 }

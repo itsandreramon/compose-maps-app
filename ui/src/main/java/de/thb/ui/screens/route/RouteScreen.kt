@@ -36,8 +36,8 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.GeoApiContext
-import de.thb.core.data.location.LocationDataSourceImpl
-import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.sources.location.LocationDataSourceImpl
+import de.thb.core.data.sources.places.local.PlacesLocalDataSource
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.util.MapLatLng
 import de.thb.ui.components.MapView

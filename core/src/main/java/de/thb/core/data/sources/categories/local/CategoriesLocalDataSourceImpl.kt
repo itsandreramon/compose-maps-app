@@ -1,6 +1,8 @@
-package de.thb.core.data.categories.local
+package de.thb.core.data.sources.categories.local
 
 import de.thb.core.domain.category.CategoryEntity
+import de.thb.core.domain.category.CategoryResponse
+import de.thb.core.util.CategoryUtils.toEntity
 import de.thb.core.util.CoroutinesDispatcherProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +15,18 @@ class CategoriesLocalDataSourceImpl(
     private val categoriesRoomDao: CategoriesRoomDao,
     private val dispatcherProvider: CoroutinesDispatcherProvider,
 ) : CategoriesLocalDataSource {
+
+    override suspend fun insertOrUpdate(categoryResponse: CategoryResponse) {
+        val existingCategoryMaybe = getByIdOnce(categoryResponse.id)
+
+        if (existingCategoryMaybe != null) {
+            if (existingCategoryMaybe != categoryResponse.toEntity()) {
+                insert(categoryResponse.toEntity(existingCategoryMaybe))
+            }
+        } else {
+            insert(categoryResponse.toEntity())
+        }
+    }
 
     override suspend fun insert(categories: List<CategoryEntity>) {
         withContext(dispatcherProvider.database()) {
@@ -27,6 +41,18 @@ class CategoriesLocalDataSourceImpl(
             applicationScope.launch {
                 categoriesRoomDao.insert(category)
             }.join()
+        }
+    }
+
+    override suspend fun getByIdOnce(id: Long): CategoryEntity? {
+        return withContext(dispatcherProvider.database()) {
+            categoriesRoomDao.getByIdOnce(id)
+        }
+    }
+
+    override suspend fun getAllOnce(): List<CategoryEntity> {
+        return withContext(dispatcherProvider.database()) {
+            categoriesRoomDao.getAllOnce()
         }
     }
 

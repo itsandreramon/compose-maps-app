@@ -79,3 +79,51 @@ object PlaceUtils {
         return map { it.toEntity() }
     }
 }
+
+/**
+ * Genereic helper function that allows to split a response
+ * into two parts:
+ *
+ * 1. The data that already exists locally but needs to be
+ *    updated with local data.
+ * 2. The data that not already exists and is safe to be
+ *    inserted locally.
+ *
+ * DISCLAIMER: It is currently not parallelized but should be done
+ * in the future to ensure the best performance.
+ *
+ * @param responseData The fetched response data
+ * @param localData The already existing local data
+ * @param predicate The predicate to split the data
+ * @param updater The function to update local data with fetched data
+ * @param mapper The function to map fetched data to local data
+ * @param onUpdateRequested Callback that is being called with updated data
+ * @param onInsertRequested Callback that is being called with mapped data
+ */
+suspend fun <R, T> responseToEntityIfExistsElseReponse(
+    responseData: List<R>,
+    localData: List<T>,
+    predicate: (R, T) -> Boolean,
+    updater: (R, T) -> T,
+    mapper: (R) -> T,
+    onUpdateRequested: suspend (List<T>) -> Unit,
+    onInsertRequested: suspend (List<T>) -> Unit,
+) {
+    val (toUpdate, toInsert) = responseData.partition { response ->
+        localData.any { entity -> predicate(response, entity) }
+    }
+
+    toUpdate.mapNotNull { response ->
+        val localDataMaybe = localData.firstOrNull { entity -> predicate(response, entity) }
+
+        localDataMaybe?.let { entity ->
+            updater(response, entity)
+        }
+    }.let { updatedPlaces ->
+        if (updatedPlaces.isNotEmpty()) {
+            onUpdateRequested(updatedPlaces)
+        }
+    }
+
+    onInsertRequested(toInsert.map(mapper))
+}

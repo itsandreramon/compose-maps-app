@@ -1,4 +1,4 @@
-package de.thb.core.data.location
+package de.thb.core.data.sources.location
 
 import com.google.android.gms.location.LocationRequest
 import de.thb.core.util.MapLatLng

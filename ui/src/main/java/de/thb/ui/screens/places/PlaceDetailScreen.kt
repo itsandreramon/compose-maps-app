@@ -21,8 +21,8 @@ import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
-import de.thb.core.data.categories.local.CategoriesLocalDataSource
-import de.thb.core.data.places.local.PlacesLocalDataSource
+import de.thb.core.data.sources.categories.CategoriesRepsitory
+import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
@@ -30,7 +30,7 @@ import de.thb.ui.components.places.RulonaFilterList
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddFilterUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditFiltersUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveFilterUseCase
-import de.thb.ui.screens.places.PlaceDetailUiState.EditFiltersUiState
+import de.thb.ui.screens.places.PlaceDetailUiState.EditCategoriesUiState
 import de.thb.ui.screens.places.PlaceDetailUiState.OverviewUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
@@ -53,14 +53,14 @@ sealed class PlaceDetailUiState {
         val categories: List<CategoryEntity> = listOf(),
     ) : PlaceDetailUiState()
 
-    data class EditFiltersUiState(
+    data class EditCategoriesUiState(
         val notAddedCategories: List<CategoryEntity> = listOf(),
         val addedCategories: List<CategoryEntity> = listOf(),
     ) : PlaceDetailUiState()
 }
 
 data class PlaceDetailsState(
-    val placeUuid: String? = null,
+    val placeId: String? = null,
     val uiState: PlaceDetailUiState = OverviewUiState(),
 ) : MavericksState
 
@@ -68,18 +68,18 @@ class PlaceDetailsViewModel(
     initialState: PlaceDetailsState,
 ) : MavericksViewModel<PlaceDetailsState>(initialState), KoinComponent {
 
-    private val placesLocalDataSource by inject<PlacesLocalDataSource>()
-    private val filtersLocalDataSource by inject<CategoriesLocalDataSource>()
+    private val placesRepository by inject<PlacesRepository>()
+    private val categoriesRepository by inject<CategoriesRepsitory>()
 
     init {
         onEach { state ->
-            if (state.placeUuid != null) {
-                placesLocalDataSource.getById(state.placeUuid).collect { place ->
+            if (state.placeId != null) {
+                placesRepository.getById(state.placeId).collect { place ->
                     when (val uiState = state.uiState) {
                         is OverviewUiState -> {
                             setState { copy(uiState = uiState.copy(place = place)) }
                         }
-                        is EditFiltersUiState -> {
+                        is EditCategoriesUiState -> {
                             // ...
                         }
                     }
@@ -87,7 +87,7 @@ class PlaceDetailsViewModel(
             }
         }
 
-        stateFlow.combine(filtersLocalDataSource.getAll()) { state, filters ->
+        stateFlow.combine(categoriesRepository.getAll()) { state, filters ->
             when (val uiState = state.uiState) {
                 is OverviewUiState -> {
                     val addedFilters = filters
@@ -96,7 +96,7 @@ class PlaceDetailsViewModel(
 
                     setState { copy(uiState = uiState.copy(categories = addedFilters)) }
                 }
-                is EditFiltersUiState -> {
+                is EditCategoriesUiState -> {
                     val (addedFilters, notAddedFilters) = filters
                         .sortedBy { it.name }
                         .partition { it.added == true }
@@ -124,7 +124,7 @@ class PlaceDetailsViewModel(
 
     private fun setScreenEditState(editState: EditState) {
         when (editState) {
-            is EditState.Editing -> setState { copy(uiState = EditFiltersUiState()) }
+            is EditState.Editing -> setState { copy(uiState = EditCategoriesUiState()) }
             else -> setState { copy(uiState = OverviewUiState()) }
         }
     }
@@ -132,19 +132,19 @@ class PlaceDetailsViewModel(
     private fun removeFilter(category: CategoryEntity) {
         viewModelScope.launch {
             val updatedFilter = category.copy(added = false)
-            filtersLocalDataSource.insert(updatedFilter)
+            categoriesRepository.insert(updatedFilter)
         }
     }
 
     private fun addFilter(category: CategoryEntity) {
         viewModelScope.launch {
             val updatedFilter = category.copy(added = true)
-            filtersLocalDataSource.insert(updatedFilter)
+            categoriesRepository.insert(updatedFilter)
         }
     }
 
     fun setPlaceUuid(uuid: String) {
-        setState { copy(placeUuid = uuid) }
+        setState { copy(placeId = uuid) }
     }
 }
 
@@ -175,7 +175,7 @@ fun PlaceDetailsScreen(
                 }
             )
         }
-        is EditFiltersUiState -> {
+        is EditCategoriesUiState -> {
             PlaceDetailsEditFilters(
                 addedCategories = uiState.addedCategories,
                 notAddedCategories = uiState.notAddedCategories,

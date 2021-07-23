@@ -12,7 +12,7 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
-import de.thb.core.data.places.PlacesRepository
+import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.util.fromUtc
 import de.thb.ui.components.RulonaHeaderEditable

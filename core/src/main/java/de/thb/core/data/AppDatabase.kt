@@ -3,8 +3,8 @@ package de.thb.core.data
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import de.thb.core.data.categories.local.CategoriesRoomDao
-import de.thb.core.data.places.local.PlacesRoomDao
+import de.thb.core.data.sources.categories.local.CategoriesRoomDao
+import de.thb.core.data.sources.places.local.PlacesRoomDao
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
 
