@@ -12,8 +12,8 @@
 
 ## Instructions
 
-This project uses Jetpack Compose and should be opened using the Android
-Studio [Beta](https://developer.android.com/studio/preview).
+This project uses Jetpack Compose and should be opened using Android
+Studio [Arctic Fox](https://developer.android.com/studio/preview) or higher.
 
 #### Decrypt secrets
 
