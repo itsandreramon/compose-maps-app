@@ -19,7 +19,7 @@ fun RulonaAppBar(
     back: RulonaAppBarAction.Back? = null,
     actions: List<RulonaAppBarAction> = listOf()
 ) {
-    Surface(elevation = 4.dp, color = MaterialTheme.colors.primary) {
+    Surface(elevation = 4.dp, color = MaterialTheme.colors.surface) {
         Surface(
             color = Color.Transparent,
             modifier = Modifier

@@ -40,7 +40,6 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
-import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -164,8 +163,6 @@ fun PlaceDetailsScreen(
     Log.e("Recomposition", "PlaceDetailsScreen")
 
     val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
-
-    setStatusBarIconColorInSideEffect(darkIcons = false)
 
     when (val uiState = placeDetailUiState.value) {
         is OverviewUiState -> {

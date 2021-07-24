@@ -33,7 +33,6 @@ import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
-import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -157,8 +156,6 @@ fun PlacesScreen(
 
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val focusRequester = FocusRequester()
-
-    setStatusBarIconColorInSideEffect()
 
     Column(
         Modifier

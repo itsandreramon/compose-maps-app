@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.rulona_material_blue_600
+import de.thb.ui.theme.rulona_material_orange_600
 import de.thb.ui.type.SearchState
 import de.thb.ui.type.getSearchState
 import de.thb.ui.util.state
@@ -75,7 +75,16 @@ fun RulonaSearchBar(
                 onSearchStateChanged(getSearchState(input.text, isFocused))
                 query = input
             },
-            label = { Text("Search") },
+            label = {
+                Text(
+                    text = "Search",
+                    color = if (isFocused) {
+                        rulona_material_orange_600
+                    } else {
+                        MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                    }
+                )
+            },
             trailingIcon = {
                 if (isFocused) {
                     Icon(
@@ -100,8 +109,9 @@ fun RulonaSearchBar(
                     isFocused = focusState.isFocused
                 },
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = rulona_material_blue_600,
+                focusedBorderColor = rulona_material_orange_600,
                 backgroundColor = Color.Green,
+                cursorColor = rulona_material_orange_600,
             )
         )
     }
