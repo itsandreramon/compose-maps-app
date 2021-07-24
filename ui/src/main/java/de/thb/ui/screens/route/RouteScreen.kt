@@ -49,12 +49,16 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.GeoApiContext
 import de.thb.core.data.sources.location.LocationDataSourceImpl
-import de.thb.core.data.sources.places.local.PlacesLocalDataSource
+import de.thb.core.data.sources.places.PlacesRepository
+import de.thb.core.data.sources.rules.RulesRepository
 import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.domain.rule.RuleWithCategoryEntity
 import de.thb.core.util.MapLatLng
+import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaSearchBarFilled
+import de.thb.ui.components.places.RulonaCategoryWithRules
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.SearchUseCase
@@ -63,11 +67,13 @@ import de.thb.ui.screens.route.RouteUiState.PlaceDetailsUiState
 import de.thb.ui.screens.route.RouteUiState.SearchUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.state
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -91,6 +97,7 @@ sealed class RouteUiState {
 
     data class PlaceDetailsUiState(
         val place: PlaceEntity,
+        val rules: List<RuleWithCategoryEntity> = listOf(),
         val location: LatLng? = null,
     ) : RouteUiState()
 }
@@ -107,25 +114,25 @@ class RouteViewModel(
         const val TAG = "RouteViewModel"
     }
 
-    private val placesLocalDataSource by inject<PlacesLocalDataSource>()
+    private var loadRulesJob: Job? = null
+
+    private val placesRepository by inject<PlacesRepository>()
+    private val rulesRepository by inject<RulesRepository>()
 
     init {
-        stateFlow.combine(placesLocalDataSource.getAll()) { state, places ->
+        stateFlow.combine(placesRepository.getAll()) { state, places ->
             when (val uiState = state.uiState) {
                 is SearchUiState -> {
-
                     val searchedPlaces = if (uiState.query.isNotBlank()) {
                         places.filter { it.name.contains(uiState.query, ignoreCase = true) }
                     } else listOf()
 
-                    val newState = uiState.copy(
-                        query = uiState.query,
-                        searchedPlaces = searchedPlaces
-                    )
-
                     setState {
                         copy(
-                            uiState = newState
+                            uiState = uiState.copy(
+                                query = uiState.query,
+                                searchedPlaces = searchedPlaces
+                            )
                         )
                     }
                 }
@@ -178,6 +185,25 @@ class RouteViewModel(
             }
         }
     }
+
+    fun loadRules(placeId: String) {
+        // make sure to only have a single job
+        // active to update the state
+        loadRulesJob?.let { job ->
+            if (!job.isCancelled) job.cancel()
+        }
+
+        loadRulesJob =
+            stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
+                when (val uiState = state.uiState) {
+                    is PlaceDetailsUiState -> {
+                        if (rulesWithCategories.isNotEmpty()) {
+                            setState { copy(uiState = uiState.copy(rules = rulesWithCategories)) }
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
 }
 
 @Composable
@@ -225,10 +251,13 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 )
             }
             is PlaceDetailsUiState -> {
+                SideEffect { viewModel.loadRules(uiState.place.id) }
+
                 searchBarVisible = false
 
                 PlaceDetailsScreen(
                     place = uiState.place,
+                    rules = uiState.rules,
                     onBackClicked = { viewModel.action(SearchUseCase(SearchState.Inactive())) }
                 )
             }
@@ -291,7 +320,15 @@ private fun PlacesOverviewScreen(location: LatLng?) {
 }
 
 @Composable
-private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
+private fun PlaceDetailsScreen(
+    place: PlaceEntity,
+    rules: List<RuleWithCategoryEntity>,
+    onBackClicked: () -> Unit
+) {
+    val rulesWithCategoriesGrouped = remember(rules) {
+        RuleUtils.groupRulesByCategory(rules)
+    }
+
     val mapView = rememberMapViewWithLifecycle()
     val geoApiContext = get<GeoApiContext>()
     val geocoder = Geocoder(LocalContext.current)
@@ -349,8 +386,15 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
             }
 
             AnimatedVisibility(expanded) {
-                Column(Modifier.padding(margin_medium)) {
-                    Text(text = "Expanded")
+                LazyColumn {
+                    items(rulesWithCategoriesGrouped) { rule ->
+                        RulonaCategoryWithRules(
+                            categoryWithRules = rule,
+                            editState = EditState.Done(),
+                            onItemRemoved = {},
+                            onItemAdded = {},
+                        )
+                    }
                 }
             }
         }

@@ -43,6 +43,7 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -75,6 +76,9 @@ class PlaceDetailsViewModel(
     companion object {
         const val TAG = "PlaceDetailsViewModel"
     }
+
+    private var loadRulesJob: Job? = null
+    private var loadPlacesJob: Job? = null
 
     private val placesRepository by inject<PlacesRepository>()
     private val categoriesRepository by inject<CategoriesRepsitory>()
@@ -126,7 +130,13 @@ class PlaceDetailsViewModel(
     }
 
     fun loadPlace(placeId: String) {
-        placesRepository.getById(placeId)
+        // make sure to only have a single job
+        // active to update the state
+        loadPlacesJob?.let { job ->
+            if (!job.isCancelled) job.cancel()
+        }
+
+        loadPlacesJob = placesRepository.getById(placeId)
             .filterNotNull()
             .distinctUntilChanged()
             .onEach { place ->
@@ -144,19 +154,26 @@ class PlaceDetailsViewModel(
     }
 
     fun loadRules(placeId: String) {
-        stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
-            when (val uiState = state.uiState) {
-                is OverviewUiState -> {
-                    val addedCategories = rulesWithCategories
-                        .filter { it.category.added == true }
-                        .sortedBy { it.category.name }
+        // make sure to only have a single job
+        // active to update the state
+        loadRulesJob?.let { job ->
+            if (!job.isCancelled) job.cancel()
+        }
 
-                    if (uiState.place != null) {
-                        setState { copy(uiState = uiState.copy(categories = addedCategories)) }
+        loadRulesJob =
+            stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
+                when (val uiState = state.uiState) {
+                    is OverviewUiState -> {
+                        val addedCategories = rulesWithCategories
+                            .filter { it.category.added == true }
+                            .sortedBy { it.category.name }
+
+                        if (uiState.place != null) {
+                            setState { copy(uiState = uiState.copy(categories = addedCategories)) }
+                        }
                     }
                 }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 }
 

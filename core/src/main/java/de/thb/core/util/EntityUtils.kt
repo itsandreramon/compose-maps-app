@@ -6,6 +6,7 @@ import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.core.domain.rule.RuleReponse
+import de.thb.core.domain.rule.RuleWithCategoryEntity
 
 object CategoryUtils {
 
@@ -83,6 +84,18 @@ object PlaceUtils {
 }
 
 object RuleUtils {
+
+    fun groupRulesByCategory(
+        rules: List<RuleWithCategoryEntity>
+    ): List<Pair<CategoryEntity, List<RuleEntity>>> {
+        return rules
+            .groupBy { it.category }
+            .map { entry ->
+                val category = entry.key
+                val rulesForCategory = entry.value.map { it.rule }
+                Pair(category, rulesForCategory)
+            }
+    }
 
     /**
      * Converts the response into an entity object,

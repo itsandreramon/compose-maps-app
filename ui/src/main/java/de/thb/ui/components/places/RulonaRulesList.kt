@@ -3,8 +3,10 @@ package de.thb.ui.components.places
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.rule.RuleWithCategoryEntity
+import de.thb.core.util.RuleUtils
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.type.EditState
 
@@ -18,13 +20,9 @@ fun RulonaRulesList(
     onRemoveClicked: (CategoryEntity) -> Unit = {},
     onAddClicked: (CategoryEntity) -> Unit = {},
 ) {
-    val rulesWithCategoriesGrouped = rules
-        .groupBy { it.category }
-        .map { entry ->
-            val category = entry.key
-            val rulesForCategory = entry.value.map { it.rule }
-            Pair(category, rulesForCategory)
-        }
+    val rulesWithCategoriesGrouped = remember(rules) {
+        RuleUtils.groupRulesByCategory(rules)
+    }
 
     LazyColumn {
         item {
