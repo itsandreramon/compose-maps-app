@@ -8,7 +8,7 @@ data class RuleReponse(
     val id: Int,
 
     @Json(name = "categoryId")
-    val categoryId: String,
+    val categoryId: Long,
 
     @Json(name = "status")
     val status: Int,

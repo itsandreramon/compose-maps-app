@@ -1,6 +1,5 @@
 package de.thb.core.data.sources.places
 
-import android.util.Log
 import com.dropbox.android.external.store4.Fetcher
 import com.dropbox.android.external.store4.SourceOfTruth
 import com.dropbox.android.external.store4.StoreBuilder
@@ -25,7 +24,7 @@ class PlacesRepositoryImpl(
     }
 
     private val getAllStore = StoreBuilder.from(
-        fetcher = Fetcher.of { placesRemoteDataSource.getAll().also { Log.e(TAG, "fetched: $it") } },
+        fetcher = Fetcher.of { placesRemoteDataSource.getAll() },
         sourceOfTruth = SourceOfTruth.of(
             reader = { placesLocalDataSource.getAll() },
             writer = { _, input -> insert(input) },
@@ -70,11 +69,9 @@ class PlacesRepositoryImpl(
             updater = { response, entity -> response.toEntity(entity) },
             mapper = { response -> response.toEntity() },
             onUpdateRequested = { places ->
-                Log.e(TAG, "updating places: $places")
                 placesLocalDataSource.insert(places)
             },
             onInsertRequested = { places ->
-                Log.e(TAG, "inserting places: $places")
                 placesLocalDataSource.insert(places)
             }
         )

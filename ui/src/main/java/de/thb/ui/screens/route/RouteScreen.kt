@@ -123,9 +123,6 @@ class RouteViewModel(
                         searchedPlaces = searchedPlaces
                     )
 
-                    Log.e(TAG, "old state: $uiState")
-                    Log.e(TAG, "new state: $newState")
-
                     setState {
                         copy(
                             uiState = newState

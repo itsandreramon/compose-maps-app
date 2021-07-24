@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import de.thb.core.domain.category.CategoryEntity
+import de.thb.core.domain.rule.RuleEntity
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
@@ -39,13 +40,16 @@ import de.thb.ui.util.state
 
 // TODO Move callbacks into edit state
 @Composable
-fun RulonaCategories(
-    category: CategoryEntity,
+fun RulonaCategoryWithRules(
+    categoryWithRules: Pair<CategoryEntity, List<RuleEntity>>,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),
     onItemRemoved: () -> Unit,
     onItemAdded: () -> Unit,
 ) {
+    val category = categoryWithRules.first
+    val rules = categoryWithRules.second
+
     var expanded by state { false }
 
     Box(modifier = modifier) {
@@ -59,7 +63,7 @@ fun RulonaCategories(
                     .padding(vertical = margin_small)
             ) {
                 Row(
-                    Modifier.align(Alignment.CenterStart),
+                    modifier = Modifier.align(Alignment.CenterStart),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AnimatedVisibility(editState is EditState.Done) {
@@ -75,16 +79,16 @@ fun RulonaCategories(
 
                     Spacer(modifier = Modifier.padding(end = margin_medium))
 
-                    Text(
-                        text = category.name,
-                    )
+                    Text(text = category.name)
                 }
 
                 Surface(
                     shape = RoundedCornerShape(corner_size_medium),
                     modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
-                    val rotation by animateFloatAsState(targetValue = if (expanded) -90f else 90f)
+                    val rotation by animateFloatAsState(
+                        if (expanded) -90f else 90f
+                    )
 
                     Box(
                         contentAlignment = Alignment.Center,
@@ -135,7 +139,9 @@ fun RulonaCategories(
 
             AnimatedVisibility(visible = expanded) {
                 Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
-                    Text(text = category.name)
+                    for (rule in rules) {
+                        Text(rule.text)
+                    }
                 }
             }
         }

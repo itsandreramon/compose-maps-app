@@ -50,7 +50,11 @@ fun RulonaPlaceItem(
                     imageVector = Icons.Default.ArrowUpward,
                     colorFilter = when (placeTrend) {
                         PlaceTrend.UP -> ColorFilter.tint(rulona_material_red_600)
-                        PlaceTrend.NEUTRAL -> ColorFilter.tint(MaterialTheme.colors.onBackground.copy(alpha = 0.3f))
+                        PlaceTrend.NEUTRAL -> ColorFilter.tint(
+                            MaterialTheme.colors.onBackground.copy(
+                                alpha = 0.3f
+                            )
+                        )
                         PlaceTrend.DOWN -> ColorFilter.tint(rulona_material_green_600)
                     },
                     contentDescription = null,

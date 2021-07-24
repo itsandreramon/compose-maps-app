@@ -1,9 +1,12 @@
 package de.thb.core.domain.rule
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = "rules")
 data class RuleEntity(
 
@@ -12,7 +15,10 @@ data class RuleEntity(
     val id: Int,
 
     @ColumnInfo(name = "category_id")
-    val categoryId: String,
+    val categoryId: Long,
+
+    @ColumnInfo(name = "place_id")
+    val placeId: String,
 
     @ColumnInfo(name = "status")
     val status: Int,
@@ -25,4 +31,4 @@ data class RuleEntity(
 
     @ColumnInfo(name = "timestamp")
     val timestamp: String,
-)
+) : Parcelable

@@ -24,10 +24,13 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import de.thb.core.data.sources.categories.CategoriesRepsitory
 import de.thb.core.data.sources.places.PlacesRepository
+import de.thb.core.data.sources.rules.RulesRepository
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.domain.rule.RuleWithCategoryEntity
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.places.RulonaCategoriesList
+import de.thb.ui.components.places.RulonaRulesList
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddCategoryUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditCategoriesUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveCategoryUseCase
@@ -52,7 +55,7 @@ import org.koin.core.component.inject
 sealed class PlaceDetailUiState {
     data class OverviewUiState(
         val place: PlaceEntity? = null,
-        val categories: List<CategoryEntity> = listOf(),
+        val categories: List<RuleWithCategoryEntity> = listOf(),
     ) : PlaceDetailUiState()
 
     data class EditCategoriesUiState(
@@ -75,31 +78,18 @@ class PlaceDetailsViewModel(
 
     private val placesRepository by inject<PlacesRepository>()
     private val categoriesRepository by inject<CategoriesRepsitory>()
+    private val rulesRepository by inject<RulesRepository>()
 
     init {
         stateFlow.combine(categoriesRepository.getAll()) { state, categories ->
             when (val uiState = state.uiState) {
-                is OverviewUiState -> {
-                    val addedCategories = categories
-                        .filter { it.added == true }
-                        .sortedBy { it.name }
-
-                    if (uiState.place != null) {
-                        setState { copy(uiState = uiState.copy(categories = addedCategories)) }
-                    }
-                }
                 is EditCategoriesUiState -> {
                     val (addedCategories, notAddedCategories) = categories
                         .sortedBy { it.name }
                         .partition { it.added == true }
 
                     setState {
-                        copy(
-                            uiState = uiState.copy(
-                                notAddedCategories = notAddedCategories,
-                                addedCategories = addedCategories,
-                            )
-                        )
+                        copy(uiState = uiState.copy(notAddedCategories, addedCategories))
                     }
                 }
             }
@@ -135,8 +125,8 @@ class PlaceDetailsViewModel(
         }
     }
 
-    fun loadPlace(id: String) {
-        placesRepository.getById(id)
+    fun loadPlace(placeId: String) {
+        placesRepository.getById(placeId)
             .filterNotNull()
             .distinctUntilChanged()
             .onEach { place ->
@@ -151,6 +141,22 @@ class PlaceDetailsViewModel(
                     }
                 }
             }.launchIn(viewModelScope)
+    }
+
+    fun loadRules(placeId: String) {
+        stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
+            when (val uiState = state.uiState) {
+                is OverviewUiState -> {
+                    val addedCategories = rulesWithCategories
+                        .filter { it.category.added == true }
+                        .sortedBy { it.category.name }
+
+                    if (uiState.place != null) {
+                        setState { copy(uiState = uiState.copy(categories = addedCategories)) }
+                    }
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 }
 
@@ -168,7 +174,10 @@ fun PlaceDetailsScreen(
         is OverviewUiState -> {
             if (uiState.place == null) {
                 // try reloading if place is set to null
-                SideEffect { viewModel.loadPlace(placeId) }
+                SideEffect {
+                    viewModel.loadPlace(placeId)
+                    viewModel.loadRules(placeId)
+                }
             }
 
             PlaceDetailsOverview(
@@ -214,6 +223,7 @@ fun PlaceDetailsEditCategories(
             back = Back(onBackClicked),
             actions = listOf()
         )
+
         Column(Modifier.padding(horizontal = margin_medium)) {
             AnimatedVisibility(addedCategories.isNotEmpty()) {
                 Column {
@@ -248,7 +258,7 @@ fun PlaceDetailsEditCategories(
 @Composable
 fun PlaceDetailsOverview(
     place: PlaceEntity?,
-    categories: List<CategoryEntity>,
+    categories: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
     onNotifyClicked: () -> Unit,
     onShareClicked: () -> Unit,
@@ -264,6 +274,7 @@ fun PlaceDetailsOverview(
                     Share(onShareClicked)
                 )
             )
+
             Column(
                 modifier = Modifier
                     .padding(top = margin_large)
@@ -294,9 +305,9 @@ fun PlaceDetailsOverview(
                     )
                 }
 
-                RulonaCategoriesList(
+                RulonaRulesList(
                     title = "Meine Kategorien",
-                    categories = categories,
+                    rules = categories,
                     onEditStateChanged = onEditStateChanged
                 )
             }

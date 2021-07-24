@@ -1,10 +1,11 @@
 package de.thb.core.util
 
-import android.util.Log
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
+import de.thb.core.domain.rule.RuleEntity
+import de.thb.core.domain.rule.RuleReponse
 
 object CategoryUtils {
 
@@ -81,6 +82,34 @@ object PlaceUtils {
     }
 }
 
+object RuleUtils {
+
+    /**
+     * Converts the response into an entity object,
+     * but maps it to a given place.
+     *
+     * @param placeId
+     */
+    fun RuleReponse.toEntity(placeId: String): RuleEntity {
+        return RuleEntity(
+            id = id,
+            categoryId = categoryId,
+            placeId = placeId,
+            status = status,
+            restriction = restriction,
+            text = text,
+            timestamp = timestamp,
+        )
+    }
+
+    /**
+     * Converts a list of responses into a list of entities.
+     */
+    fun List<RuleReponse>.toEntities(placeId: String): List<RuleEntity> {
+        return map { it.toEntity(placeId) }
+    }
+}
+
 /**
  * Genereic helper function that allows to split a response
  * into two parts:
@@ -110,8 +139,6 @@ suspend fun <R, T> responseToEntityIfExistsElseResponse(
     onUpdateRequested: suspend (List<T>) -> Unit,
     onInsertRequested: suspend (List<T>) -> Unit,
 ) {
-    Log.e("mapper", "got response: $responseData")
-
     val (toUpdate, toInsert) = responseData.partition { response ->
         localData.any { entity -> predicate(response, entity) }
     }
