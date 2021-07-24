@@ -76,9 +76,6 @@ class PlacesViewModel(
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
-            Log.e(TAG, "new state: $state")
-            Log.e(TAG, "new places: $places")
-
             when (val uiState = state.uiState) {
                 is BookmarksUiState -> {
                     val bookmarkedPlaces = places

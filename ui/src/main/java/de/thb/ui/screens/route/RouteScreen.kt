@@ -21,13 +21,16 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -53,7 +56,6 @@ import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
-import de.thb.ui.util.hasLocationPermission
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.setStatusBarIconColorInSideEffect
 import de.thb.ui.util.state
@@ -93,22 +95,32 @@ class RouteViewModel(
     initialState: RouteState,
 ) : MavericksViewModel<RouteState>(initialState), KoinComponent {
 
+    companion object {
+        const val TAG = "RouteViewModel"
+    }
+
     private val placesLocalDataSource by inject<PlacesLocalDataSource>()
 
     init {
         stateFlow.combine(placesLocalDataSource.getAll()) { state, places ->
             when (val uiState = state.uiState) {
                 is SearchUiState -> {
+
                     val searchedPlaces = if (uiState.query.isNotBlank()) {
                         places.filter { it.name.contains(uiState.query, ignoreCase = true) }
                     } else listOf()
 
+                    val newState = uiState.copy(
+                        query = uiState.query,
+                        searchedPlaces = searchedPlaces
+                    )
+
+                    Log.e(TAG, "old state: $uiState")
+                    Log.e(TAG, "new state: $newState")
+
                     setState {
                         copy(
-                            uiState = uiState.copy(
-                                query = uiState.query,
-                                searchedPlaces = searchedPlaces
-                            )
+                            uiState = newState
                         )
                     }
                 }
@@ -176,12 +188,11 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
             }
         }
 
-    if (hasLocationPermission(context)) {
-        viewModel.action(RequestLocationUpdatesUseCase(context))
-    } else {
-        SideEffect {
-            requestLocationPermissionLauncher.launch(ACCESS_FINE_LOCATION)
-        }
+    SideEffect {
+        // not necessary to check permission, as callback
+        // gets triggered with isGranted = true
+        // if already provided.
+        requestLocationPermissionLauncher.launch(ACCESS_FINE_LOCATION)
     }
 
     val routeUiState by viewModel.collectAsState()
@@ -305,6 +316,20 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
             )
 
             MapView(mapView, LocalContext.current, placeLocation, geoApiContext)
+        }
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .align(Alignment.BottomCenter)
+                .padding(margin_medium)
+        ) {
+            Text(
+                text = "Regeln der Landkreise",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }
