@@ -140,7 +140,10 @@ fun RulonaCategoryWithRules(
             AnimatedVisibility(visible = expanded) {
                 Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
                     for (rule in rules) {
-                        Text(rule.text)
+                        Text(
+                            text = rule.text,
+                            modifier = Modifier.padding(bottom = margin_medium)
+                        )
                     }
                 }
             }
