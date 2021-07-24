@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -26,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -296,6 +296,7 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
     val geocoder = Geocoder(LocalContext.current)
 
     val placeLocation by produceState<MapLatLng?>(initialValue = null) {
+        // TODO move into ViewModel
         withContext(Dispatchers.IO) {
             value = runCatching {
                 val result = geocoder.getFromLocationName(place.name, 1)[0]
@@ -304,11 +305,7 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
         }
     }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Blue)
-    ) {
+    Box(Modifier.fillMaxSize()) {
         Column {
             RulonaAppBar(
                 title = place.name,
@@ -321,7 +318,7 @@ private fun PlaceDetailsScreen(place: PlaceEntity, onBackClicked: () -> Unit) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colors.surface)
                 .align(Alignment.BottomCenter)
                 .padding(margin_medium)
         ) {
