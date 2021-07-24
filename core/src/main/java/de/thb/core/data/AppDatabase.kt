@@ -19,5 +19,5 @@ import de.thb.core.domain.place.PlaceEntity
 @TypeConverters(EnumConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun placesDao(): PlacesRoomDao
-    abstract fun filtersDao(): CategoriesRoomDao
+    abstract fun categoriesDao(): CategoriesRoomDao
 }

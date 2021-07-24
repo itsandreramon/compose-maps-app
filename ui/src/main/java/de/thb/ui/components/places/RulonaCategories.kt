@@ -39,7 +39,7 @@ import de.thb.ui.util.state
 
 // TODO Move callbacks into edit state
 @Composable
-fun RulonaFilter(
+fun RulonaCategories(
     category: CategoryEntity,
     modifier: Modifier = Modifier,
     editState: EditState = EditState.Done(),

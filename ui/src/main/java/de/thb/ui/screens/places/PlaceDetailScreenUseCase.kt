@@ -4,15 +4,15 @@ import de.thb.core.domain.category.CategoryEntity
 import de.thb.ui.type.EditState
 
 sealed class PlaceDetailScreenUseCase {
-    data class EditFiltersUseCase(
+    data class EditCategoriesUseCase(
         val editState: EditState,
     ) : PlaceDetailScreenUseCase()
 
-    data class RemoveFilterUseCase(
+    data class RemoveCategoryUseCase(
         val category: CategoryEntity,
     ) : PlaceDetailScreenUseCase()
 
-    data class AddFilterUseCase(
+    data class AddCategoryUseCase(
         val category: CategoryEntity,
     ) : PlaceDetailScreenUseCase()
 }

@@ -27,10 +27,10 @@ import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.components.places.RulonaFilterList
-import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddFilterUseCase
-import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditFiltersUseCase
-import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveFilterUseCase
+import de.thb.ui.components.places.RulonaCategoriesList
+import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddCategoryUseCase
+import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditCategoriesUseCase
+import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveCategoryUseCase
 import de.thb.ui.screens.places.PlaceDetailUiState.EditCategoriesUiState
 import de.thb.ui.screens.places.PlaceDetailUiState.OverviewUiState
 import de.thb.ui.theme.margin_large
@@ -109,9 +109,9 @@ class PlaceDetailsViewModel(
 
     fun action(useCase: PlaceDetailScreenUseCase) {
         when (useCase) {
-            is EditFiltersUseCase -> setScreenEditState(useCase.editState)
-            is RemoveFilterUseCase -> removeFilter(useCase.category)
-            is AddFilterUseCase -> addFilter(useCase.category)
+            is EditCategoriesUseCase -> setScreenEditState(useCase.editState)
+            is RemoveCategoryUseCase -> removeCategory(useCase.category)
+            is AddCategoryUseCase -> addCategory(useCase.category)
         }
     }
 
@@ -122,17 +122,17 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun removeFilter(category: CategoryEntity) {
+    private fun removeCategory(category: CategoryEntity) {
         viewModelScope.launch {
-            val updatedFilter = category.copy(added = false)
-            categoriesRepository.insert(updatedFilter)
+            val updatedCategory = category.copy(added = false)
+            categoriesRepository.insert(updatedCategory)
         }
     }
 
-    private fun addFilter(category: CategoryEntity) {
+    private fun addCategory(category: CategoryEntity) {
         viewModelScope.launch {
-            val updatedFilter = category.copy(added = true)
-            categoriesRepository.insert(updatedFilter)
+            val updatedCategory = category.copy(added = true)
+            categoriesRepository.insert(updatedCategory)
         }
     }
 
@@ -181,22 +181,22 @@ fun PlaceDetailsScreen(
                 onShareClicked = {},
                 onNotifyClicked = {},
                 onEditStateChanged = { editState ->
-                    viewModel.action(EditFiltersUseCase(editState))
+                    viewModel.action(EditCategoriesUseCase(editState))
                 }
             )
         }
         is EditCategoriesUiState -> {
-            PlaceDetailsEditFilters(
+            PlaceDetailsEditCategories(
                 addedCategories = uiState.addedCategories,
                 notAddedCategories = uiState.notAddedCategories,
                 onBackClicked = {
-                    viewModel.action(EditFiltersUseCase(EditState.Done()))
+                    viewModel.action(EditCategoriesUseCase(EditState.Done()))
                 },
-                onFilterRemoved = { filter ->
-                    viewModel.action(RemoveFilterUseCase(filter))
+                onCategoryRemoved = { category ->
+                    viewModel.action(RemoveCategoryUseCase(category))
                 },
-                onFilterAdded = { filter ->
-                    viewModel.action(AddFilterUseCase(filter))
+                onCategoryAdded = { category ->
+                    viewModel.action(AddCategoryUseCase(category))
                 }
             )
         }
@@ -204,12 +204,12 @@ fun PlaceDetailsScreen(
 }
 
 @Composable
-fun PlaceDetailsEditFilters(
+fun PlaceDetailsEditCategories(
     addedCategories: List<CategoryEntity>,
     notAddedCategories: List<CategoryEntity>,
     onBackClicked: () -> Unit,
-    onFilterRemoved: (CategoryEntity) -> Unit,
-    onFilterAdded: (CategoryEntity) -> Unit,
+    onCategoryRemoved: (CategoryEntity) -> Unit,
+    onCategoryAdded: (CategoryEntity) -> Unit,
 ) {
     Column {
         RulonaAppBar(
@@ -220,13 +220,13 @@ fun PlaceDetailsEditFilters(
         Column(Modifier.padding(horizontal = margin_medium)) {
             AnimatedVisibility(addedCategories.isNotEmpty()) {
                 Column {
-                    RulonaFilterList(
-                        title = "Meine Filter",
+                    RulonaCategoriesList(
+                        title = "Meine Kategorien",
                         categories = addedCategories,
                         isEditable = false,
                         editState = EditState.Editing(),
                         onEditStateChanged = {},
-                        onRemoveClicked = onFilterRemoved,
+                        onRemoveClicked = onCategoryRemoved,
                     )
 
                     Spacer(modifier = Modifier.padding(top = margin_large))
@@ -234,14 +234,14 @@ fun PlaceDetailsEditFilters(
             }
 
             AnimatedVisibility(notAddedCategories.isNotEmpty()) {
-                RulonaFilterList(
+                RulonaCategoriesList(
                     title = "Alle Kategorien",
                     categories = notAddedCategories,
                     isEditable = false,
                     editState = EditState.Adding(),
                     onEditStateChanged = {},
-                    onRemoveClicked = onFilterRemoved,
-                    onAddClicked = onFilterAdded,
+                    onRemoveClicked = onCategoryRemoved,
+                    onAddClicked = onCategoryAdded,
                 )
             }
         }
@@ -297,8 +297,8 @@ fun PlaceDetailsOverview(
                     )
                 }
 
-                RulonaFilterList(
-                    title = "Meine Filter",
+                RulonaCategoriesList(
+                    title = "Meine Kategorien",
                     categories = categories,
                     onEditStateChanged = onEditStateChanged
                 )

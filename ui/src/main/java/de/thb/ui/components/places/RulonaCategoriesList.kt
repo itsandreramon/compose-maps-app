@@ -8,7 +8,7 @@ import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.type.EditState
 
 @Composable
-fun RulonaFilterList(
+fun RulonaCategoriesList(
     categories: List<CategoryEntity>,
     title: String,
     editState: EditState = EditState.Done(),
@@ -27,12 +27,12 @@ fun RulonaFilterList(
             )
         }
 
-        items(categories) { filter ->
-            RulonaFilter(
-                category = filter,
+        items(categories) { category ->
+            RulonaCategories(
+                category = category,
                 editState = editState,
-                onItemRemoved = { onRemoveClicked(filter) },
-                onItemAdded = { onAddClicked(filter) },
+                onItemRemoved = { onRemoveClicked(category) },
+                onItemAdded = { onAddClicked(category) },
             )
         }
     }

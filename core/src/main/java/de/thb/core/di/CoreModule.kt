@@ -76,7 +76,7 @@ val coreModule = module {
         applicationScope: CoroutineScope,
     ): CategoriesLocalDataSource {
         return CategoriesLocalDataSourceImpl(
-            categoriesRoomDao = appDatabase.filtersDao(),
+            categoriesRoomDao = appDatabase.categoriesDao(),
             dispatcherProvider = dispatcherProvider,
             applicationScope = applicationScope
         )

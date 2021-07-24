@@ -75,7 +75,7 @@ class PlacesScreenTest {
         composeTestRule.onNodeWithText("Hamburg")
             .performClick()
 
-        composeTestRule.onNodeWithText("Meine Filter")
+        composeTestRule.onNodeWithText("Meine Kategorien")
             .assertIsDisplayed()
     }
 
@@ -149,14 +149,14 @@ class PlacesScreenTest {
     }
 
     @Test
-    fun clicking_on_edit_filters_opens_filter_list() {
+    fun clicking_on_edit_filters_opens_categories_list() {
         composeTestRule.onNodeWithText("Hamburg")
             .performClick()
 
         composeTestRule.onNodeWithContentDescription("Edit Places")
             .performClick()
 
-        composeTestRule.onNodeWithText("Meine Filter")
+        composeTestRule.onNodeWithText("Meine Kategorien")
             .assertIsDisplayed()
 
         composeTestRule.onNodeWithContentDescription("Back")
