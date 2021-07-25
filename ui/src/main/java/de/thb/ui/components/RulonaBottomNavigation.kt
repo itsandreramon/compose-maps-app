@@ -40,7 +40,11 @@ fun RulonaBottomNavigation(
                     },
                     label = { Text(screen.title) },
                     selected = currentRoute == screen.route,
-                    onClick = { onClick(screen) },
+                    onClick = {
+                        if (currentRoute != screen.route) {
+                            onClick(screen)
+                        }
+                    },
                 )
             }
         }
