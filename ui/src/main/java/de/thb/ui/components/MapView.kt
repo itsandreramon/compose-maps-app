@@ -15,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.ktx.awaitMap
 import com.google.maps.model.EncodedPolyline
@@ -51,12 +52,17 @@ fun MapView(
 
                     if (polyline != null) {
                         val decodedPolyline = decodePolylineForMapView(polyline)
+                        val destination = decodedPolyline.lastOrNull()
 
                         addPolyline(
                             PolylineOptions()
                                 .addAll(decodedPolyline)
                                 .color(Color.BLUE)
                         )
+
+                        destination?.let { latLng ->
+                            addMarker(MarkerOptions().position(latLng))
+                        }
                     }
                 }
             }

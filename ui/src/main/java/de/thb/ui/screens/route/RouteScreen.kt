@@ -178,9 +178,8 @@ class RouteViewModel(
                                 endLatLng = end.toLatLng(),
                             )
 
-                            Log.e(TAG, "polyline: $polyline")
-
                             if (polyline != null) {
+
                                 setState { state.copy(uiState = uiState.copy(polyline = polyline)) }
                             }
                         }
