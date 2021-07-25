@@ -1,6 +1,5 @@
 package de.thb.core.manager
 
-import android.location.Geocoder
 import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.google.maps.GeocodingApi
