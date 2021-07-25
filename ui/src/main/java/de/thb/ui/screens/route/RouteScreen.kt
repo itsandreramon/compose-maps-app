@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,8 +14,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +46,7 @@ import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
+import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import com.google.maps.model.EncodedPolyline
@@ -365,65 +370,86 @@ private fun PlaceDetailsScreen(
     placeLocation: MapLatLng?,
     polyline: EncodedPolyline?,
     rules: List<RuleWithCategoryEntity>,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
 ) {
+    Log.e("Recompositon", "PlaceDetailsScreen")
+
     val rulesWithCategoriesGrouped = remember(rules) {
         RuleUtils.groupRulesByCategory(rules)
     }
 
+    var expanded by remember { mutableStateOf(false) }
     val mapView = rememberMapViewWithLifecycle()
 
-    Box(Modifier.fillMaxSize()) {
-        Column {
+    Box(Modifier.fillMaxHeight()) {
+        Column(modifier = Modifier.padding(bottom = 64.dp)) {
             RulonaAppBar(
                 title = place.name,
                 back = Back { onBackClicked() }
             )
 
-            MapView(mapView, LocalContext.current, placeLocation, polyline)
+            Box(modifier = Modifier) {
+                MapView(mapView, LocalContext.current, placeLocation, polyline)
+            }
         }
 
-        var expanded by remember { mutableStateOf(false) }
-        val rotation by animateFloatAsState(
-            if (expanded) -90f else 90f
+        val statusBarPadding by animateDpAsState(
+            with(LocalDensity.current) {
+                if (expanded) {
+                    LocalWindowInsets.current.statusBars.top.toDp()
+                } else { 0.dp }
+            }
         )
 
-        Column(
+        Box(
             Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.surface)
                 .align(Alignment.BottomCenter)
+                .padding(top = statusBarPadding)
         ) {
-            Row(
+            val rotation by animateFloatAsState(
+                if (expanded) -90f else 90f
+            )
+
+            Column(
                 Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-                    .padding(margin_medium)
+                    .background(MaterialTheme.colors.surface)
             ) {
-                Text(
-                    text = "Regeln der Landkreise",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .clickable { expanded = !expanded }
+                        .padding(horizontal = margin_medium),
 
-                Image(
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = null,
-                    modifier = Modifier.rotate(rotation),
-                    alignment = Alignment.CenterEnd,
-                )
-            }
+                ) {
+                    Text(
+                        text = "Regeln der Landkreise",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    )
 
-            AnimatedVisibility(expanded) {
-                LazyColumn {
-                    items(rulesWithCategoriesGrouped) { rule ->
-                        RulonaCategoryWithRules(
-                            categoryWithRules = rule,
-                            editState = EditState.Done(),
-                            onItemRemoved = {},
-                            onItemAdded = {},
-                        )
+                    Image(
+                        imageVector = Icons.Default.ChevronLeft,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(rotation),
+                        alignment = Alignment.CenterEnd,
+                    )
+                }
+
+                AnimatedVisibility(expanded) {
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(rulesWithCategoriesGrouped) { rule ->
+                            // TODO Replace
+                            RulonaCategoryWithRules(
+                                categoryWithRules = rule,
+                                editState = EditState.Done(),
+                                onItemRemoved = {},
+                                onItemAdded = {},
+                            )
+                        }
                     }
                 }
             }
