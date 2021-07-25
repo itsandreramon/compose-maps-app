@@ -3,6 +3,7 @@ package de.thb.core.manager
 import android.location.Geocoder
 import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
+import com.google.maps.GeocodingApi
 import com.google.maps.PendingResult
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.EncodedPolyline
@@ -17,14 +18,18 @@ import kotlin.coroutines.resume
 
 interface RouteManager {
 
-    suspend fun getLatLngByName(name: String): MapLatLng?
+    suspend fun getLatLngByName(
+        name: String
+    ): MapLatLng?
 
     suspend fun getDirections(
         startLatLng: LatLng,
         endLatLng: LatLng,
     ): Result<DirectionsResult>
 
-    suspend fun getDirectionsPolyline(result: DirectionsResult): EncodedPolyline?
+    suspend fun getDirectionsPolyline(
+        result: DirectionsResult
+    ): EncodedPolyline?
 
     suspend fun getDirectionsPolyline(
         startLatLng: LatLng,
@@ -41,8 +46,17 @@ class RouteManagerImpl(
     override suspend fun getLatLngByName(name: String): MapLatLng? {
         return withContext(dispatcherProvider.io()) {
             runCatching {
-                val result = geocoder.getFromLocationName(name, 1)[0]
-                MapLatLng(result.latitude, result.longitude)
+                val result = GeocodingApi
+                    .geocode(geoApiContext, name)
+                    .await()
+                    .getOrNull(0)
+
+                result?.let {
+                    MapLatLng(
+                        it.geometry.location.lat,
+                        it.geometry.location.lng
+                    )
+                }
             }.getOrNull()
         }
     }
