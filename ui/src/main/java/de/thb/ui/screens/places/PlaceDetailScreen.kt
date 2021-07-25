@@ -1,12 +1,13 @@
 package de.thb.ui.screens.places
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -29,8 +30,8 @@ import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.rule.RuleWithCategoryEntity
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.components.places.RulonaCategoriesList
 import de.thb.ui.components.places.RulonaRulesList
+import de.thb.ui.components.places.rulonaCategoriesList
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddCategoryUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditCategoriesUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveCategoryUseCase
@@ -241,33 +242,29 @@ fun PlaceDetailsEditCategories(
             actions = listOf()
         )
 
-        Column(Modifier.padding(horizontal = margin_medium)) {
-            AnimatedVisibility(addedCategories.isNotEmpty()) {
-                Column {
-                    RulonaCategoriesList(
-                        title = "Meine Kategorien",
-                        categories = addedCategories,
-                        isEditable = false,
-                        editState = EditState.Editing(),
-                        onEditStateChanged = {},
-                        onRemoveClicked = onCategoryRemoved,
-                    )
-
-                    Spacer(modifier = Modifier.padding(top = margin_large))
-                }
-            }
-
-            AnimatedVisibility(notAddedCategories.isNotEmpty()) {
-                RulonaCategoriesList(
-                    title = "Alle Kategorien",
-                    categories = notAddedCategories,
+        LazyColumn {
+            if (addedCategories.isNotEmpty()) {
+                rulonaCategoriesList(
+                    title = "Meine Kategorien",
+                    categories = addedCategories,
                     isEditable = false,
-                    editState = EditState.Adding(),
+                    editState = EditState.Editing(),
                     onEditStateChanged = {},
                     onRemoveClicked = onCategoryRemoved,
-                    onAddClicked = onCategoryAdded,
                 )
+
+                item { Spacer(modifier = Modifier.height(margin_large)) }
             }
+
+            rulonaCategoriesList(
+                title = "Alle Kategorien",
+                categories = notAddedCategories,
+                isEditable = false,
+                editState = EditState.Adding(),
+                onEditStateChanged = {},
+                onRemoveClicked = onCategoryRemoved,
+                onAddClicked = onCategoryAdded,
+            )
         }
     }
 }

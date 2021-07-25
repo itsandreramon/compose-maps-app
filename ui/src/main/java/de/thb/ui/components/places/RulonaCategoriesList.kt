@@ -1,14 +1,12 @@
 package de.thb.ui.components.places
 
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.type.EditState
 
-@Composable
-fun RulonaCategoriesList(
+fun LazyListScope.rulonaCategoriesList(
     categories: List<CategoryEntity>,
     title: String,
     editState: EditState = EditState.Done(),
@@ -17,23 +15,21 @@ fun RulonaCategoriesList(
     onRemoveClicked: (CategoryEntity) -> Unit = {},
     onAddClicked: (CategoryEntity) -> Unit = {},
 ) {
-    LazyColumn {
-        item {
-            RulonaHeaderEditable(
-                title = title,
-                isEditable = isEditable,
-                editState = editState,
-                onEditStateChanged = onEditStateChanged,
-            )
-        }
+    item {
+        RulonaHeaderEditable(
+            title = title,
+            isEditable = isEditable,
+            editState = editState,
+            onEditStateChanged = onEditStateChanged,
+        )
+    }
 
-        items(categories) { category ->
-            RulonaCategoryWithRules(
-                categoryWithRules = Pair(category, listOf()), // we don't need the specific rules
-                editState = editState,
-                onItemRemoved = { onRemoveClicked(category) },
-                onItemAdded = { onAddClicked(category) },
-            )
-        }
+    items(categories) { category ->
+        RulonaCategoryWithRules(
+            categoryWithRules = Pair(category, listOf()), // we don't need the specific rules
+            editState = editState,
+            onItemRemoved = { onRemoveClicked(category) },
+            onItemAdded = { onAddClicked(category) },
+        )
     }
 }
