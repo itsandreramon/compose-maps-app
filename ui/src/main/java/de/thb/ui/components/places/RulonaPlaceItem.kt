@@ -24,8 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import de.thb.core.domain.place.PlaceTrend
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.rulona_material_green_600
-import de.thb.ui.theme.rulona_material_red_600
+import de.thb.ui.theme.rulona_green
+import de.thb.ui.theme.rulona_red
 
 @Composable
 fun RulonaPlaceItem(
@@ -49,13 +49,13 @@ fun RulonaPlaceItem(
                 Image(
                     imageVector = Icons.Default.ArrowUpward,
                     colorFilter = when (placeTrend) {
-                        PlaceTrend.UP -> ColorFilter.tint(rulona_material_red_600)
+                        PlaceTrend.UP -> ColorFilter.tint(rulona_red)
                         PlaceTrend.NEUTRAL -> ColorFilter.tint(
                             MaterialTheme.colors.onBackground.copy(
                                 alpha = 0.3f
                             )
                         )
-                        PlaceTrend.DOWN -> ColorFilter.tint(rulona_material_green_600)
+                        PlaceTrend.DOWN -> ColorFilter.tint(rulona_green)
                     },
                     contentDescription = null,
                     modifier = Modifier

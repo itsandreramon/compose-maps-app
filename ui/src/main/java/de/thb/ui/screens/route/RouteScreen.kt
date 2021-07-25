@@ -25,6 +25,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -61,7 +63,6 @@ import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaSearchBarFilled
-import de.thb.ui.components.places.RulonaCategoryWithRules
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.SearchUseCase
@@ -70,7 +71,7 @@ import de.thb.ui.screens.route.RouteUiState.PlaceDetailsUiState
 import de.thb.ui.screens.route.RouteUiState.SearchUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.type.EditState
+import de.thb.ui.theme.rulona_red
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
@@ -397,7 +398,9 @@ private fun PlaceDetailsScreen(
             with(LocalDensity.current) {
                 if (expanded) {
                     LocalWindowInsets.current.statusBars.top.toDp()
-                } else { 0.dp }
+                } else {
+                    0.dp
+                }
             }
         )
 
@@ -440,15 +443,24 @@ private fun PlaceDetailsScreen(
                 }
 
                 AnimatedVisibility(expanded) {
-                    LazyColumn(Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(margin_medium)
+                    ) {
                         items(rulesWithCategoriesGrouped) { rule ->
-                            // TODO Replace
-                            RulonaCategoryWithRules(
-                                categoryWithRules = rule,
-                                editState = EditState.Done(),
-                                onItemRemoved = {},
-                                onItemAdded = {},
-                            )
+                            Row {
+                                // TODO Use rules for places in route
+                                // TODO Move to component
+                                Image(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(rulona_red),
+                                    modifier = Modifier.padding(end = margin_medium)
+                                )
+
+                                Text(rule.first.name)
+                            }
                         }
                     }
                 }
