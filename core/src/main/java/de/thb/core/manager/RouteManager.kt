@@ -40,7 +40,6 @@ interface RouteManager {
 class RouteManagerImpl(
     private val dispatcherProvider: CoroutinesDispatcherProvider,
     private val geoApiContext: GeoApiContext,
-    private val geocoder: Geocoder,
 ) : RouteManager {
 
     override suspend fun getLatLngByName(name: String): MapLatLng? {

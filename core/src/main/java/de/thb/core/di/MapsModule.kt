@@ -23,5 +23,5 @@ val mapsModule = module {
     }
 
     single { provideGeocoder(get()) }
-    single<RouteManager> { RouteManagerImpl(get(), get(), get()) }
+    single<RouteManager> { RouteManagerImpl(get(), get()) }
 }
