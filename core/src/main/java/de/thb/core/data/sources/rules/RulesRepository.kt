@@ -8,5 +8,7 @@ interface RulesRepository {
 
     fun getByPlaceId(placeId: String): Flow<List<RuleWithCategoryEntity>>
 
+    // fun getByRoute(places: List<PlaceEntity>)
+
     suspend fun insert(rule: RuleEntity)
 }

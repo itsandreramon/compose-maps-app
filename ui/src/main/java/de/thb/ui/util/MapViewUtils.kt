@@ -64,6 +64,10 @@ fun LatLng.toMapLatLng(): MapLatLng {
     return MapLatLng(lat, lng)
 }
 
+fun MapLatLng.toLatLng(): LatLng {
+    return LatLng(latitude, longitude)
+}
+
 fun Location.toMapLatLng(): MapLatLng {
     return MapLatLng(latitude, longitude)
 }

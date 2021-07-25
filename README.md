@@ -35,4 +35,5 @@ debugStorePassword=
 ```
 // local.properties
 MAPS_API_KEY=
+MAPS_SERVICES_API_KEY=
 ```

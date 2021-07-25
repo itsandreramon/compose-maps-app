@@ -2,7 +2,6 @@ package de.thb.ui.screens.route
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
-import android.location.Geocoder
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -27,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,13 +44,13 @@ import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.GeoApiContext
+import com.google.maps.model.EncodedPolyline
 import de.thb.core.data.sources.location.LocationDataSourceImpl
 import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.data.sources.rules.RulesRepository
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.rule.RuleWithCategoryEntity
+import de.thb.core.manager.RouteManager
 import de.thb.core.util.MapLatLng
 import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
@@ -72,33 +70,33 @@ import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.state
-import kotlinx.coroutines.Dispatchers
+import de.thb.ui.util.toLatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.androidx.compose.get
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 sealed class RouteUiState {
     data class SearchUiState(
         val query: String = "",
-        val location: LatLng? = null,
+        val location: MapLatLng? = null,
         val searchedPlaces: List<PlaceEntity> = listOf(),
     ) : RouteUiState()
 
     data class OverviewUiState(
-        val location: LatLng? = null,
+        val location: MapLatLng? = null,
     ) : RouteUiState()
 
     data class PlaceDetailsUiState(
         val place: PlaceEntity,
+        val placeLocation: MapLatLng? = null,
+        val polyline: EncodedPolyline? = null,
         val rules: List<RuleWithCategoryEntity> = listOf(),
-        val location: LatLng? = null,
+        val location: MapLatLng? = null,
     ) : RouteUiState()
 }
 
@@ -118,6 +116,7 @@ class RouteViewModel(
 
     private val placesRepository by inject<PlacesRepository>()
     private val rulesRepository by inject<RulesRepository>()
+    private val routeManager by inject<RouteManager>()
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
@@ -138,6 +137,23 @@ class RouteViewModel(
                 }
             }
         }.launchIn(viewModelScope)
+
+        onEach { state ->
+            when (val uiState = state.uiState) {
+                is PlaceDetailsUiState -> {
+                    if (uiState.placeLocation == null) {
+                        routeManager.getLatLngByName(uiState.place.name)
+                            ?.let { latLng ->
+                                setState { copy(uiState = uiState.copy(placeLocation = latLng)) }
+                            }
+                    }
+
+                    if (uiState.polyline == null) {
+                        setPolylineForRoute()
+                    }
+                }
+            }
+        }
     }
 
     fun action(useCase: RouteScreenUseCase) {
@@ -145,6 +161,32 @@ class RouteViewModel(
             is OpenPlaceDetailsUseCase -> setState { copy(uiState = PlaceDetailsUiState(place = useCase.place)) }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
+        }
+    }
+
+    private fun setPolylineForRoute() {
+        withState { state ->
+            when (val uiState = state.uiState) {
+                is PlaceDetailsUiState -> {
+                    if (uiState.placeLocation != null && uiState.location != null) {
+                        val start = uiState.location
+                        val end = uiState.placeLocation
+
+                        viewModelScope.launch {
+                            val polyline = routeManager.getDirectionsPolyline(
+                                startLatLng = start.toLatLng(),
+                                endLatLng = end.toLatLng(),
+                            )
+
+                            Log.e(TAG, "polyline: $polyline")
+
+                            if (polyline != null) {
+                                setState { state.copy(uiState = uiState.copy(polyline = polyline)) }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -159,7 +201,7 @@ class RouteViewModel(
         }
     }
 
-    private fun setLocationState(location: LatLng?) {
+    private fun setLocationState(location: MapLatLng?) {
         withState { state ->
             when (val uiState = state.uiState) {
                 is PlaceDetailsUiState -> setState { copy(uiState = uiState.copy(location = location)) }
@@ -193,12 +235,12 @@ class RouteViewModel(
             if (!job.isCancelled) job.cancel()
         }
 
-        loadRulesJob =
-            stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
+        loadRulesJob = stateFlow
+            .combine(rulesRepository.getByPlaceId(placeId)) { state, rules ->
                 when (val uiState = state.uiState) {
                     is PlaceDetailsUiState -> {
-                        if (rulesWithCategories.isNotEmpty()) {
-                            setState { copy(uiState = uiState.copy(rules = rulesWithCategories)) }
+                        if (rules.isNotEmpty()) {
+                            setState { copy(uiState = uiState.copy(rules = rules)) }
                         }
                     }
                 }
@@ -257,6 +299,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
 
                 PlaceDetailsScreen(
                     place = uiState.place,
+                    placeLocation = uiState.placeLocation,
                     rules = uiState.rules,
                     onBackClicked = { viewModel.action(SearchUseCase(SearchState.Inactive())) }
                 )
@@ -312,16 +355,15 @@ private fun PlaceSearchRouteItem(
 }
 
 @Composable
-private fun PlacesOverviewScreen(location: LatLng?) {
+private fun PlacesOverviewScreen(location: MapLatLng?) {
     val mapView = rememberMapViewWithLifecycle()
-    val geoApiContext = get<GeoApiContext>()
-
-    MapView(mapView, LocalContext.current, location, geoApiContext)
+    MapView(mapView, LocalContext.current, location)
 }
 
 @Composable
 private fun PlaceDetailsScreen(
     place: PlaceEntity,
+    placeLocation: MapLatLng?,
     rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit
 ) {
@@ -330,18 +372,6 @@ private fun PlaceDetailsScreen(
     }
 
     val mapView = rememberMapViewWithLifecycle()
-    val geoApiContext = get<GeoApiContext>()
-    val geocoder = Geocoder(LocalContext.current)
-
-    val placeLocation by produceState<MapLatLng?>(initialValue = null) {
-        // TODO move into ViewModel
-        withContext(Dispatchers.IO) {
-            value = runCatching {
-                val result = geocoder.getFromLocationName(place.name, 1)[0]
-                MapLatLng(result.latitude, result.longitude)
-            }.getOrNull()
-        }
-    }
 
     Box(Modifier.fillMaxSize()) {
         Column {
@@ -350,7 +380,7 @@ private fun PlaceDetailsScreen(
                 back = Back { onBackClicked() }
             )
 
-            MapView(mapView, LocalContext.current, placeLocation, geoApiContext)
+            MapView(mapView, LocalContext.current, placeLocation)
         }
 
         var expanded by remember { mutableStateOf(false) }

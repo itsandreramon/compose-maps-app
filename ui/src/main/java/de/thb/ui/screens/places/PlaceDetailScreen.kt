@@ -160,11 +160,11 @@ class PlaceDetailsViewModel(
             if (!job.isCancelled) job.cancel()
         }
 
-        loadRulesJob =
-            stateFlow.combine(rulesRepository.getByPlaceId(placeId)) { state, rulesWithCategories ->
+        loadRulesJob = stateFlow
+            .combine(rulesRepository.getByPlaceId(placeId)) { state, rules ->
                 when (val uiState = state.uiState) {
                     is OverviewUiState -> {
-                        val addedCategories = rulesWithCategories
+                        val addedCategories = rules
                             .filter { it.category.added == true }
                             .sortedBy { it.category.name }
 
