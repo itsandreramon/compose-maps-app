@@ -144,9 +144,8 @@ class RouteViewModel(
                     if (uiState.placeLocation == null) {
                         routeManager.getLatLngByName(uiState.place.name)
                             ?.let { latLng ->
-                                Log.e(TAG, "got lat lng: $latLng")
                                 setState { copy(uiState = uiState.copy(placeLocation = latLng)) }
-                            } ?: Log.e(TAG, "got lat lng: null")
+                            }
                     }
 
                     if (uiState.polyline == null) {
@@ -180,7 +179,6 @@ class RouteViewModel(
                             )
 
                             if (polyline != null) {
-
                                 setState { state.copy(uiState = uiState.copy(polyline = polyline)) }
                             }
                         }

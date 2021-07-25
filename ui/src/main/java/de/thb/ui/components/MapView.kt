@@ -57,7 +57,7 @@ fun MapView(
                         addPolyline(
                             PolylineOptions()
                                 .addAll(decodedPolyline)
-                                .color(Color.BLUE)
+                                .color(Color.parseColor("#659EF6"))
                         )
 
                         destination?.let { latLng ->
