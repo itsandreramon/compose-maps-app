@@ -51,6 +51,7 @@ fun MapView(
 
                     if (polyline != null) {
                         val decodedPolyline = decodePolylineForMapView(polyline)
+
                         addPolyline(
                             PolylineOptions()
                                 .addAll(decodedPolyline)
