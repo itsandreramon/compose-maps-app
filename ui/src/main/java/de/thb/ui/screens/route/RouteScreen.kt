@@ -300,6 +300,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 PlaceDetailsScreen(
                     place = uiState.place,
                     placeLocation = uiState.placeLocation,
+                    polyline = uiState.polyline,
                     rules = uiState.rules,
                     onBackClicked = { viewModel.action(SearchUseCase(SearchState.Inactive())) }
                 )
@@ -364,6 +365,7 @@ private fun PlacesOverviewScreen(location: MapLatLng?) {
 private fun PlaceDetailsScreen(
     place: PlaceEntity,
     placeLocation: MapLatLng?,
+    polyline: EncodedPolyline?,
     rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit
 ) {
@@ -380,7 +382,7 @@ private fun PlaceDetailsScreen(
                 back = Back { onBackClicked() }
             )
 
-            MapView(mapView, LocalContext.current, placeLocation)
+            MapView(mapView, LocalContext.current, placeLocation, polyline)
         }
 
         var expanded by remember { mutableStateOf(false) }

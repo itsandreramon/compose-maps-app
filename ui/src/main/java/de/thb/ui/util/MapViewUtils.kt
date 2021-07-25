@@ -10,16 +10,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.gms.maps.MapView
-import com.google.maps.DirectionsApiRequest
-import com.google.maps.GeoApiContext
-import com.google.maps.PendingResult
-import com.google.maps.model.DirectionsResult
+import com.google.maps.model.EncodedPolyline
 import de.thb.core.util.LatLng
 import de.thb.core.util.MapLatLng
-import de.thb.core.util.Result
 import de.thb.ui.R
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
@@ -76,23 +70,8 @@ fun Location.toLatLng(): LatLng {
     return LatLng(latitude, longitude)
 }
 
-suspend fun calculateDirections(
-    geoApiContext: GeoApiContext,
-    destination: LatLng,
-    origin: LatLng,
-): Result<DirectionsResult> {
-    return suspendCancellableCoroutine { cont ->
-        DirectionsApiRequest(geoApiContext).apply {
-            origin(origin)
-            destination(destination)
-        }.setCallback(object : PendingResult.Callback<DirectionsResult> {
-            override fun onResult(result: DirectionsResult) {
-                cont.resume(Result.Success(result))
-            }
-
-            override fun onFailure(e: Throwable) {
-                cont.resume(Result.Error(e))
-            }
-        })
-    }
+fun decodePolylineForMapView(encodedPolyline: EncodedPolyline): List<MapLatLng> {
+    return encodedPolyline
+        .decodePath()
+        .map { it.toMapLatLng() }
 }
