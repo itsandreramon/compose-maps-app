@@ -16,8 +16,8 @@ fun NavContainer(navController: NavHostController) {
     NavHost(navController, startDestination = Screen.Places.route) {
         composable(Screen.Places.route) {
             PlacesScreen(
-                onPlaceClicked = { placeUuid ->
-                    navController.navigate("place_details/$placeUuid")
+                onPlaceClicked = { placeId ->
+                    navController.navigate("place_details/$placeId")
                 }
             )
         }
@@ -28,13 +28,13 @@ fun NavContainer(navController: NavHostController) {
 
         composable(
             route = Screen.PlaceDetails.route,
-            arguments = listOf(navArgument("place_uuid") { type = NavType.StringType })
+            arguments = listOf(navArgument("place_id") { type = NavType.StringType })
         ) { navBackStackEntry ->
-            val placeUuid = navBackStackEntry.arguments?.getString("place_uuid")
+            val placeId = navBackStackEntry.arguments?.getString("place_id")
 
-            if (placeUuid != null) {
+            if (placeId != null) {
                 PlaceDetailsScreen(
-                    placeId = placeUuid,
+                    placeId = placeId,
                     onBackClicked = {
                         navController.popBackStack()
                     }

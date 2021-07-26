@@ -150,7 +150,7 @@ class PlacesViewModel(
 @Composable
 fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
-    onPlaceClicked: (uuid: String) -> Unit
+    onPlaceClicked: (id: String) -> Unit
 ) {
     Log.e("Recomposition", "PlacesScreen")
 
@@ -227,9 +227,9 @@ fun PlacesSearch(
     if (currentlySearchedPlaces.isNotEmpty()) {
         RulonaSearchList(
             places = currentlySearchedPlaces,
-            onItemClick = { uuid ->
-                onPlaceClicked(uuid)
-                onPlaceSearched(uuid)
+            onItemClick = { id ->
+                onPlaceClicked(id)
+                onPlaceSearched(id)
             },
             onItemBookmarkClicked = {
                 onItemBookmarkClicked(it)
