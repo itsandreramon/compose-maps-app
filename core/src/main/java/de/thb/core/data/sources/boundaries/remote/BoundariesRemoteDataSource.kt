@@ -9,7 +9,7 @@ interface BoundariesRemoteDataSource {
         name: String
     ): List<BoundaryResponse>
 
-    suspend fun getBoundariesPolyline(
+    suspend fun getBoundaryByName(
         name: String
     ): List<MapLatLng>
 }

@@ -11,10 +11,6 @@ class BoundariesRemoteDataSourceImpl(
     private val boundariesService: BoundariesService,
 ) : BoundariesRemoteDataSource {
 
-    companion object {
-        const val TAG = "BoundariesRemoteDataSource"
-    }
-
     override suspend fun getByName(name: String): List<BoundaryResponse> {
         return withContext(dispatcherProvider.io()) {
             boundariesService.getByName(
@@ -25,26 +21,28 @@ class BoundariesRemoteDataSourceImpl(
         }
     }
 
-    // TODO refactor
-    override suspend fun getBoundariesPolyline(name: String): List<MapLatLng> {
+    override suspend fun getBoundaryByName(name: String): List<MapLatLng> {
         val result = getByName(name)
 
         return result.firstOrNull { it.geojson is Geojson.MultiPolygon }?.let { response ->
-            try {
-                (response.geojson as? Geojson.MultiPolygon)?.coordinates
-                    ?.flatten()
-                    ?.flatten()
-                    ?.map { coordinates ->
-                        coordinates.let { latLng ->
-                            val lat = latLng[1]
-                            val lng = latLng[0]
-
-                            MapLatLng(lat, lng)
-                        }
-                    } ?: emptyList()
-            } catch (e: IndexOutOfBoundsException) {
-                emptyList()
-            }
+            getLatLngsForBoundaryResponse(response)
         } ?: emptyList()
+    }
+
+    private fun getLatLngsForBoundaryResponse(response: BoundaryResponse): List<MapLatLng> {
+        return (response.geojson as? Geojson.MultiPolygon)?.coordinates
+            ?.flatten()
+            ?.flatten()
+            ?.mapNotNull { coordinates ->
+                try {
+                    coordinates.let { latLng ->
+                        val lat = latLng[1]
+                        val lng = latLng[0]
+                        MapLatLng(lat, lng)
+                    }
+                } catch (e: IndexOutOfBoundsException) {
+                    null
+                }
+            } ?: emptyList()
     }
 }

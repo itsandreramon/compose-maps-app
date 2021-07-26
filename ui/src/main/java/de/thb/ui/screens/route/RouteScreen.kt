@@ -184,7 +184,7 @@ class RouteViewModel(
                 is PlaceDetailsUiState -> {
                     viewModelScope.launch {
                         val boundaries = boundariesRemoteDataSource
-                            .getBoundariesPolyline(uiState.place.name)
+                            .getBoundaryByName(uiState.place.name)
 
                         Log.e(TAG, "got boundaries: $boundaries")
 
