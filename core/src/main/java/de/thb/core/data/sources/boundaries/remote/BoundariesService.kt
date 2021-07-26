@@ -6,7 +6,6 @@ import retrofit2.http.Query
 
 interface BoundariesService {
 
-    // Example: /search.php?q=Warsaw+Poland&polygon_geojson=1&format=json
     @GET("/search.php")
     suspend fun getByName(
         @Query("q") name: String,
