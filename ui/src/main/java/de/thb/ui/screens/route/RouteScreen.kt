@@ -52,6 +52,7 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
 import com.google.maps.model.EncodedPolyline
+import de.thb.core.data.sources.boundaries.remote.BoundariesRemoteDataSource
 import de.thb.core.data.sources.location.LocationDataSourceImpl
 import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.data.sources.rules.RulesRepository
@@ -100,7 +101,8 @@ sealed class RouteUiState {
     data class PlaceDetailsUiState(
         val place: PlaceEntity,
         val placeLocation: MapLatLng? = null,
-        val polyline: EncodedPolyline? = null,
+        val polyline: EncodedPolyline? = null, // TODO decode polyline
+        val boundaries: List<MapLatLng> = listOf(),
         val rules: List<RuleWithCategoryEntity> = listOf(),
         val location: MapLatLng? = null,
     ) : RouteUiState()
@@ -123,6 +125,7 @@ class RouteViewModel(
     private val placesRepository by inject<PlacesRepository>()
     private val rulesRepository by inject<RulesRepository>()
     private val routeManager by inject<RouteManager>()
+    private val boundariesRemoteDataSource by inject<BoundariesRemoteDataSource>()
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
@@ -148,6 +151,7 @@ class RouteViewModel(
             when (val uiState = state.uiState) {
                 is PlaceDetailsUiState -> {
                     if (uiState.placeLocation == null) {
+                        // get route
                         routeManager.getLatLngByName(uiState.place.name)
                             ?.let { latLng ->
                                 setState { copy(uiState = uiState.copy(placeLocation = latLng)) }
@@ -156,6 +160,10 @@ class RouteViewModel(
 
                     if (uiState.polyline == null) {
                         setPolylineForRoute()
+                    }
+
+                    if (uiState.boundaries.isEmpty()) {
+                        setBoundariesForPlace()
                     }
                 }
             }
@@ -167,6 +175,25 @@ class RouteViewModel(
             is OpenPlaceDetailsUseCase -> setState { copy(uiState = PlaceDetailsUiState(place = useCase.place)) }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
+        }
+    }
+
+    private suspend fun setBoundariesForPlace() {
+        withState { state ->
+            when (val uiState = state.uiState) {
+                is PlaceDetailsUiState -> {
+                    viewModelScope.launch {
+                        val boundaries = boundariesRemoteDataSource
+                            .getBoundariesPolyline(uiState.place.name)
+
+                        Log.e(TAG, "got boundaries: $boundaries")
+
+                        if (boundaries.isNotEmpty() && uiState.boundaries.isEmpty()) {
+                            setState { copy(uiState = uiState.copy(boundaries = boundaries)) }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -304,6 +331,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 PlaceDetailsScreen(
                     place = uiState.place,
                     placeLocation = uiState.placeLocation,
+                    boundaries = uiState.boundaries,
                     polyline = uiState.polyline,
                     rules = uiState.rules,
                     onBackClicked = { viewModel.action(SearchUseCase(SearchState.Inactive())) }
@@ -370,6 +398,7 @@ private fun PlaceDetailsScreen(
     place: PlaceEntity,
     placeLocation: MapLatLng?,
     polyline: EncodedPolyline?,
+    boundaries: List<MapLatLng> = listOf(),
     rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
 ) {
@@ -390,7 +419,7 @@ private fun PlaceDetailsScreen(
             )
 
             Box(modifier = Modifier) {
-                MapView(mapView, LocalContext.current, placeLocation, polyline)
+                MapView(mapView, LocalContext.current, placeLocation, polyline, boundaries)
             }
         }
 

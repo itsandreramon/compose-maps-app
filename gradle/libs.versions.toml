@@ -22,6 +22,7 @@ square_leakcanary = '2.7'
 square_retrofit = '2.9.0'
 square_turbine = '0.5.2'
 square_timber = '4.7.1'
+square_okhttp = '4.9.1'
 airbnb_mavericks = '2.1.0-alpha02'
 dropbox_store = '4.0.2-KT15'
 pinterest_ktlint = '0.41.0'
@@ -67,6 +68,7 @@ square-leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", ver
 square-retrofit-lib = { module = "com.squareup.retrofit2:retrofit", version.ref = "square_retrofit" }
 square-retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "square_retrofit" }
 square-turbine = { module = "app.cash.turbine:turbine", version.ref = "square_turbine" }
+square-okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "square_okhttp" }
 
 google-gms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google_gms" }
 

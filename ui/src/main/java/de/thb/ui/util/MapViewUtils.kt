@@ -75,3 +75,7 @@ fun decodePolylineForMapView(encodedPolyline: EncodedPolyline): List<MapLatLng> 
         .decodePath()
         .map { it.toMapLatLng() }
 }
+
+fun encodePolylineByCoordinates(coordinates: List<LatLng>): EncodedPolyline {
+    return EncodedPolyline(coordinates)
+}

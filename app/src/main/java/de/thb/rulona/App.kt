@@ -2,6 +2,7 @@ package de.thb.rulona
 
 import android.app.Application
 import com.airbnb.mvrx.Mavericks
+import de.thb.core.di.boundariesModule
 import de.thb.core.di.categoriesModule
 import de.thb.core.di.coreModule
 import de.thb.core.di.mapsModule
@@ -31,8 +32,9 @@ class App : Application() {
                 mapsModule,
                 rulesModule,
                 placesModule,
+                boundariesModule,
                 categoriesModule,
-                networkModule
+                networkModule,
             )
         }
     }

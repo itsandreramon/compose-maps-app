@@ -30,6 +30,7 @@ fun MapView(
     context: Context,
     location: MapLatLng?,
     polyline: EncodedPolyline? = null,
+    boundaries: List<MapLatLng> = listOf()
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val scope = remember { lifecycle.coroutineScope }
@@ -63,6 +64,14 @@ fun MapView(
                         destination?.let { latLng ->
                             addMarker(MarkerOptions().position(latLng))
                         }
+                    }
+
+                    if (boundaries.isNotEmpty()) {
+                        addPolyline(
+                            PolylineOptions()
+                                .addAll(boundaries)
+                                .color(Color.RED)
+                        )
                     }
                 }
             }
