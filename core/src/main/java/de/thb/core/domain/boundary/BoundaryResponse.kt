@@ -10,7 +10,7 @@ data class BoundaryResponse(
     val lat: String,
     val licence: String,
     val lon: String,
-    val osm_id: Int,
+    val osm_id: Long,
     val osm_type: String,
     val place_id: Int,
     val type: String
