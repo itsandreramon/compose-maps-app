@@ -1,7 +1,10 @@
 package de.thb.ui.screens.places
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +15,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -45,7 +50,6 @@ import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
 import de.thb.ui.type.RulonaAppBarAction.Share
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -55,28 +59,21 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 sealed class PlaceDetailUiState {
-    data class OverviewUiState(
-        val place: PlaceEntity? = null,
-        val categories: List<RuleWithCategoryEntity> = listOf(),
-    ) : PlaceDetailUiState()
-
-    data class EditCategoriesUiState(
-        val notAddedCategories: List<CategoryEntity> = listOf(),
-        val addedCategories: List<CategoryEntity> = listOf(),
-    ) : PlaceDetailUiState()
+    object OverviewUiState : PlaceDetailUiState()
+    object EditCategoriesUiState : PlaceDetailUiState()
 }
 
 data class PlaceDetailsState(
-    val uiState: PlaceDetailUiState = OverviewUiState(),
+    val place: PlaceEntity? = null,
+    val rules: List<RuleWithCategoryEntity> = listOf(),
+    val notAddedCategories: List<CategoryEntity> = listOf(),
+    val addedCategories: List<CategoryEntity> = listOf(),
+    val uiState: PlaceDetailUiState = OverviewUiState,
 ) : MavericksState
 
 class PlaceDetailsViewModel(
     initialState: PlaceDetailsState,
 ) : MavericksViewModel<PlaceDetailsState>(initialState), KoinComponent {
-
-    companion object {
-        const val TAG = "PlaceDetailsViewModel"
-    }
 
     private var loadRulesJob: Job? = null
     private var loadPlacesJob: Job? = null
@@ -86,19 +83,19 @@ class PlaceDetailsViewModel(
     private val rulesRepository by inject<RulesRepository>()
 
     init {
-        stateFlow.combine(categoriesRepository.getAll()) { state, categories ->
-            when (val uiState = state.uiState) {
-                is EditCategoriesUiState -> {
-                    val (addedCategories, notAddedCategories) = categories
-                        .sortedBy { it.name }
-                        .partition { it.added == true }
+        categoriesRepository.getAll()
+            .onEach { categories ->
+                val (addedCategories, notAddedCategories) = categories
+                    .sortedBy { it.name }
+                    .partition { it.added == true }
 
-                    setState {
-                        copy(uiState = uiState.copy(notAddedCategories, addedCategories))
-                    }
+                setState {
+                    copy(
+                        notAddedCategories = notAddedCategories,
+                        addedCategories = addedCategories
+                    )
                 }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     fun action(useCase: PlaceDetailScreenUseCase) {
@@ -111,8 +108,8 @@ class PlaceDetailsViewModel(
 
     private fun setScreenEditState(editState: EditState) {
         when (editState) {
-            is EditState.Editing -> setState { copy(uiState = EditCategoriesUiState()) }
-            else -> setState { copy(uiState = OverviewUiState()) }
+            is EditState.Editing -> setState { copy(uiState = EditCategoriesUiState) }
+            else -> setState { copy(uiState = OverviewUiState) }
         }
     }
 
@@ -140,18 +137,8 @@ class PlaceDetailsViewModel(
         loadPlacesJob = placesRepository.getById(placeId)
             .filterNotNull()
             .distinctUntilChanged()
-            .onEach { place ->
-                withState { state ->
-                    when (val uiState = state.uiState) {
-                        is OverviewUiState -> {
-                            setState { copy(uiState = uiState.copy(place = place)) }
-                        }
-                        is EditCategoriesUiState -> {
-                            // ...
-                        }
-                    }
-                }
-            }.launchIn(viewModelScope)
+            .onEach { place -> setState { copy(place = place) } }
+            .launchIn(viewModelScope)
     }
 
     fun loadRules(placeId: String) {
@@ -161,19 +148,13 @@ class PlaceDetailsViewModel(
             if (!job.isCancelled) job.cancel()
         }
 
-        loadRulesJob = stateFlow
-            .combine(rulesRepository.getByPlaceId(placeId)) { state, rules ->
-                when (val uiState = state.uiState) {
-                    is OverviewUiState -> {
-                        val addedCategories = rules
-                            .filter { it.category.added == true }
-                            .sortedBy { it.category.name }
+        loadRulesJob = rulesRepository.getByPlaceId(placeId)
+            .onEach { rules ->
+                val addedCategories = rules
+                    .filter { it.category.added == true }
+                    .sortedBy { it.category.name }
 
-                        if (uiState.place != null) {
-                            setState { copy(uiState = uiState.copy(categories = addedCategories)) }
-                        }
-                    }
-                }
+                setState { copy(rules = addedCategories) }
             }.launchIn(viewModelScope)
     }
 }
@@ -186,21 +167,23 @@ fun PlaceDetailsScreen(
 ) {
     Log.e("Recomposition", "PlaceDetailsScreen")
 
+    LaunchedEffect(placeId) {
+        viewModel.loadPlace(placeId)
+        viewModel.loadRules(placeId)
+    }
+
+    val place by viewModel.collectAsState(PlaceDetailsState::place)
+    val rules by viewModel.collectAsState(PlaceDetailsState::rules)
+    val addedCategories by viewModel.collectAsState(PlaceDetailsState::addedCategories)
+    val notAddedCategories by viewModel.collectAsState(PlaceDetailsState::notAddedCategories)
+
     val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
 
     when (val uiState = placeDetailUiState.value) {
         is OverviewUiState -> {
-            if (uiState.place == null) {
-                // try reloading if place is set to null
-                SideEffect {
-                    viewModel.loadPlace(placeId)
-                    viewModel.loadRules(placeId)
-                }
-            }
-
             PlaceDetailsOverview(
-                place = uiState.place,
-                categories = uiState.categories,
+                place = place,
+                rules = rules,
                 onBackClicked = onBackClicked,
                 onShareClicked = {},
                 onNotifyClicked = {},
@@ -211,8 +194,8 @@ fun PlaceDetailsScreen(
         }
         is EditCategoriesUiState -> {
             PlaceDetailsEditCategories(
-                addedCategories = uiState.addedCategories,
-                notAddedCategories = uiState.notAddedCategories,
+                addedCategories = addedCategories,
+                notAddedCategories = notAddedCategories,
                 onBackClicked = {
                     viewModel.action(EditCategoriesUseCase(EditState.Done()))
                 },
@@ -272,7 +255,7 @@ fun PlaceDetailsEditCategories(
 @Composable
 fun PlaceDetailsOverview(
     place: PlaceEntity?,
-    categories: List<RuleWithCategoryEntity>,
+    rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
     onNotifyClicked: () -> Unit,
     onShareClicked: () -> Unit,
@@ -319,11 +302,18 @@ fun PlaceDetailsOverview(
                     )
                 }
 
-                RulonaRulesList(
-                    title = "Meine Kategorien",
-                    rules = categories,
-                    onEditStateChanged = onEditStateChanged
+                val alpha by animateFloatAsState(
+                    targetValue = if (rules.isNotEmpty()) 1f else 0f,
+                    animationSpec = tween(500)
                 )
+
+                Box(Modifier.alpha(alpha)) {
+                    RulonaRulesList(
+                        title = "Meine Kategorien",
+                        rules = rules,
+                        onEditStateChanged = onEditStateChanged
+                    )
+                }
             }
         }
     }

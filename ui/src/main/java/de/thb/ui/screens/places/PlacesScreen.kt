@@ -1,10 +1,15 @@
 package de.thb.ui.screens.places
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -35,6 +40,7 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -50,52 +56,41 @@ sealed class PlacesUiState {
         val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
-    data class BookmarksUiState(
-        val bookmarkedPlaces: List<PlaceEntity> = listOf(),
-    ) : PlacesUiState()
+    object BookmarksUiState : PlacesUiState()
 
-    data class EditBookmarksUiState(
-        val bookmarkedPlaces: List<PlaceEntity> = listOf(),
-    ) : PlacesUiState()
+    object EditBookmarksUiState : PlacesUiState()
 }
 
 data class PlacesState(
-    val uiState: PlacesUiState = BookmarksUiState(),
+    val uiState: PlacesUiState = BookmarksUiState,
+    val bookmarkedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
 class PlacesViewModel(
     initialState: PlacesState,
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
-    companion object {
-        const val TAG = "PlacesViewModel"
-    }
-
     private val placesRepository by inject<PlacesRepository>()
 
     init {
+        placesRepository.getAll()
+            .onEach { places ->
+                val bookmarkedPlaces = places
+                    .filter { it.isBookmarked }
+                    .sortedBy { it.name }
+
+                setState { copy(bookmarkedPlaces = bookmarkedPlaces) }
+            }
+            .launchIn(viewModelScope)
+
         stateFlow.combine(placesRepository.getAll()) { state, places ->
             when (val uiState = state.uiState) {
-                is BookmarksUiState -> {
-                    val bookmarkedPlaces = places
-                        .filter { it.isBookmarked }
-                        .sortedBy { it.name }
-
-                    setState { copy(uiState = uiState.copy(bookmarkedPlaces)) }
-                }
                 is RecentlySearchedUiState -> {
                     val recentlySearchedPlaces = places
                         .filter { it.searchedAtUtc != null }
                         .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
 
                     setState { copy(uiState = uiState.copy(recentlySearchedPlaces)) }
-                }
-                is EditBookmarksUiState -> {
-                    val bookmarkedPlaces = places
-                        .filter { it.isBookmarked }
-                        .sortedBy { it.name }
-
-                    setState { copy(uiState = uiState.copy(bookmarkedPlaces)) }
                 }
                 is SearchUiState -> {
                     val searchedPlaces = places.filter {
@@ -119,15 +114,15 @@ class PlacesViewModel(
 
     private fun setScreenEditState(state: EditState) {
         when (state) {
-            is EditState.Editing -> setState { copy(uiState = EditBookmarksUiState()) }
-            else -> setState { copy(uiState = BookmarksUiState()) }
+            is EditState.Editing -> setState { copy(uiState = EditBookmarksUiState) }
+            else -> setState { copy(uiState = BookmarksUiState) }
         }
     }
 
     private fun setScreenSearchState(state: SearchState) {
         when (state) {
             is SearchState.Active -> setState { copy(uiState = RecentlySearchedUiState()) }
-            is SearchState.Inactive -> setState { copy(uiState = BookmarksUiState()) }
+            is SearchState.Inactive -> setState { copy(uiState = BookmarksUiState) }
             is SearchState.Search -> setState { copy(uiState = SearchUiState(state.query)) }
         }
     }
@@ -155,6 +150,8 @@ fun PlacesScreen(
     Log.e("Recomposition", "PlacesScreen")
 
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
+    val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
+
     val focusRequester = FocusRequester()
 
     Column(
@@ -176,14 +173,14 @@ fun PlacesScreen(
         when (val uiState = placesUiState.value) {
             is BookmarksUiState -> {
                 PlacesBookmarks(
-                    bookmarkedPlaces = uiState.bookmarkedPlaces,
+                    bookmarkedPlaces = bookmarkedPlaces,
                     onEditStateChanged = { viewModel.action(EditBookmarksUseCase(it)) },
                     onPlaceClicked = { place -> onPlaceClicked(place.id) },
                 )
             }
             is EditBookmarksUiState -> {
                 PlacesEditBookmarks(
-                    bookmarkedPlaces = uiState.bookmarkedPlaces,
+                    bookmarkedPlaces = bookmarkedPlaces,
                     onEditStateChanged = { editState ->
                         viewModel.action(EditBookmarksUseCase(editState))
                     },
@@ -267,7 +264,12 @@ fun PlacesBookmarks(
         onEditStateChanged = onEditStateChanged
     )
 
-    if (bookmarkedPlaces.isNotEmpty()) {
+    val alpha by animateFloatAsState(
+        targetValue = if (bookmarkedPlaces.isNotEmpty()) 1f else 0f,
+        animationSpec = tween(500)
+    )
+
+    Box(Modifier.alpha(alpha)) {
         RulonaPlacesList(
             places = bookmarkedPlaces,
             editState = EditState.Done(),
