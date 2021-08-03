@@ -89,9 +89,7 @@ import org.koin.core.component.inject
 
 sealed class RouteUiState {
     data class SearchUiState(
-        val query: String = "",
         val location: MapLatLng? = null,
-        val searchedPlaces: List<PlaceEntity> = listOf(),
     ) : RouteUiState()
 
     data class OverviewUiState(
@@ -109,6 +107,8 @@ sealed class RouteUiState {
 }
 
 data class RouteState(
+    val query: String = "",
+    val searchedPlaces: List<PlaceEntity> = listOf(),
     val uiState: RouteUiState = OverviewUiState(),
 ) : MavericksState
 
@@ -129,21 +129,20 @@ class RouteViewModel(
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
-            when (val uiState = state.uiState) {
+            when (state.uiState) {
                 is SearchUiState -> {
-                    val searchedPlaces = if (uiState.query.isNotBlank()) {
-                        places.filter { it.name.contains(uiState.query, ignoreCase = true) }
+                    val searchedPlaces = if (state.query.isNotBlank()) {
+                        places.filter { it.name.contains(state.query, ignoreCase = true) }
                     } else listOf()
 
                     setState {
                         copy(
-                            uiState = uiState.copy(
-                                query = uiState.query,
-                                searchedPlaces = searchedPlaces
-                            )
+                            query = query,
+                            searchedPlaces = searchedPlaces
                         )
                     }
                 }
+                else -> {}
             }
         }.launchIn(viewModelScope)
 
@@ -248,10 +247,10 @@ class RouteViewModel(
                 // not necessary to copy old state as
                 // database only emits on changes, else
                 // existing data is used in init {}
-                copy(uiState = SearchUiState(state.query))
+                copy(uiState = SearchUiState(), query = state.query)
             }
             is SearchState.Search -> setState {
-                copy(uiState = SearchUiState(state.query))
+                copy(uiState = SearchUiState(), query = state.query)
             }
             is SearchState.Inactive -> setState {
                 copy(uiState = OverviewUiState())
@@ -317,7 +316,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 searchBarVisible = true
 
                 PlacesSearchScreen(
-                    currentlySearchedPlaces = uiState.searchedPlaces,
+                    currentlySearchedPlaces = routeUiState.searchedPlaces,
                     onPlaceClicked = { place ->
                         viewModel.action(OpenPlaceDetailsUseCase(place))
                     },
