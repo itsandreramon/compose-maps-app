@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,6 +33,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.rule.RuleEntity
+import de.thb.core.util.dateFromTimestamp
+import de.thb.core.util.dateToString
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
@@ -144,12 +147,45 @@ fun RulonaCategoryWithRules(
             }
 
             AnimatedVisibility(visible = expanded) {
-                Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
+                Column(Modifier.padding(bottom = margin_small, start = margin_medium)) {
                     for (rule in rules) {
                         Text(
                             text = rule.text,
                             modifier = Modifier.padding(bottom = margin_medium)
                         )
+                    }
+
+                    val latestDate = rules
+                        .mapNotNull { rule -> dateFromTimestamp(rule.timestamp) }
+                        .maxOrNull()
+
+                    val date = dateToString(latestDate)
+
+                    if (date != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = margin_small)
+                        ) {
+                            Image(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .weight(0.1f)
+                                    .size(24.dp)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(0.9f)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Zuletzt aktualisiert am $date",
+                                    modifier = Modifier.align(Alignment.CenterEnd)
+                                )
+                            }
+                        }
                     }
                 }
             }
