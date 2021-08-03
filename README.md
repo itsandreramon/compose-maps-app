@@ -12,8 +12,8 @@
 
 ## Instructions
 
-This project uses Jetpack Compose and should be opened using Android
-Studio [Arctic Fox](https://developer.android.com/studio/preview) or higher.
+This project uses Jetpack Compose and should be opened using Android Studio
+2020.3.1 [Arctic Fox](https://developer.android.com/studio/) or newer.
 
 #### Decrypt secrets
 
@@ -30,7 +30,7 @@ debugKeyPassword=
 debugStorePassword=
 ```
 
-#### Add Google Maps API key
+#### Add Google Maps API keys
 
 ```
 // local.properties
