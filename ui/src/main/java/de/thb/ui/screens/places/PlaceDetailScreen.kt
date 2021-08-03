@@ -1,10 +1,7 @@
 package de.thb.ui.screens.places
 
 import android.util.Log
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -150,9 +146,13 @@ class PlaceDetailsViewModel(
 
         loadRulesJob = rulesRepository.getByPlaceId(placeId)
             .onEach { rules ->
+                Log.e("TAG", "New rules: $rules")
+
                 val addedCategories = rules
                     .filter { it.category.added == true }
                     .sortedBy { it.category.name }
+
+                Log.e("", "got categories $addedCategories")
 
                 setState { copy(rules = addedCategories) }
             }.launchIn(viewModelScope)
@@ -181,6 +181,9 @@ fun PlaceDetailsScreen(
 
     when (placeDetailUiState.value) {
         is OverviewUiState -> {
+            Log.e("TAG", "setting details screen")
+            Log.e("TAG", "setting rules $rules")
+
             PlaceDetailsOverview(
                 place = place,
                 rules = rules,
@@ -302,18 +305,11 @@ fun PlaceDetailsOverview(
                     )
                 }
 
-                val alpha by animateFloatAsState(
-                    targetValue = if (rules.isNotEmpty()) 1f else 0f,
-                    animationSpec = tween(500)
+                RulonaRulesList(
+                    title = "Meine Kategorien",
+                    rules = rules,
+                    onEditStateChanged = onEditStateChanged
                 )
-
-                Box(Modifier.alpha(alpha)) {
-                    RulonaRulesList(
-                        title = "Meine Kategorien",
-                        rules = rules,
-                        onEditStateChanged = onEditStateChanged
-                    )
-                }
             }
         }
     }
