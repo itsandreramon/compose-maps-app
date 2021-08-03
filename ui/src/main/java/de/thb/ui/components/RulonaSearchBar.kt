@@ -86,7 +86,7 @@ fun RulonaSearchBar(
                 )
             },
             trailingIcon = {
-                if (isFocused) {
+                if (isFocused && query.text.isNotEmpty()) {
                     Icon(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Clear Search Bar Icon",
