@@ -146,13 +146,9 @@ class PlaceDetailsViewModel(
 
         loadRulesJob = rulesRepository.getByPlaceId(placeId)
             .onEach { rules ->
-                Log.e("TAG", "New rules: $rules")
-
                 val addedCategories = rules
                     .filter { it.category.added == true }
                     .sortedBy { it.category.name }
-
-                Log.e("", "got categories $addedCategories")
 
                 setState { copy(rules = addedCategories) }
             }.launchIn(viewModelScope)
@@ -181,9 +177,6 @@ fun PlaceDetailsScreen(
 
     when (placeDetailUiState.value) {
         is OverviewUiState -> {
-            Log.e("TAG", "setting details screen")
-            Log.e("TAG", "setting rules $rules")
-
             PlaceDetailsOverview(
                 place = place,
                 rules = rules,

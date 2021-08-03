@@ -67,6 +67,7 @@ object PlaceUtils {
             id = id,
             name = name,
             type = type,
+            trend = trend,
             incidence = incidence ?: placeEntity.incidence,
             website = website ?: placeEntity.website,
             example = example,

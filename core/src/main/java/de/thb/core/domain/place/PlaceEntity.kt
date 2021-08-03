@@ -20,7 +20,7 @@ data class PlaceEntity(
     val incidence: Double,
 
     @ColumnInfo(name = "trend")
-    val trend: Int = 0,
+    val trend: Int,
 
     @ColumnInfo(name = "website")
     val website: String,

@@ -12,7 +12,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CallMade
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -31,7 +31,7 @@ import de.thb.ui.theme.rulona_red
 fun RulonaPlaceItem(
     title: String,
     isInEditMode: Boolean,
-    placeTrend: PlaceTrend = PlaceTrend.UP,
+    placeTrend: PlaceTrend,
     onClick: () -> Unit,
     onRemoved: () -> Unit,
 ) {
@@ -47,7 +47,7 @@ fun RulonaPlaceItem(
         ) {
             Row(Modifier.height(margin_large)) {
                 Image(
-                    imageVector = Icons.Default.ArrowUpward,
+                    imageVector = Icons.Default.CallMade,
                     colorFilter = when (placeTrend) {
                         PlaceTrend.UP -> ColorFilter.tint(rulona_red)
                         PlaceTrend.NEUTRAL -> ColorFilter.tint(
@@ -62,9 +62,9 @@ fun RulonaPlaceItem(
                         .padding(end = margin_medium)
                         .rotate(
                             degrees = when (placeTrend) {
-                                PlaceTrend.UP -> 45f
-                                PlaceTrend.NEUTRAL -> 90f
-                                PlaceTrend.DOWN -> 135f
+                                PlaceTrend.UP -> 0f
+                                PlaceTrend.NEUTRAL -> 45f
+                                PlaceTrend.DOWN -> 90f
                             }
                         )
                 )
@@ -101,5 +101,6 @@ fun RulonaPlaceItemPreview() {
         isInEditMode = false,
         onClick = {},
         onRemoved = {},
+        placeTrend = PlaceTrend.UP,
     )
 }

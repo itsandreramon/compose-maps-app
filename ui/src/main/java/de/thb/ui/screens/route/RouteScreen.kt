@@ -185,8 +185,6 @@ class RouteViewModel(
                         val boundaries = boundariesRemoteDataSource
                             .getBoundaryByName(uiState.place.name)
 
-                        Log.e(TAG, "got boundaries: $boundaries")
-
                         if (boundaries.isNotEmpty() && uiState.boundaries.isEmpty()) {
                             setState { copy(uiState = uiState.copy(boundaries = boundaries)) }
                         }
