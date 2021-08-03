@@ -40,7 +40,7 @@ import de.thb.ui.screens.places.PlaceDetailUiState.EditCategoriesUiState
 import de.thb.ui.screens.places.PlaceDetailUiState.OverviewUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.rulona_material_red_600
+import de.thb.ui.theme.rulona_red
 import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Notify
@@ -279,7 +279,7 @@ fun PlaceDetailsOverview(
 
                         Image(
                             imageVector = Icons.Default.ArrowDropUp,
-                            colorFilter = ColorFilter.tint(rulona_material_red_600),
+                            colorFilter = ColorFilter.tint(rulona_red),
                             contentDescription = null
                         )
 

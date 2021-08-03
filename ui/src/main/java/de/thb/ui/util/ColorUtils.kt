@@ -3,16 +3,16 @@ package de.thb.ui.util
 import androidx.compose.ui.graphics.Color
 import de.thb.core.domain.Severity
 import de.thb.core.domain.rule.RuleEntity
-import de.thb.ui.theme.rulona_material_green_600
-import de.thb.ui.theme.rulona_material_red_600
-import de.thb.ui.theme.rulona_material_yellow_600
+import de.thb.ui.theme.rulona_green
+import de.thb.ui.theme.rulona_red
+import de.thb.ui.theme.rulona_yellow
 
 fun Severity.color(): Color {
     return when (this) {
         Severity.UNKNOWN -> Color.Gray
-        Severity.RED -> rulona_material_red_600
-        Severity.YELLOW -> rulona_material_yellow_600
-        Severity.GREEN -> rulona_material_green_600
+        Severity.RED -> rulona_red
+        Severity.YELLOW -> rulona_yellow
+        Severity.GREEN -> rulona_green
     }
 }
 
