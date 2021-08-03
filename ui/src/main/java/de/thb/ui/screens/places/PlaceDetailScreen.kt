@@ -179,7 +179,7 @@ fun PlaceDetailsScreen(
 
     val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
 
-    when (val uiState = placeDetailUiState.value) {
+    when (placeDetailUiState.value) {
         is OverviewUiState -> {
             PlaceDetailsOverview(
                 place = place,
