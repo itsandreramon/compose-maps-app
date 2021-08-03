@@ -23,11 +23,11 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import de.thb.core.domain.category.CategoryEntity
@@ -36,6 +36,8 @@ import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
 import de.thb.ui.type.EditState
+import de.thb.ui.util.color
+import de.thb.ui.util.getCategorySeverityForRules
 import de.thb.ui.util.state
 
 // TODO Move callbacks into edit state
@@ -66,9 +68,13 @@ fun RulonaCategoryWithRules(
                     modifier = Modifier.align(Alignment.CenterStart),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val categoryStatusColor = remember(categoryWithRules.second) {
+                        getCategorySeverityForRules(categoryWithRules.second)
+                    }
+
                     AnimatedVisibility(editState is EditState.Done) {
                         Image(
-                            colorFilter = ColorFilter.tint(Color.Gray),
+                            colorFilter = ColorFilter.tint(categoryStatusColor.color()),
                             imageVector = Icons.Filled.Circle,
                             contentDescription = "Severity Indicator",
                             modifier = Modifier
