@@ -86,6 +86,8 @@ google-maps-services = { module = "com.google.maps:google-maps-services", versio
 
 google-accompanist-insets = { module = "com.google.accompanist:accompanist-insets", version.ref = "google_accompanist" }
 google-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "google_accompanist" }
+google-accompanist-pager-lib = { module = "com.google.accompanist:accompanist-pager", version.ref = "google_accompanist" }
+google-accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "google_accompanist" }
 
 airbnb-mavericks-compose = { module = "com.airbnb.android:mavericks-compose", version.ref = "airbnb_mavericks" }
 dropbox-store = { module = "com.dropbox.mobile.store:store4", version.ref = "dropbox_store" }
