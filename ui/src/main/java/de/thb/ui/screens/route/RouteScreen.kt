@@ -449,21 +449,23 @@ private fun PlaceDetailsScreen(
                         .fillMaxWidth()
                         .height(64.dp)
                         .clickable { expanded = !expanded }
-                        .padding(start = margin_medium),
+                        .padding(horizontal = margin_medium),
 
                 ) {
                     Text(
                         text = "Regeln der Landkreise",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
                     )
 
                     Image(
                         imageVector = Icons.Default.ChevronLeft,
                         contentDescription = null,
-                        modifier = Modifier.rotate(rotation),
-                        alignment = Alignment.CenterEnd,
+                        modifier = Modifier
+                            .rotate(rotation)
+                            .weight(0.1f)
                     )
                 }
 

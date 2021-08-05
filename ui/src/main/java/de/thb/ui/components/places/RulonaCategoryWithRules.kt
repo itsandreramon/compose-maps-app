@@ -163,7 +163,7 @@ fun RulonaCategoryWithRules(
                     if (date != null) {
                         Box(
                             modifier = Modifier
-                                .padding(bottom = margin_small)
+                                .padding(bottom = margin_medium)
                                 .fillMaxWidth()
                         ) {
                             Text(

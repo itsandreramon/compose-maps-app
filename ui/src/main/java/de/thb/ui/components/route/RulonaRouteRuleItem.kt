@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.margin_small
 import de.thb.ui.theme.rulona_red
 import de.thb.ui.util.state
 
@@ -40,12 +39,7 @@ fun RulonaRouteRuleItem(
             modifier = Modifier
                 .clickable { expanded = !expanded }
                 .fillMaxWidth()
-                .padding(
-                    start = margin_medium,
-                    end = margin_small,
-                    top = margin_medium,
-                    bottom = margin_medium,
-                )
+                .padding(margin_medium)
         ) {
             // TODO Use rules for places in route
             // TODO Move to component
@@ -74,7 +68,7 @@ fun RulonaRouteRuleItem(
         }
 
         AnimatedVisibility(visible = expanded) {
-            Box(Modifier.padding(bottom = margin_small, start = margin_medium)) {
+            Box(Modifier.padding(margin_medium)) {
                 for (rule in categoryWithRules.second) {
                     Text(
                         text = rule.text,
