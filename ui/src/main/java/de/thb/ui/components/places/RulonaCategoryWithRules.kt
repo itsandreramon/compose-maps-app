@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -128,7 +128,7 @@ fun RulonaCategoryWithRules(
                             }
                             is EditState.Editing -> {
                                 Image(
-                                    imageVector = Icons.Default.Close,
+                                    imageVector = Icons.Default.Remove,
                                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                                     contentDescription = null,
                                 )

@@ -14,7 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CallMade
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +74,7 @@ fun RulonaPlaceItem(
 
             if (isInEditMode) {
                 Image(
-                    imageVector = Icons.Default.Close,
+                    imageVector = Icons.Default.Remove,
                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                     contentDescription = "Remove Bookmark",
                     modifier = Modifier
