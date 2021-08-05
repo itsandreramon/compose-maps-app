@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -16,10 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
@@ -286,13 +288,35 @@ fun PlaceDetailsOverview(
                         Text(text = "${place.incidence}")
                     }
 
-                    Text(
-                        text = buildAnnotatedString {
-                            append("Die offiziellen Regeln für ${place.name} lassen sich ")
-                            withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
-                                append("hier")
-                            }
-                            append(" einsehen.")
+                    val text = "Die offiziellen Regeln für ${place.name} lassen sich hier einsehen."
+                    val uriHandler = LocalUriHandler.current
+
+                    val annotatedLinkString = buildAnnotatedString {
+                        append(text)
+
+                        addStringAnnotation(
+                            tag = "URL",
+                            annotation = place.website,
+                            start = text.indexOf("hier"),
+                            end = text.indexOf("hier") + 4,
+                        )
+
+                        addStyle(
+                            style = SpanStyle(textDecoration = TextDecoration.Underline),
+                            start = text.indexOf("hier"),
+                            end = text.indexOf("hier") + 4
+                        )
+                    }
+
+                    ClickableText(
+                        text = annotatedLinkString,
+                        style = MaterialTheme.typography.body1,
+                        onClick = {
+                            annotatedLinkString
+                                .getStringAnnotations("URL", it, it)
+                                .firstOrNull()?.let { stringAnnotation ->
+                                    uriHandler.openUri(stringAnnotation.item)
+                                }
                         },
                         modifier = Modifier.padding(top = margin_medium)
                     )

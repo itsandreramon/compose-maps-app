@@ -71,6 +71,7 @@ fun RulonaSearchBar(
 
         OutlinedTextField(
             value = query,
+            maxLines = 1,
             onValueChange = { input ->
                 onSearchStateChanged(getSearchState(input.text, isFocused))
                 query = input

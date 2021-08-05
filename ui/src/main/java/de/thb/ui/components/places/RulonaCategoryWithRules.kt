@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -162,29 +161,15 @@ fun RulonaCategoryWithRules(
                     val date = dateToString(latestDate)
 
                     if (date != null) {
-                        Row(
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .padding(bottom = margin_small)
+                                .fillMaxWidth()
                         ) {
-                            Image(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .weight(0.1f)
-                                    .size(24.dp)
+                            Text(
+                                text = "Zuletzt aktualisiert am $date",
+                                modifier = Modifier.align(Alignment.CenterEnd)
                             )
-
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.9f)
-                                    .fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "Zuletzt aktualisiert am $date",
-                                    modifier = Modifier.align(Alignment.CenterEnd)
-                                )
-                            }
                         }
                     }
                 }
