@@ -1,6 +1,7 @@
 package de.thb.rulona.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -23,12 +24,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.view.WindowCompat.setDecorFitsSystemWindows
 import com.google.accompanist.insets.ProvideWindowInsets
+import de.thb.core.prefs.PrefsStore
+import de.thb.ui.components.RulonaOnboardingDialog
 import de.thb.ui.theme.RulonaTheme
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.util.state
+import kotlinx.coroutines.flow.first
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    val prefsStore: PrefsStore by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,56 +43,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RulonaTheme {
-                var dialogVisible by state { true }
+                var dialogVisible by state { false }
 
                 LaunchedEffect(dialogVisible) {
                     if (dialogVisible) {
-                        // TODO save onboarding has been seen
+                        prefsStore.setHasSeenOnboarding(true)
+                    } else {
+                        dialogVisible = !prefsStore.getHasSeenOnboarding().first()
                     }
                 }
 
                 if (dialogVisible) {
-                    Dialog(
+                    RulonaOnboardingDialog(
                         onDismissRequest = { dialogVisible = false },
-                        content = {
-                            Card(
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(margin_large),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "Alles auf einen Blick",
-                                        style = MaterialTheme.typography.h5
-                                    )
-
-                                    Spacer(modifier = Modifier.height(margin_medium))
-
-                                    Text(
-                                        style = MaterialTheme.typography.body1,
-                                        text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod"
-                                    )
-
-                                    Spacer(modifier = Modifier.height(margin_large.times(2)))
-
-                                    Button(onClick = {}) {
-                                        Text(text = "Weiter")
-                                    }
-
-                                    Spacer(modifier = Modifier.height(margin_medium))
-
-                                    TextButton(onClick = { dialogVisible = false }) {
-                                        Text(
-                                            text = "Überspringen",
-                                            style = MaterialTheme.typography.body1
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        onSkipClicked = { dialogVisible = false },
                     )
                 }
 
