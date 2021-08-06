@@ -398,8 +398,6 @@ private fun PlaceDetailsScreen(
     rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
 ) {
-    Log.e("Recompositon", "PlaceDetailsScreen")
-
     val rulesWithCategoriesGrouped = remember(rules) {
         RuleUtils.groupRulesByCategory(rules)
     }

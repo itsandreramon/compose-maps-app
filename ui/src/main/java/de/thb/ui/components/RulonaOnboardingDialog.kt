@@ -1,6 +1,5 @@
 package de.thb.ui.components
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -89,7 +88,6 @@ fun RulonaOnboardingPager(maxPages: Int, activePage: Int = 0, onActivePageChange
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(activePage) {
-        Log.e("TAG", "active page changed")
         scope.launch { pagerState.scrollToPage(activePage) }
     }
 

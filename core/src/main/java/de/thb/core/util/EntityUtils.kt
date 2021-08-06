@@ -154,16 +154,9 @@ suspend fun <R, T> responseToEntityIfExistsElseResponse(
     onUpdateRequested: suspend (List<T>) -> Unit,
     onInsertRequested: suspend (List<T>) -> Unit,
 ) {
-    Log.e("RESPONSE", "responseToEntityIfExistsElseResponse")
-    Log.e("RESPONSE LOCAL", "$localData")
-    Log.e("RESPONSE RESPONSE", "$responseData")
-
     val (toUpdate, toInsert) = responseData.partition { response ->
         localData.any { entity -> predicate(response, entity) }
     }
-
-    Log.e("UPDATING", "$toUpdate")
-    Log.e("INSERTING", "$toInsert")
 
     toUpdate.mapNotNull { response ->
         val localDataMaybe = localData.firstOrNull { entity -> predicate(response, entity) }

@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -163,8 +162,6 @@ fun PlaceDetailsScreen(
     viewModel: PlaceDetailsViewModel = mavericksViewModel(),
     onBackClicked: () -> Unit,
 ) {
-    Log.e("Recomposition", "PlaceDetailsScreen")
-
     LaunchedEffect(placeId) {
         viewModel.loadPlace(placeId)
         viewModel.loadRules(placeId)

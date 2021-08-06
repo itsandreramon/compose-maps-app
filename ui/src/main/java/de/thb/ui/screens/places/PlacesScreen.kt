@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -84,7 +83,6 @@ class PlacesViewModel(
             .launchIn(viewModelScope)
 
         stateFlow.combine(placesRepository.getAll()) { state, places ->
-            Log.e("got places", "$places")
             when (val uiState = state.uiState) {
                 is RecentlySearchedUiState -> {
                     val recentlySearchedPlaces = places
@@ -97,8 +95,6 @@ class PlacesViewModel(
                     val searchedPlaces = places.filter {
                         it.name.contains(uiState.query, ignoreCase = true)
                     }
-
-                    Log.e("searched places", "$searchedPlaces")
 
                     setState { copy(uiState = uiState.copy(uiState.query, searchedPlaces)) }
                 }
@@ -150,8 +146,6 @@ fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
     onPlaceClicked: (id: String) -> Unit
 ) {
-    Log.e("Recomposition", "PlacesScreen")
-
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
 
