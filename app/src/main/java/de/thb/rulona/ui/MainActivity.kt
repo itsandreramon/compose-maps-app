@@ -12,6 +12,7 @@ import de.thb.core.prefs.PrefsStore
 import de.thb.ui.components.RulonaOnboardingDialog
 import de.thb.ui.theme.RulonaTheme
 import de.thb.ui.util.state
+import kotlinx.coroutines.flow.first
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -28,10 +29,9 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(dialogVisible) {
                     if (dialogVisible) {
-                        // prefsStore.setHasSeenOnboarding(true)
+                        prefsStore.setHasSeenOnboarding(true)
                     } else {
-                        dialogVisible = true
-                        // dialogVisible = !prefsStore.getHasSeenOnboarding().first()
+                        dialogVisible = !prefsStore.getHasSeenOnboarding().first()
                     }
                 }
 

@@ -56,15 +56,14 @@ fun RulonaOnboardingDialog(onDismissRequest: () -> Unit, onSkipClicked: () -> Un
                 ) {
                     RulonaOnboardingPager(maxPages, activePage, onActivePageChanged = {
                         if (it != activePage) {
-                            Log.e("onActivePageChanged", "$it")
                             activePage = it
                         }
                     })
 
                     Button(onClick = {
-                        val newActivePage =
-                            (activePage + 1).coerceIn(0, maxPages - 1) // we start at 0
-                        Log.e("TAG", "clicked and now active: $newActivePage")
+                        val newActivePage = (activePage + 1)
+                            .coerceIn(0, maxPages - 1) // we start at 0
+
                         activePage = newActivePage
                     }) {
                         Text(text = "Weiter")
