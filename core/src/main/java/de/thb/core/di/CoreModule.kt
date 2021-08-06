@@ -15,7 +15,9 @@ val coreModule = module {
         return Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "db"
-        ).build()
+        )
+            .fallbackToDestructiveMigrationOnDowngrade()
+            .build()
     }
 
     fun providePrefsStore(applicationContext: Context): PrefsStore {
