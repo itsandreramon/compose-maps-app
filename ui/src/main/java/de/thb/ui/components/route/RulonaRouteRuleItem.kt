@@ -3,12 +3,13 @@ package de.thb.ui.components.route
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.theme.rulona_background_light
 import de.thb.ui.theme.rulona_red
 import de.thb.ui.util.state
 
@@ -41,8 +43,6 @@ fun RulonaRouteRuleItem(
                 .fillMaxWidth()
                 .padding(margin_medium)
         ) {
-            // TODO Use rules for places in route
-            // TODO Move to component
             Row(
                 Modifier
                     .weight(0.9f)
@@ -68,14 +68,19 @@ fun RulonaRouteRuleItem(
         }
 
         AnimatedVisibility(visible = expanded) {
-            Box(Modifier.padding(margin_medium)) {
+            Column(Modifier.background(rulona_background_light)) {
                 for (rule in categoryWithRules.second) {
                     Text(
                         text = rule.text,
-                        modifier = Modifier.padding(bottom = margin_medium)
+                        modifier = Modifier
+                            .padding(margin_medium)
                     )
                 }
+
+                Divider(Modifier.fillMaxWidth())
             }
+
+            Divider(Modifier.fillMaxWidth())
         }
     }
 }

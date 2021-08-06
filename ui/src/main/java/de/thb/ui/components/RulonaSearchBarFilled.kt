@@ -39,6 +39,7 @@ import de.thb.ui.util.state
 fun RulonaSearchBarFilled(
     onSearchStateChanged: (SearchState) -> Unit,
     onFocusRequested: () -> Unit,
+    hint: String = "Suchen"
 ) {
     var query by state { TextFieldValue() }
     var isFocused by state { false }
@@ -90,14 +91,14 @@ fun RulonaSearchBarFilled(
                         onSearchStateChanged(getSearchState(input.text, isFocused))
                         query = input
                     },
-                    placeholder = { Text("Search") },
+                    placeholder = { Text(hint) },
                     colors = TextFieldDefaults.textFieldColors(
                         backgroundColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
                     trailingIcon = {
-                        if (isFocused) {
+                        if (isFocused && query.text.isNotEmpty()) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
                                 contentDescription = "Clear Search Bar Icon",

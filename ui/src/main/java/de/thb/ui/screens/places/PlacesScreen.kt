@@ -5,6 +5,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -17,8 +20,10 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
+import de.thb.core.data.sources.location.LocationDataSource
 import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.util.LatLng
 import de.thb.core.util.fromUtc
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.RulonaSearchBar
@@ -27,17 +32,20 @@ import de.thb.ui.components.places.RulonaPlacesList
 import de.thb.ui.components.search.RulonaSearchHeader
 import de.thb.ui.components.search.RulonaSearchList
 import de.thb.ui.screens.places.PlacesScreenUseCase.EditBookmarksUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.SearchCurrentLocationUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SearchUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SetPlaceSearchTimestampUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.TogglePlaceBookmarkUseCase
 import de.thb.ui.screens.places.PlacesUiState.BookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
+import de.thb.ui.screens.places.PlacesUiState.SearchCurrentLocationUiState
 import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -55,6 +63,10 @@ sealed class PlacesUiState {
         val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
+    data class SearchCurrentLocationUiState(
+        val currentLocation: LatLng? = null,
+    ) : PlacesUiState()
+
     object BookmarksUiState : PlacesUiState()
 
     object EditBookmarksUiState : PlacesUiState()
@@ -62,6 +74,7 @@ sealed class PlacesUiState {
 
 data class PlacesState(
     val uiState: PlacesUiState = BookmarksUiState,
+    val isLoading: Boolean = false,
     val bookmarkedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -70,6 +83,7 @@ class PlacesViewModel(
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
     private val placesRepository by inject<PlacesRepository>()
+    private val locationDataSource by inject<LocationDataSource>()
 
     init {
         placesRepository.getAll()
@@ -98,6 +112,9 @@ class PlacesViewModel(
 
                     setState { copy(uiState = uiState.copy(uiState.query, searchedPlaces)) }
                 }
+                is SearchCurrentLocationUiState -> {
+                    setState { copy(isLoading = true) }
+                }
             }
         }.launchIn(viewModelScope)
     }
@@ -106,8 +123,24 @@ class PlacesViewModel(
         when (useCase) {
             is EditBookmarksUseCase -> setScreenEditState(useCase.editState)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
+            is SearchCurrentLocationUseCase -> {
+                setState { copy(uiState = SearchCurrentLocationUiState()) }
+            }
             is TogglePlaceBookmarkUseCase -> togglePlaceItemBookmark(useCase.place)
             is SetPlaceSearchTimestampUseCase -> setPlaceSearchedTimestamp(useCase.place)
+        }
+    }
+
+    private fun resolveLocation() {
+        withState { state ->
+            when (val uiState = state.uiState) {
+                is SearchCurrentLocationUiState -> {
+                    viewModelScope.launch {
+                        val currLocation = locationDataSource.getLastLocation().first()
+                        // TODO resolve to district and set state
+                    }
+                }
+            }
         }
     }
 
@@ -148,6 +181,25 @@ fun PlacesScreen(
 ) {
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
+    val isLoading by viewModel.collectAsState(PlacesState::isLoading)
+
+    if (isLoading) {
+        AlertDialog(
+            title = {
+                Text("Bitte warten...")
+            },
+            text = {
+                Text(text = "Suche nach deinem aktuellen Landkreis.")
+            },
+            onDismissRequest = {},
+            dismissButton = {
+                TextButton(onClick = {}) {
+                    Text(text = "Abbruch")
+                }
+            },
+            confirmButton = {},
+        )
+    }
 
     val focusRequester = FocusRequester()
 
@@ -164,7 +216,10 @@ fun PlacesScreen(
             onSearchStateChanged = { searchState ->
                 viewModel.action(SearchUseCase(searchState))
             },
-            onFocusRequested = { focusRequester.requestFocus() }
+            onCurrentLocationClicked = {
+                viewModel.action(SearchCurrentLocationUseCase)
+            },
+            onFocusRequested = { focusRequester.requestFocus() },
         )
 
         when (val uiState = placesUiState.value) {

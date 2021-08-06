@@ -13,6 +13,8 @@ sealed class PlacesScreenUseCase {
         val searchState: SearchState
     ) : PlacesScreenUseCase()
 
+    object SearchCurrentLocationUseCase : PlacesScreenUseCase()
+
     data class TogglePlaceBookmarkUseCase(
         val place: PlaceEntity
     ) : PlacesScreenUseCase()

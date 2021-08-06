@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -62,6 +63,8 @@ import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
 import de.thb.ui.components.RulonaSearchBarFilled
+import de.thb.ui.components.places.RulonaEmptySearchQueryLayout
+import de.thb.ui.components.places.RulonaEmptySearchResultsLayout
 import de.thb.ui.components.route.RulonaRouteRuleItem
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
@@ -71,6 +74,7 @@ import de.thb.ui.screens.route.RouteUiState.PlaceDetailsUiState
 import de.thb.ui.screens.route.RouteUiState.SearchUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.theme.margin_small
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
@@ -170,7 +174,10 @@ class RouteViewModel(
 
     fun action(useCase: RouteScreenUseCase) {
         when (useCase) {
-            is OpenPlaceDetailsUseCase -> setState { copy(uiState = PlaceDetailsUiState(place = useCase.place)) }
+            is OpenPlaceDetailsUseCase -> {
+                Log.e(TAG, "open details")
+                setState { copy(uiState = PlaceDetailsUiState(place = useCase.place)) }
+            }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
         }
@@ -264,6 +271,9 @@ class RouteViewModel(
 
         loadRulesJob = stateFlow
             .combine(rulesRepository.getByPlaceId(placeId)) { state, rules ->
+                Log.e(TAG, "got state: $state")
+                Log.e(TAG, "got rules: $rules")
+
                 when (val uiState = state.uiState) {
                     is PlaceDetailsUiState -> {
                         if (rules.isNotEmpty()) {
@@ -312,12 +322,16 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
             is SearchUiState -> {
                 searchBarVisible = true
 
-                PlacesSearchScreen(
-                    currentlySearchedPlaces = routeUiState.searchedPlaces,
-                    onPlaceClicked = { place ->
-                        viewModel.action(OpenPlaceDetailsUseCase(place))
-                    },
-                )
+                if (routeUiState.query.isNotEmpty()) {
+                    PlacesSearchScreen(
+                        currentlySearchedPlaces = routeUiState.searchedPlaces,
+                        onPlaceClicked = { place ->
+                            viewModel.action(OpenPlaceDetailsUseCase(place))
+                        },
+                    )
+                } else {
+                    RulonaEmptySearchQueryLayout()
+                }
             }
             is PlaceDetailsUiState -> {
                 SideEffect { viewModel.loadRules(uiState.place.id) }
@@ -336,7 +350,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
         }
 
         if (searchBarVisible) {
-            Box(
+            Column(
                 Modifier
                     .statusBarsPadding()
                     .padding(horizontal = margin_medium)
@@ -346,6 +360,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                         viewModel.action(SearchUseCase(searchState))
                     },
                     onFocusRequested = { focusRequester.requestFocus() },
+                    hint = "Ziel"
                 )
             }
         }
@@ -357,14 +372,18 @@ private fun PlacesSearchScreen(
     currentlySearchedPlaces: List<PlaceEntity>,
     onPlaceClicked: (PlaceEntity) -> Unit,
 ) {
-    LazyColumn(
-        Modifier
-            .statusBarsPadding()
-            .padding(top = 84.dp)
-    ) {
-        items(currentlySearchedPlaces) { place ->
-            PlaceSearchRouteItem(onPlaceClicked, place)
+    if (currentlySearchedPlaces.isNotEmpty()) {
+        LazyColumn(
+            Modifier
+                .statusBarsPadding()
+                .padding(top = 84.dp)
+        ) {
+            items(currentlySearchedPlaces) { place ->
+                PlaceSearchRouteItem(onPlaceClicked, place)
+            }
         }
+    } else {
+        RulonaEmptySearchResultsLayout()
     }
 }
 
@@ -447,17 +466,8 @@ private fun PlaceDetailsScreen(
                         .fillMaxWidth()
                         .height(64.dp)
                         .clickable { expanded = !expanded }
-                        .padding(horizontal = margin_medium),
-
-                    ) {
-                    Text(
-                        text = "Regeln der Landkreise",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                    )
-
+                        .padding(end = margin_medium, start = margin_small),
+                ) {
                     Image(
                         imageVector = Icons.Default.ChevronLeft,
                         contentDescription = null,
@@ -465,11 +475,21 @@ private fun PlaceDetailsScreen(
                             .rotate(rotation)
                             .weight(0.1f)
                     )
+
+                    Text(
+                        text = "Regeln der Landkreise",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .padding(start = margin_medium)
+                    )
                 }
 
                 AnimatedVisibility(expanded) {
                     LazyColumn(Modifier.fillMaxSize()) {
                         items(rulesWithCategoriesGrouped) { rule ->
+                            Divider(Modifier.fillMaxWidth())
                             RulonaRouteRuleItem(categoryWithRules = rule)
                         }
                     }
