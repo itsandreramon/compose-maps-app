@@ -1,4 +1,4 @@
-package de.thb.core.domain.boundary
+package de.thb.core.domain.boundary.types
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonDataException

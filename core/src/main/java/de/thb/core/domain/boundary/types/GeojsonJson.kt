@@ -1,4 +1,4 @@
-package de.thb.core.domain.boundary
+package de.thb.core.domain.boundary.types
 
 data class GeojsonJson(
 

@@ -1,5 +1,7 @@
 package de.thb.core.domain.boundary
 
+import de.thb.core.domain.boundary.types.Geojson
+
 data class BoundaryResponse(
     val boundingbox: List<String>,
     val `class`: String,
