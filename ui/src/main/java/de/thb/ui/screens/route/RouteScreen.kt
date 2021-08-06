@@ -451,7 +451,7 @@ private fun PlaceDetailsScreen(
                         .clickable { expanded = !expanded }
                         .padding(horizontal = margin_medium),
 
-                ) {
+                    ) {
                     Text(
                         text = "Regeln der Landkreise",
                         fontSize = 20.sp,

@@ -50,7 +50,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidx_room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx_room" }
 
-androidx-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx_datastore"}
+androidx-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx_datastore" }
 
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
