@@ -1,6 +1,5 @@
 package de.thb.ui.screens.places
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -147,8 +146,6 @@ fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
     onPlaceClicked: (id: String) -> Unit
 ) {
-    Log.e("Recomposition", "PlacesScreen")
-
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
 

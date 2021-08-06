@@ -398,8 +398,6 @@ private fun PlaceDetailsScreen(
     rules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
 ) {
-    Log.e("Recompositon", "PlaceDetailsScreen")
-
     val rulesWithCategoriesGrouped = remember(rules) {
         RuleUtils.groupRulesByCategory(rules)
     }
@@ -451,7 +449,7 @@ private fun PlaceDetailsScreen(
                         .clickable { expanded = !expanded }
                         .padding(horizontal = margin_medium),
 
-                ) {
+                    ) {
                     Text(
                         text = "Regeln der Landkreise",
                         fontSize = 20.sp,

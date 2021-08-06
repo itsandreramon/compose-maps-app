@@ -1,5 +1,6 @@
 package de.thb.core.util
 
+import android.util.Log
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.domain.place.PlaceEntity

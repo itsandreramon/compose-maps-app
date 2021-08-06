@@ -1,6 +1,5 @@
 package de.thb.core.data
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -12,14 +11,11 @@ import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.rule.RuleEntity
 
 @Database(
-    version = 2,
+    version = 1,
     entities = [
         PlaceEntity::class,
         CategoryEntity::class,
         RuleEntity::class,
-    ],
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2),
     ],
     exportSchema = true,
 )

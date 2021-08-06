@@ -35,7 +35,7 @@ class PlacesRepositoryImpl(
         fetcher = Fetcher.of { id: String -> placesRemoteDataSource.getById(id) },
         sourceOfTruth = SourceOfTruth.Companion.of(
             reader = { id: String -> placesLocalDataSource.getById(id) },
-            writer = { _, input -> placesLocalDataSource.insertOrUpdate(input) }
+            writer = { _, input -> placesLocalDataSource.insertOrUpdate(input) },
         )
     ).build()
 
