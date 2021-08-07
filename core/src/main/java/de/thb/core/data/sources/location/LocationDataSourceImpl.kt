@@ -29,7 +29,10 @@ class LocationDataSourceImpl private constructor(
     )
     override fun getLastLocation() = flow {
         val location = locationClient.lastLocation.await()
-        emit(MapLatLng(location.latitude, location.longitude))
+
+        if (location != null) {
+            emit(MapLatLng(location.latitude, location.longitude))
+        }
     }
 
     @RequiresPermission(

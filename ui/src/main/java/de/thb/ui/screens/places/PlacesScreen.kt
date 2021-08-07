@@ -11,6 +11,7 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,7 +44,6 @@ import de.thb.ui.screens.places.PlacesScreenUseCase.TogglePlaceBookmarkUseCase
 import de.thb.ui.screens.places.PlacesUiState.BookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
-import de.thb.ui.screens.places.PlacesUiState.SearchCurrentLocationUiState
 import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.type.EditState
@@ -67,11 +67,6 @@ sealed class PlacesUiState {
         val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
     ) : PlacesUiState()
 
-    data class SearchCurrentLocationUiState(
-        val currentLocation: LatLng? = null,
-        val district: String? = null,
-    ) : PlacesUiState()
-
     object BookmarksUiState : PlacesUiState()
 
     object EditBookmarksUiState : PlacesUiState()
@@ -79,7 +74,8 @@ sealed class PlacesUiState {
 
 data class PlacesState(
     val uiState: PlacesUiState = BookmarksUiState,
-    val isLoading: Boolean = false,
+    val isLoadingCurrentLocation: Boolean = false,
+    val currentLocationPlaceId: String? = null,
     val bookmarkedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
@@ -117,9 +113,6 @@ class PlacesViewModel(
 
                     setState { copy(uiState = uiState.copy(uiState.query, searchedPlaces)) }
                 }
-                is SearchCurrentLocationUiState -> {
-                    setState { copy(isLoading = true) }
-                }
             }
         }.launchIn(viewModelScope)
     }
@@ -135,33 +128,31 @@ class PlacesViewModel(
     }
 
     private fun setSearchCurrentLocationState(context: Context) {
-        setState { copy(uiState = SearchCurrentLocationUiState(), isLoading = true) }
+        setState { copy(isLoadingCurrentLocation = true) }
         resolveLocation(context)
     }
 
     private fun resolveLocation(context: Context) {
         val locationDataSource = LocationDataSourceImpl.getInstance(context)
+        viewModelScope.launch {
+            val currLocation = locationDataSource.getLastLocation().first()
 
-        withState { state ->
-            when (val uiState = state.uiState) {
-                is SearchCurrentLocationUiState -> {
-                    viewModelScope.launch {
-                        val currLocation = locationDataSource.getLastLocation().first()
-                        val district = districtRemoteDataSource.getByLatLng(
-                            LatLng(
-                                currLocation.latitude,
-                                currLocation.longitude
-                            )
-                        )
+            val district = districtRemoteDataSource.getByLatLng(
+                LatLng(
+                    currLocation.latitude,
+                    currLocation.longitude
+                )
+            )
 
-                        setState {
-                            copy(
-                                uiState = uiState.copy(district = district),
-                                isLoading = false
-                            )
-                        }
-                    }
-                }
+            val districtId = placesRepository.getAll().first().firstOrNull {
+                it.name == district
+            }?.id
+
+            setState {
+                copy(
+                    currentLocationPlaceId = districtId,
+                    isLoadingCurrentLocation = false
+                )
             }
         }
     }
@@ -199,14 +190,31 @@ class PlacesViewModel(
 @Composable
 fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
-    onPlaceClicked: (id: String) -> Unit
+    onPlaceLoaded: (id: String) -> Unit
 ) {
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
-    val isLoading by viewModel.collectAsState(PlacesState::isLoading)
+    val isLoadingCurrentLocation by viewModel.collectAsState(PlacesState::isLoadingCurrentLocation)
+    val currentLocationPlaceId by viewModel.collectAsState(PlacesState::currentLocationPlaceId)
 
     val focusRequester = FocusRequester()
     val context = LocalContext.current
+
+    LaunchedEffect(currentLocationPlaceId) {
+        currentLocationPlaceId?.let(onPlaceLoaded)
+    }
+
+    Log.e("TAG", "$isLoadingCurrentLocation")
+
+    if (isLoadingCurrentLocation) {
+        AlertDialog(
+            title = { Text("Bitte warten...") },
+            text = { Text(text = "Suche nach deinem aktuellen Landkreis.") },
+            onDismissRequest = {},
+            dismissButton = { TextButton(onClick = {}) { Text(text = "Abbruch") } },
+            confirmButton = {},
+        )
+    }
 
     Column(
         Modifier
@@ -232,7 +240,7 @@ fun PlacesScreen(
                 PlacesBookmarks(
                     bookmarkedPlaces = bookmarkedPlaces,
                     onEditStateChanged = { viewModel.action(EditBookmarksUseCase(it)) },
-                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
+                    onPlaceClicked = { place -> onPlaceLoaded(place.id) },
                 )
             }
             is EditBookmarksUiState -> {
@@ -252,7 +260,7 @@ fun PlacesScreen(
                     onItemBookmarkClicked = { place ->
                         viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
-                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
+                    onPlaceClicked = { place -> onPlaceLoaded(place.id) },
                 )
             }
             is SearchUiState -> {
@@ -264,21 +272,8 @@ fun PlacesScreen(
                     onPlaceSearched = { place ->
                         viewModel.action(SetPlaceSearchTimestampUseCase(place))
                     },
-                    onPlaceClicked = { place -> onPlaceClicked(place.id) },
+                    onPlaceClicked = { place -> onPlaceLoaded(place.id) },
                 )
-            }
-            is SearchCurrentLocationUiState -> {
-                if (isLoading) {
-                    AlertDialog(
-                        title = { Text("Bitte warten...") },
-                        text = { Text(text = "Suche nach deinem aktuellen Landkreis.") },
-                        onDismissRequest = {},
-                        dismissButton = { TextButton(onClick = {}) { Text(text = "Abbruch") } },
-                        confirmButton = {},
-                    )
-                }
-
-                Log.e("PlacesScreen", "got district ${uiState.district}")
             }
         }
     }

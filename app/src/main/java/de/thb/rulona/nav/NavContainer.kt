@@ -16,7 +16,7 @@ fun NavContainer(navController: NavHostController) {
     NavHost(navController, startDestination = Screen.Places.route) {
         composable(Screen.Places.route) {
             PlacesScreen(
-                onPlaceClicked = { placeId ->
+                onPlaceLoaded = { placeId ->
                     navController.navigate("place_details/$placeId")
                 }
             )
