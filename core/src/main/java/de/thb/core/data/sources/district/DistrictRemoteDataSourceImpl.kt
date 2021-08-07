@@ -29,7 +29,7 @@ class DistrictRemoteDataSourceImpl(
 
             var location = state
 
-            for (item in detailsResponse.address) {
+            for (item in detailsResponse.address ?: emptyList()) {
                 if (item.admin_level == 6) {
                     location = item.localname
                     break

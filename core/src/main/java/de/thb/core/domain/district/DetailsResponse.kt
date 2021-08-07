@@ -6,7 +6,7 @@ import de.thb.core.domain.district.types.AddressDetails
 data class DetailsResponse(
 
     @Json(name = "address")
-    val address: List<AddressDetails>,
+    val address: List<AddressDetails>?,
 
     @Json(name = "localname")
     val localname: String,
