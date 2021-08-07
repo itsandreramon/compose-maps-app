@@ -12,5 +12,5 @@ data class ReverseResponse(
     val osm_type: String,
 
     @Json(name = "address")
-    val addressReverse: AddressReverse,
+    val address: AddressReverse,
 )

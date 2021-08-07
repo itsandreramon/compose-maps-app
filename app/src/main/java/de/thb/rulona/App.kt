@@ -5,6 +5,7 @@ import com.airbnb.mvrx.Mavericks
 import de.thb.core.di.boundariesModule
 import de.thb.core.di.categoriesModule
 import de.thb.core.di.coreModule
+import de.thb.core.di.districtModule
 import de.thb.core.di.mapsModule
 import de.thb.core.di.networkModule
 import de.thb.core.di.placesModule
@@ -33,6 +34,7 @@ class App : Application() {
                 rulesModule,
                 placesModule,
                 boundariesModule,
+                districtModule,
                 categoriesModule,
                 networkModule,
             )

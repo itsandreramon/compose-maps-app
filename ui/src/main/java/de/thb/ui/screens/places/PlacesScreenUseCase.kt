@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.content.Context
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
@@ -13,7 +14,9 @@ sealed class PlacesScreenUseCase {
         val searchState: SearchState
     ) : PlacesScreenUseCase()
 
-    object SearchCurrentLocationUseCase : PlacesScreenUseCase()
+    data class SearchCurrentLocationUseCase(
+        val context: Context,
+    ) : PlacesScreenUseCase()
 
     data class TogglePlaceBookmarkUseCase(
         val place: PlaceEntity

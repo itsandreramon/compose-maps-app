@@ -14,10 +14,10 @@ interface DistrictService {
         @Query("format") format: String,
     ): ReverseResponse
 
-    @GET("/reverse")
+    @GET("/details.php")
     suspend fun getByOsm(
-        @Query("osmType") osmType: String,
-        @Query("osmId") osmId: String,
+        @Query("osmtype") osmType: String,
+        @Query("osmid") osmId: Int,
         @Query("format") format: String,
     ): DetailsResponse
 }

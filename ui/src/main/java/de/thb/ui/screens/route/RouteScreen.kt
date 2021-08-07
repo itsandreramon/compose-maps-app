@@ -225,10 +225,10 @@ class RouteViewModel(
     }
 
     private fun requestLocationUpdates(context: Context) {
-        val locationRepository = LocationDataSourceImpl.getInstance(context)
+        val locationDataSource = LocationDataSourceImpl.getInstance(context)
 
         viewModelScope.launch {
-            locationRepository
+            locationDataSource
                 .requestLocationUpdates(LocationRequest.create())
                 .catch { Log.e("Error", "${it.message}") }
                 .collect { setLocationState(it) }
