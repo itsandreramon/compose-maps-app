@@ -1,5 +1,6 @@
 package de.thb.core.data.sources.places
 
+import android.util.Log
 import com.dropbox.android.external.store4.Fetcher
 import com.dropbox.android.external.store4.SourceOfTruth
 import com.dropbox.android.external.store4.StoreBuilder
@@ -58,6 +59,7 @@ class PlacesRepositoryImpl(
     }
 
     override suspend fun insert(place: PlaceEntity) {
+        Log.e("REPO", "$place")
         placesLocalDataSource.insert(place)
     }
 

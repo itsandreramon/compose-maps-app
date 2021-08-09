@@ -2,6 +2,7 @@ package de.thb.ui.screens.places
 
 import android.Manifest
 import android.content.Context
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
@@ -174,6 +175,7 @@ class PlacesViewModel(
     private fun setPlaceSearchedTimestamp(place: PlaceEntity) {
         viewModelScope.launch {
             val updatedPlace = place.copy(searchedAtUtc = Instant.now().toString())
+            Log.e("VM", "setting searched at..")
             placesRepository.insert(updatedPlace)
         }
     }
