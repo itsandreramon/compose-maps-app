@@ -1,6 +1,7 @@
 package de.thb.rulona.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
                         dialogVisible = !prefsStore.getHasSeenOnboarding().first()
                     }
                 }
+
+                Log.e("LOG", "$dialogVisible")
 
                 if (dialogVisible) {
                     RulonaOnboardingDialog(

@@ -50,14 +50,14 @@ import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.LocationRequest
-import com.google.maps.model.EncodedPolyline
-import de.thb.core.data.sources.boundaries.remote.BoundariesRemoteDataSource
 import de.thb.core.data.sources.location.LocationDataSourceImpl
 import de.thb.core.data.sources.places.PlacesRepository
+import de.thb.core.data.sources.route.RouteRemoteDataSource
 import de.thb.core.data.sources.rules.RulesRepository
 import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.domain.route.type.Coordinate
+import de.thb.core.domain.route.type.RestrictedPlace
 import de.thb.core.domain.rule.RuleWithCategoryEntity
-import de.thb.core.manager.RouteManager
 import de.thb.core.util.MapLatLng
 import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
@@ -79,11 +79,11 @@ import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
 import de.thb.ui.util.state
-import de.thb.ui.util.toLatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -101,9 +101,11 @@ sealed class RouteUiState {
     data class PlaceDetailsUiState(
         val place: PlaceEntity,
         val placeLocation: MapLatLng? = null,
-        val polyline: EncodedPolyline? = null, // TODO decode polyline
-        val boundaries: List<MapLatLng> = listOf(),
-        val rules: List<RuleWithCategoryEntity> = listOf(),
+        val restrictedPlaces: List<RestrictedPlace> = listOf(),
+        val polyline: List<MapLatLng> = listOf(),
+        val boundaries: List<List<MapLatLng>> = listOf(),
+        val rulesInRoute: List<RuleWithCategoryEntity> = listOf(),
+        val placesInRoute: List<PlaceEntity> = listOf(),
         val location: MapLatLng? = null,
     ) : RouteUiState()
 }
@@ -122,16 +124,15 @@ class RouteViewModel(
         const val TAG = "RouteViewModel"
     }
 
-    private var loadRulesJob: Job? = null
+    private var loadRouteJob: Job? = null
 
     private val placesRepository by inject<PlacesRepository>()
     private val rulesRepository by inject<RulesRepository>()
-    private val routeManager by inject<RouteManager>()
-    private val boundariesRemoteDataSource by inject<BoundariesRemoteDataSource>()
+    private val routeRemoteDataSource by inject<RouteRemoteDataSource>()
 
     init {
         stateFlow.combine(placesRepository.getAll()) { state, places ->
-            when (state.uiState) {
+            when (val uiState = state.uiState) {
                 is SearchUiState -> {
                     val searchedPlaces = if (state.query.isNotBlank()) {
                         places.filter { it.name.contains(state.query, ignoreCase = true) }
@@ -144,79 +145,81 @@ class RouteViewModel(
                         )
                     }
                 }
+                is PlaceDetailsUiState -> {
+                    if (uiState.restrictedPlaces.isNotEmpty() && uiState.placesInRoute.isEmpty()) {
+                        val places = places.filter { place ->
+                            uiState.restrictedPlaces.any { restrictedPlace ->
+                                restrictedPlace.placeId == place.id
+                            }
+                        }
+
+                        Log.e(TAG, "filtered places: $places")
+
+                        setState {
+                            copy(uiState = uiState.copy(placesInRoute = places))
+                        }
+                    }
+                }
                 else -> {
                 }
             }
         }.launchIn(viewModelScope)
-
-        onEach { state ->
-            when (val uiState = state.uiState) {
-                is PlaceDetailsUiState -> {
-                    if (uiState.placeLocation == null) {
-                        // get route
-                        routeManager.getLatLngByName(uiState.place.name)
-                            ?.let { latLng ->
-                                setState { copy(uiState = uiState.copy(placeLocation = latLng)) }
-                            }
-                    }
-
-                    if (uiState.polyline == null) {
-                        setPolylineForRoute()
-                    }
-
-                    if (uiState.boundaries.isEmpty()) {
-                        setBoundariesForPlace()
-                    }
-                }
-            }
-        }
     }
 
     fun action(useCase: RouteScreenUseCase) {
         when (useCase) {
             is OpenPlaceDetailsUseCase -> {
-                Log.e(TAG, "open details")
-                setState { copy(uiState = PlaceDetailsUiState(place = useCase.place)) }
+                setState { copy(uiState = PlaceDetailsUiState(place = useCase.destinationPlace)) }
+                loadRouteInformation(useCase.context, useCase.destinationPlace.id)
             }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
         }
     }
 
-    private suspend fun setBoundariesForPlace() {
-        withState { state ->
-            when (val uiState = state.uiState) {
-                is PlaceDetailsUiState -> {
-                    viewModelScope.launch {
-                        val boundaries = boundariesRemoteDataSource
-                            .getBoundaryByName(uiState.place.name)
-
-                        if (boundaries.isNotEmpty() && uiState.boundaries.isEmpty()) {
-                            setState { copy(uiState = uiState.copy(boundaries = boundaries)) }
-                        }
-                    }
-                }
-            }
+    private fun loadRouteInformation(
+        context: Context,
+        destinationPlaceId: String
+    ) {
+        loadRouteJob?.let {
+            if (!it.isCancelled) it.cancel()
         }
-    }
 
-    private fun setPolylineForRoute() {
-        withState { state ->
-            when (val uiState = state.uiState) {
-                is PlaceDetailsUiState -> {
-                    if (uiState.placeLocation != null && uiState.location != null) {
-                        val start = uiState.location
-                        val end = uiState.placeLocation
+        loadRouteJob = viewModelScope.launch {
+            val locationDataSource = LocationDataSourceImpl.getInstance(context)
+            val currLocation = locationDataSource.getLastLocation().first()
 
-                        viewModelScope.launch {
-                            val polyline = routeManager.getDirectionsPolyline(
-                                startLatLng = start.toLatLng(),
-                                endLatLng = end.toLatLng(),
+            val resp = routeRemoteDataSource.getRoute(
+                originLatLng = currLocation,
+                destinationPlaceId = destinationPlaceId,
+            )
+
+            val boundaries = mutableListOf<List<Coordinate>>()
+            val rules = mutableListOf<RuleWithCategoryEntity>()
+
+            for (place in resp.restrictedPlaces) {
+                val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
+                rules.addAll(rulesForPlace.first())
+            }
+
+            withState { state ->
+                when (val uiState = state.uiState) {
+                    is PlaceDetailsUiState -> {
+                        setState {
+                            copy(
+                                uiState = uiState.copy(
+                                    polyline = resp.route
+                                        .flatten()
+                                        .map { MapLatLng(it.lat, it.lng) },
+                                    boundaries = boundaries.map { coordinates ->
+                                        coordinates.map {
+                                            MapLatLng(it.lat, it.lng)
+                                        }
+                                    },
+                                    restrictedPlaces = resp.restrictedPlaces,
+                                    rulesInRoute = rules,
+                                )
                             )
-
-                            if (polyline != null) {
-                                setState { state.copy(uiState = uiState.copy(polyline = polyline)) }
-                            }
                         }
                     }
                 }
@@ -261,28 +264,6 @@ class RouteViewModel(
             }
         }
     }
-
-    fun loadRules(placeId: String) {
-        // make sure to only have a single job
-        // active to update the state
-        loadRulesJob?.let { job ->
-            if (!job.isCancelled) job.cancel()
-        }
-
-        loadRulesJob = stateFlow
-            .combine(rulesRepository.getByPlaceId(placeId)) { state, rules ->
-                Log.e(TAG, "got state: $state")
-                Log.e(TAG, "got rules: $rules")
-
-                when (val uiState = state.uiState) {
-                    is PlaceDetailsUiState -> {
-                        if (rules.isNotEmpty()) {
-                            setState { copy(uiState = uiState.copy(rules = rules)) }
-                        }
-                    }
-                }
-            }.launchIn(viewModelScope)
-    }
 }
 
 @Composable
@@ -326,7 +307,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                     PlacesSearchScreen(
                         currentlySearchedPlaces = routeUiState.searchedPlaces,
                         onPlaceClicked = { place ->
-                            viewModel.action(OpenPlaceDetailsUseCase(place))
+                            viewModel.action(OpenPlaceDetailsUseCase(place, context))
                         },
                     )
                 } else {
@@ -334,8 +315,6 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 }
             }
             is PlaceDetailsUiState -> {
-                SideEffect { viewModel.loadRules(uiState.place.id) }
-
                 searchBarVisible = false
 
                 PlaceDetailsScreen(
@@ -343,7 +322,8 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                     placeLocation = uiState.placeLocation,
                     boundaries = uiState.boundaries,
                     polyline = uiState.polyline,
-                    rules = uiState.rules,
+                    rulesInRoute = uiState.rulesInRoute,
+                    placesInRoute = uiState.placesInRoute,
                     onBackClicked = { viewModel.action(SearchUseCase(SearchState.Inactive())) }
                 )
             }
@@ -412,13 +392,14 @@ private fun PlacesOverviewScreen(location: MapLatLng?) {
 private fun PlaceDetailsScreen(
     place: PlaceEntity,
     placeLocation: MapLatLng?,
-    polyline: EncodedPolyline?,
-    boundaries: List<MapLatLng> = listOf(),
-    rules: List<RuleWithCategoryEntity>,
+    polyline: List<MapLatLng> = listOf(),
+    boundaries: List<List<MapLatLng>> = listOf(),
+    rulesInRoute: List<RuleWithCategoryEntity>,
+    placesInRoute: List<PlaceEntity>,
     onBackClicked: () -> Unit,
 ) {
-    val rulesWithCategoriesGrouped = remember(rules) {
-        RuleUtils.groupRulesByCategory(rules)
+    val placesWithRulesGrouped = remember(placesInRoute, rulesInRoute) {
+        RuleUtils.groupRulesByPlace(placesInRoute, rulesInRoute)
     }
 
     var expanded by remember { mutableStateOf(false) }
@@ -488,11 +469,11 @@ private fun PlaceDetailsScreen(
 
                 AnimatedVisibility(expanded) {
                     LazyColumn(Modifier.fillMaxSize()) {
-                        items(rulesWithCategoriesGrouped) { rule ->
-                            Divider(Modifier.fillMaxWidth())
-                            RulonaRouteRuleItem(categoryWithRules = rule)
+                        items(placesWithRulesGrouped) { rule ->
+                            RulonaRouteRuleItem(placeWithRules = rule)
                         }
                     }
+                    Divider(Modifier.fillMaxWidth())
                 }
             }
         }

@@ -1,5 +1,6 @@
 package de.thb.core.data.sources.district
 
+import android.util.Log
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.LatLng
 import kotlinx.coroutines.withContext
@@ -16,6 +17,8 @@ class DistrictRemoteDataSourceImpl(
                 lng = latLng.lng.toString(),
                 format = "json"
             )
+
+            Log.e("reverse response", "$reverseResponse")
 
             val osmType = reverseResponse.osm_type[0].uppercase()
             val osmId = reverseResponse.osm_id

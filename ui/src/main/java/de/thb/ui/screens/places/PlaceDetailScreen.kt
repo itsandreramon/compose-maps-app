@@ -1,6 +1,6 @@
 package de.thb.ui.screens.places
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,13 +10,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,10 +29,14 @@ import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.data.sources.rules.RulesRepository
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.place.PlaceEntity
+import de.thb.core.domain.place.PlaceTrend
+import de.thb.core.domain.place.placeTrendFromInt
 import de.thb.core.domain.rule.RuleWithCategoryEntity
+import de.thb.core.util.RuleUtils
 import de.thb.ui.components.RulonaAppBar
-import de.thb.ui.components.places.RulonaRulesList
+import de.thb.ui.components.places.PlaceTrendIndicator
 import de.thb.ui.components.places.rulonaCategoriesList
+import de.thb.ui.components.places.rulonaRulesList
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.AddCategoryUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.EditCategoriesUseCase
 import de.thb.ui.screens.places.PlaceDetailScreenUseCase.RemoveCategoryUseCase
@@ -41,10 +44,9 @@ import de.thb.ui.screens.places.PlaceDetailUiState.EditCategoriesUiState
 import de.thb.ui.screens.places.PlaceDetailUiState.OverviewUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
-import de.thb.ui.theme.rulona_red
 import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
-import de.thb.ui.type.RulonaAppBarAction.Notify
+import de.thb.ui.type.RulonaAppBarAction.Bookmark
 import de.thb.ui.type.RulonaAppBarAction.Share
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -62,7 +64,8 @@ sealed class PlaceDetailUiState {
 
 data class PlaceDetailsState(
     val place: PlaceEntity? = null,
-    val rules: List<RuleWithCategoryEntity> = listOf(),
+    val myRules: List<RuleWithCategoryEntity> = listOf(),
+    val allRules: List<RuleWithCategoryEntity> = listOf(),
     val notAddedCategories: List<CategoryEntity> = listOf(),
     val addedCategories: List<CategoryEntity> = listOf(),
     val uiState: PlaceDetailUiState = OverviewUiState,
@@ -100,6 +103,13 @@ class PlaceDetailsViewModel(
             is EditCategoriesUseCase -> setScreenEditState(useCase.editState)
             is RemoveCategoryUseCase -> removeCategory(useCase.category)
             is AddCategoryUseCase -> addCategory(useCase.category)
+            is PlaceDetailScreenUseCase.BookmarkPlaceUseCase -> bookmarkPlace(useCase.place)
+        }
+    }
+
+    private fun bookmarkPlace(place: PlaceEntity) {
+        viewModelScope.launch {
+            placesRepository.insert(place.copy(isBookmarked = true))
         }
     }
 
@@ -147,11 +157,11 @@ class PlaceDetailsViewModel(
 
         loadRulesJob = rulesRepository.getByPlaceId(placeId)
             .onEach { rules ->
-                val addedCategories = rules
-                    .filter { it.category.added == true }
+                val (myRules, allRules) = rules
                     .sortedBy { it.category.name }
+                    .partition { it.category.added == true }
 
-                setState { copy(rules = addedCategories) }
+                setState { copy(myRules = myRules, allRules = allRules) }
             }.launchIn(viewModelScope)
     }
 }
@@ -167,8 +177,11 @@ fun PlaceDetailsScreen(
         viewModel.loadRules(placeId)
     }
 
+    val context = LocalContext.current
+
     val place by viewModel.collectAsState(PlaceDetailsState::place)
-    val rules by viewModel.collectAsState(PlaceDetailsState::rules)
+    val myRules by viewModel.collectAsState(PlaceDetailsState::myRules)
+    val allRules by viewModel.collectAsState(PlaceDetailsState::allRules)
     val addedCategories by viewModel.collectAsState(PlaceDetailsState::addedCategories)
     val notAddedCategories by viewModel.collectAsState(PlaceDetailsState::notAddedCategories)
 
@@ -178,10 +191,23 @@ fun PlaceDetailsScreen(
         is OverviewUiState -> {
             PlaceDetailsOverview(
                 place = place,
-                rules = rules,
+                myRules = myRules,
+                allRules = allRules,
                 onBackClicked = onBackClicked,
                 onShareClicked = {},
-                onNotifyClicked = {},
+                onBookmarkClicked = {
+                    place?.let { place ->
+                        viewModel.action(
+                            PlaceDetailScreenUseCase.BookmarkPlaceUseCase(place)
+                        )
+
+                        Toast.makeText(
+                            context,
+                            "${place.name} zu Meinen Orten hinzugefügt.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                },
                 onEditStateChanged = { editState ->
                     viewModel.action(EditCategoriesUseCase(editState))
                 }
@@ -250,9 +276,10 @@ fun PlaceDetailsEditCategories(
 @Composable
 fun PlaceDetailsOverview(
     place: PlaceEntity?,
-    rules: List<RuleWithCategoryEntity>,
+    myRules: List<RuleWithCategoryEntity>,
+    allRules: List<RuleWithCategoryEntity>,
     onBackClicked: () -> Unit,
-    onNotifyClicked: () -> Unit,
+    onBookmarkClicked: () -> Unit,
     onShareClicked: () -> Unit,
     onEditStateChanged: (EditState) -> Unit,
 ) {
@@ -262,69 +289,99 @@ fun PlaceDetailsOverview(
                 title = place.name,
                 back = Back(onBackClicked),
                 actions = listOf(
-                    Notify(onNotifyClicked),
+                    Bookmark(onBookmarkClicked),
                     Share(onShareClicked)
                 )
             )
 
-            Column(
-                modifier = Modifier
-                    .padding(top = margin_large)
-                    .padding(horizontal = margin_medium)
-            ) {
-                Column(Modifier.padding(margin_medium)) {
-                    Row {
-                        Text(text = "Inzidenz")
+            val myRulesWithCategoriesGrouped = remember(myRules) {
+                RuleUtils.groupRulesByCategory(myRules)
+            }
 
-                        Image(
-                            imageVector = Icons.Default.ArrowDropUp,
-                            colorFilter = ColorFilter.tint(rulona_red),
-                            contentDescription = null
-                        )
+            val allRulesWithCategoriesGrouped = remember(allRules) {
+                RuleUtils.groupRulesByCategory(allRules)
+            }
 
-                        Text(text = "${place.incidence}")
-                    }
-
-                    val text = "Die offiziellen Regeln für ${place.name} lassen sich hier einsehen."
-                    val uriHandler = LocalUriHandler.current
-
-                    val annotatedLinkString = buildAnnotatedString {
-                        append(text)
-
-                        addStringAnnotation(
-                            tag = "URL",
-                            annotation = place.website,
-                            start = text.indexOf("hier"),
-                            end = text.indexOf("hier") + 4,
-                        )
-
-                        addStyle(
-                            style = SpanStyle(textDecoration = TextDecoration.Underline),
-                            start = text.indexOf("hier"),
-                            end = text.indexOf("hier") + 4
-                        )
-                    }
-
-                    ClickableText(
-                        text = annotatedLinkString,
-                        style = MaterialTheme.typography.body1,
-                        onClick = {
-                            annotatedLinkString
-                                .getStringAnnotations("URL", it, it)
-                                .firstOrNull()?.let { stringAnnotation ->
-                                    uriHandler.openUri(stringAnnotation.item)
-                                }
-                        },
-                        modifier = Modifier.padding(top = margin_medium)
+            LazyColumn {
+                item {
+                    PlaceDetailsHeader(
+                        trend = placeTrendFromInt(place.trend),
+                        incidence = place.incidence.toString(),
+                        name = place.name,
+                        website = place.website,
                     )
                 }
 
-                RulonaRulesList(
+                rulonaRulesList(
                     title = "Meine Kategorien",
-                    rules = rules,
-                    onEditStateChanged = onEditStateChanged
+                    rulesWithCategoriesGrouped = myRulesWithCategoriesGrouped,
+                    onEditStateChanged = onEditStateChanged,
                 )
+
+                if (myRules.isNotEmpty()) {
+                    item { Spacer(modifier = Modifier.height(margin_large)) }
+                }
+
+                if (allRules.isNotEmpty()) {
+                    rulonaRulesList(
+                        title = "Alle Regeln für ${place.name}",
+                        isEditable = false,
+                        rulesWithCategoriesGrouped = allRulesWithCategoriesGrouped,
+                        onEditStateChanged = onEditStateChanged,
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun PlaceDetailsHeader(
+    trend: PlaceTrend,
+    incidence: String,
+    name: String,
+    website: String,
+) {
+    Column(Modifier.padding(margin_medium)) {
+        Row {
+            PlaceTrendIndicator(trend)
+
+            Text(text = "7-Tage-Inzidenz", modifier = Modifier.weight(0.8f))
+
+            Text(text = incidence)
+        }
+
+        val text = "Die offiziellen Regeln für $name lassen sich hier einsehen."
+        val uriHandler = LocalUriHandler.current
+
+        val annotatedLinkString = buildAnnotatedString {
+            append(text)
+
+            addStringAnnotation(
+                tag = "URL",
+                annotation = website,
+                start = text.indexOf("hier"),
+                end = text.indexOf("hier") + 4,
+            )
+
+            addStyle(
+                style = SpanStyle(textDecoration = TextDecoration.Underline),
+                start = text.indexOf("hier"),
+                end = text.indexOf("hier") + 4
+            )
+        }
+
+        ClickableText(
+            text = annotatedLinkString,
+            style = MaterialTheme.typography.body1,
+            onClick = {
+                annotatedLinkString
+                    .getStringAnnotations("URL", it, it)
+                    .firstOrNull()?.let { stringAnnotation ->
+                        uriHandler.openUri(stringAnnotation.item)
+                    }
+            },
+            modifier = Modifier.padding(top = margin_medium)
+        )
     }
 }

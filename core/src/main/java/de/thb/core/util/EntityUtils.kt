@@ -1,5 +1,6 @@
 package de.thb.core.util
 
+import android.util.Log
 import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.domain.place.PlaceEntity
@@ -96,6 +97,35 @@ object RuleUtils {
                 val rulesForCategory = entry.value.map { it.rule }
                 Pair(category, rulesForCategory)
             }
+    }
+
+    fun groupRulesByPlace(
+        places: List<PlaceEntity>,
+        rules: List<RuleWithCategoryEntity>
+    ): List<Pair<PlaceEntity, List<RuleEntity>>> {
+        Log.e("Grouping places", "$places")
+        Log.e("Grouping rules", "$rules")
+
+        return rules
+            .onEach { Log.e("group by rule", "${it.rule.placeId}") }
+            .groupBy { it.rule.placeId }
+            .map { entry ->
+                val placeId = entry.key
+                val rulesForPlace = entry.value.map { it.rule }
+                Pair(placeId, rulesForPlace)
+            }
+            .mapNotNull { placeIdWithRules ->
+                val place = places.firstOrNull {
+                    it.id == placeIdWithRules.first
+                }
+
+                Log.e("Found", "place $place")
+
+                place?.let {
+                    Pair(place, placeIdWithRules.second)
+                }
+            }
+            .distinctBy { it.first.id }
     }
 
     /**

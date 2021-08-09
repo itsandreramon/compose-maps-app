@@ -1,105 +1,33 @@
 package de.thb.core.manager
 
-import com.google.maps.DirectionsApiRequest
-import com.google.maps.GeoApiContext
-import com.google.maps.GeocodingApi
-import com.google.maps.PendingResult
-import com.google.maps.model.DirectionsResult
-import com.google.maps.model.EncodedPolyline
-import com.google.maps.model.TravelMode
-import de.thb.core.util.CoroutinesDispatcherProvider
+import android.util.Log
+import de.thb.core.data.sources.district.DistrictRemoteDataSource
+import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.util.LatLng
 import de.thb.core.util.MapLatLng
-import de.thb.core.util.Result
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
+import kotlinx.coroutines.flow.first
 
 interface RouteManager {
-
-    suspend fun getLatLngByName(
-        name: String
-    ): MapLatLng?
-
-    suspend fun getDirections(
-        startLatLng: LatLng,
-        endLatLng: LatLng,
-    ): Result<DirectionsResult>
-
-    suspend fun getDirectionsPolyline(
-        result: DirectionsResult
-    ): EncodedPolyline?
-
-    suspend fun getDirectionsPolyline(
-        startLatLng: LatLng,
-        endLatLng: LatLng,
-    ): EncodedPolyline?
+    suspend fun getPlaceIdByLatLng(currLocation: MapLatLng): String?
 }
 
 class RouteManagerImpl(
-    private val dispatcherProvider: CoroutinesDispatcherProvider,
-    private val geoApiContext: GeoApiContext,
+    private val districtRemoteDataSource: DistrictRemoteDataSource,
+    private val placesRepository: PlacesRepository,
 ) : RouteManager {
 
-    override suspend fun getLatLngByName(name: String): MapLatLng? {
-        return withContext(dispatcherProvider.io()) {
-            runCatching {
-                val result = GeocodingApi
-                    .geocode(geoApiContext, name)
-                    .await()
-                    .getOrNull(0)
+    override suspend fun getPlaceIdByLatLng(currLocation: MapLatLng): String? {
+        val district = districtRemoteDataSource.getByLatLng(
+            LatLng(
+                currLocation.latitude,
+                currLocation.longitude
+            )
+        )
 
-                result?.let {
-                    MapLatLng(
-                        it.geometry.location.lat,
-                        it.geometry.location.lng
-                    )
-                }
-            }.getOrNull()
-        }
-    }
+        Log.e("RouteManager", "found district: $district")
 
-    override suspend fun getDirectionsPolyline(
-        startLatLng: LatLng,
-        endLatLng: LatLng
-    ): EncodedPolyline? {
-        return when (val result = getDirections(startLatLng, endLatLng)) {
-            is Result.Success -> getDirectionsPolyline(result.data)
-            is Result.Error -> null
-        }
-    }
-
-    override suspend fun getDirectionsPolyline(
-        result: DirectionsResult
-    ): EncodedPolyline? {
-        val route = if (result.routes.isNotEmpty()) {
-            result.routes[0]
-        } else {
-            return null
-        }
-
-        return route.overviewPolyline
-    }
-
-    override suspend fun getDirections(
-        startLatLng: LatLng,
-        endLatLng: LatLng
-    ): Result<DirectionsResult> {
-        val request = DirectionsApiRequest(geoApiContext)
-            .origin(startLatLng)
-            .destination(endLatLng)
-            .mode(TravelMode.DRIVING)
-
-        return suspendCancellableCoroutine { cont ->
-            request.setCallback(object : PendingResult.Callback<DirectionsResult> {
-                override fun onResult(result: DirectionsResult) {
-                    cont.resume(Result.Success(result))
-                }
-
-                override fun onFailure(e: Throwable) {
-                    cont.resume(Result.Error(e))
-                }
-            })
-        }
+        return placesRepository.getAll().first().firstOrNull {
+            it.name == district
+        }?.id
     }
 }

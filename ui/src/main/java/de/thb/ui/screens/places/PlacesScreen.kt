@@ -1,7 +1,9 @@
 package de.thb.ui.screens.places
 
+import android.Manifest
 import android.content.Context
-import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -24,11 +26,10 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.google.accompanist.insets.statusBarsPadding
-import de.thb.core.data.sources.district.DistrictRemoteDataSource
 import de.thb.core.data.sources.location.LocationDataSourceImpl
 import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.place.PlaceEntity
-import de.thb.core.util.LatLng
+import de.thb.core.manager.RouteManager
 import de.thb.core.util.fromUtc
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.RulonaSearchBar
@@ -84,7 +85,7 @@ class PlacesViewModel(
 ) : MavericksViewModel<PlacesState>(initialState), KoinComponent {
 
     private val placesRepository by inject<PlacesRepository>()
-    private val districtRemoteDataSource by inject<DistrictRemoteDataSource>()
+    private val routeManager by inject<RouteManager>()
 
     init {
         placesRepository.getAll()
@@ -135,18 +136,9 @@ class PlacesViewModel(
     private fun resolveLocation(context: Context) {
         val locationDataSource = LocationDataSourceImpl.getInstance(context)
         viewModelScope.launch {
-            val currLocation = locationDataSource.getLastLocation().first()
-
-            val district = districtRemoteDataSource.getByLatLng(
-                LatLng(
-                    currLocation.latitude,
-                    currLocation.longitude
-                )
+            val districtId = routeManager.getPlaceIdByLatLng(
+                currLocation = locationDataSource.getLastLocation().first()
             )
-
-            val districtId = placesRepository.getAll().first().firstOrNull {
-                it.name == district
-            }?.id
 
             setState {
                 copy(
@@ -204,8 +196,6 @@ fun PlacesScreen(
         currentLocationPlaceId?.let(onPlaceLoaded)
     }
 
-    Log.e("TAG", "$isLoadingCurrentLocation")
-
     if (isLoadingCurrentLocation) {
         AlertDialog(
             title = { Text("Bitte warten...") },
@@ -215,6 +205,13 @@ fun PlacesScreen(
             confirmButton = {},
         )
     }
+
+    val requestLocationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                viewModel.action(SearchCurrentLocationUseCase(context))
+            }
+        }
 
     Column(
         Modifier
@@ -230,7 +227,7 @@ fun PlacesScreen(
                 viewModel.action(SearchUseCase(searchState))
             },
             onCurrentLocationClicked = {
-                viewModel.action(SearchCurrentLocationUseCase(context))
+                requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             },
             onFocusRequested = { focusRequester.requestFocus() },
         )
@@ -265,7 +262,7 @@ fun PlacesScreen(
             }
             is SearchUiState -> {
                 PlacesSearch(
-                    currentlySearchedPlaces = uiState.currentlySearchedPlaces,
+                    currentlySearchedPlaces = uiState.currentlySearchedPlaces.sortedBy { it.name },
                     onItemBookmarkClicked = { place ->
                         viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },

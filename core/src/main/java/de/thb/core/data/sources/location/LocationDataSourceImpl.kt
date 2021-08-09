@@ -3,7 +3,6 @@ package de.thb.core.data.sources.location
 import android.Manifest
 import android.content.Context
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -58,7 +57,6 @@ class LocationDataSourceImpl private constructor(
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return
                 val location = result.locations.first()
-                Log.e("Location", "got result: $location")
                 trySend(MapLatLng(location.latitude, location.longitude))
             }
         }

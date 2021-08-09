@@ -1,6 +1,8 @@
 package de.thb.core.di
 
+import com.squareup.moshi.Moshi
 import de.thb.core.BuildConfig
+import de.thb.core.domain.GeojsonAdapter
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
@@ -13,7 +15,13 @@ val networkModule = module {
         return Retrofit.Builder()
             .baseUrl("https://dev-backend-rulona.ci.beilich.de")
             .client(client)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(
+                MoshiConverterFactory.create(
+                    Moshi.Builder()
+                        .add(GeojsonAdapter())
+                        .build()
+                )
+            )
     }
 
     fun provideOkHttpClient(): OkHttpClient {

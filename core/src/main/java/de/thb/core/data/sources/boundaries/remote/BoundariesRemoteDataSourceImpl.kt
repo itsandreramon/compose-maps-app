@@ -1,7 +1,7 @@
 package de.thb.core.data.sources.boundaries.remote
 
+import de.thb.core.domain.Geojson
 import de.thb.core.domain.boundary.BoundaryResponse
-import de.thb.core.domain.boundary.types.Geojson
 import de.thb.core.util.CoroutinesDispatcherProvider
 import de.thb.core.util.MapLatLng
 import kotlinx.coroutines.withContext
@@ -36,8 +36,8 @@ class BoundariesRemoteDataSourceImpl(
             ?.mapNotNull { coordinates ->
                 try {
                     coordinates.let { latLng ->
-                        val lat = latLng[1]
-                        val lng = latLng[0]
+                        val lat = latLng.lat
+                        val lng = latLng.lng
                         MapLatLng(lat, lng)
                     }
                 } catch (e: IndexOutOfBoundsException) {

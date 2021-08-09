@@ -4,7 +4,7 @@ import com.squareup.moshi.Moshi
 import de.thb.core.data.sources.boundaries.remote.BoundariesRemoteDataSource
 import de.thb.core.data.sources.boundaries.remote.BoundariesRemoteDataSourceImpl
 import de.thb.core.data.sources.boundaries.remote.BoundariesService
-import de.thb.core.domain.boundary.types.GeojsonAdapter
+import de.thb.core.domain.GeojsonAdapter
 import de.thb.core.util.CoroutinesDispatcherProvider
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

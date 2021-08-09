@@ -1,6 +1,6 @@
 package de.thb.core.domain.boundary
 
-import de.thb.core.domain.boundary.types.Geojson
+import de.thb.core.domain.Geojson
 
 data class BoundaryResponse(
     val boundingbox: List<String>,

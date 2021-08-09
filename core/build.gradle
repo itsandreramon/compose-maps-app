@@ -61,5 +61,5 @@ dependencies {
     testImplementation libs.junit
     testImplementation libs.mockk
     testImplementation libs.kotest.assertions
-    testImplementation libs.square.turbine
+    testImplementation libs.cashapp.turbine
 }

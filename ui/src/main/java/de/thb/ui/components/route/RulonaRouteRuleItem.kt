@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
-import de.thb.core.domain.category.CategoryEntity
+import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.rulona_background_light
@@ -28,9 +28,7 @@ import de.thb.ui.theme.rulona_red
 import de.thb.ui.util.state
 
 @Composable
-fun RulonaRouteRuleItem(
-    categoryWithRules: Pair<CategoryEntity, List<RuleEntity>>
-) {
+fun RulonaRouteRuleItem(placeWithRules: Pair<PlaceEntity, List<RuleEntity>>) {
     var expanded by state { false }
     val rotation by animateFloatAsState(
         if (expanded) -90f else 90f
@@ -55,7 +53,7 @@ fun RulonaRouteRuleItem(
                     modifier = Modifier.padding(end = margin_medium)
                 )
 
-                Text(categoryWithRules.first.name)
+                Text(placeWithRules.first.name)
             }
 
             Image(
@@ -69,18 +67,18 @@ fun RulonaRouteRuleItem(
 
         AnimatedVisibility(visible = expanded) {
             Column(Modifier.background(rulona_background_light)) {
-                for (rule in categoryWithRules.second) {
+                for (rule in placeWithRules.second) {
                     Text(
                         text = rule.text,
                         modifier = Modifier
                             .padding(margin_medium)
                     )
                 }
-
-                Divider(Modifier.fillMaxWidth())
             }
 
             Divider(Modifier.fillMaxWidth())
         }
     }
+
+    Divider(Modifier.fillMaxWidth())
 }

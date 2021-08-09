@@ -17,14 +17,15 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.google.accompanist.pager.HorizontalPager
@@ -38,8 +39,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RulonaOnboardingDialog(onDismissRequest: () -> Unit, onSkipClicked: () -> Unit) {
-    var activePage by remember { mutableStateOf(0) }
     val maxPages = 2
+    var activePage by state { 0 }
+
+    val isLastPage = remember(activePage) {
+        activePage == (maxPages - 1)
+    }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -59,22 +64,28 @@ fun RulonaOnboardingDialog(onDismissRequest: () -> Unit, onSkipClicked: () -> Un
                         }
                     })
 
-                    Button(onClick = {
-                        val newActivePage = (activePage + 1)
-                            .coerceIn(0, maxPages - 1) // we start at 0
+                    if (!isLastPage) {
+                        Button(onClick = {
+                            val newActivePage = (activePage + 1)
+                                .coerceIn(0, maxPages - 1) // we start at 0
 
-                        activePage = newActivePage
-                    }) {
-                        Text(text = "Weiter")
-                    }
+                            activePage = newActivePage
+                        }) {
+                            Text(text = "Weiter")
+                        }
 
-                    Spacer(Modifier.height(margin_medium))
+                        Spacer(Modifier.height(margin_medium))
 
-                    TextButton(onClick = onSkipClicked) {
-                        Text(
-                            text = "Überspringen",
-                            style = MaterialTheme.typography.body1
-                        )
+                        TextButton(onClick = onDismissRequest) {
+                            Text(
+                                text = "Überspringen",
+                                style = MaterialTheme.typography.body1
+                            )
+                        }
+                    } else {
+                        Button(onClick = onDismissRequest) {
+                            Text(text = "Starten")
+                        }
                     }
                 }
             }
@@ -154,16 +165,17 @@ fun RulonaOnboardingImage(@DrawableRes drawableResId: Int) {
 @Composable
 fun RulonaOnboardingLayout(title: String, text: String, @DrawableRes imageResId: Int) {
     Column {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.h6,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        RulonaOnboardingImage(imageResId)
 
         Spacer(Modifier.height(margin_medium))
 
-        RulonaOnboardingImage(imageResId)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.h6,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         Spacer(Modifier.height(margin_medium))
 
@@ -172,4 +184,10 @@ fun RulonaOnboardingLayout(title: String, text: String, @DrawableRes imageResId:
             text = text
         )
     }
+}
+
+@Preview
+@Composable
+fun RulonaOnboardingDialogLayoutPreview() {
+    RulonaOnboardingLayout("Beispiel-Text", "Lorem Ipsum", R.drawable.onboarding_1)
 }

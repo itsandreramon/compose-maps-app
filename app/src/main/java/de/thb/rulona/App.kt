@@ -9,6 +9,7 @@ import de.thb.core.di.districtModule
 import de.thb.core.di.mapsModule
 import de.thb.core.di.networkModule
 import de.thb.core.di.placesModule
+import de.thb.core.di.routeModule
 import de.thb.core.di.rulesModule
 import de.thb.rulona.di.appModule
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,7 @@ class App : Application() {
                 rulesModule,
                 placesModule,
                 boundariesModule,
+                routeModule,
                 districtModule,
                 categoriesModule,
                 networkModule,

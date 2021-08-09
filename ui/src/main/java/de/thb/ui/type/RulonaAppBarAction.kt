@@ -1,6 +1,7 @@
 package de.thb.ui.type
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Share
@@ -25,6 +26,12 @@ sealed class RulonaAppBarAction(
 
     class Share(onClick: () -> Unit) : RulonaAppBarAction(
         icon = Icons.Filled.Share,
+        contentDescription = null,
+        onClick = onClick,
+    )
+
+    class Bookmark(onClick: () -> Unit) : RulonaAppBarAction(
+        icon = Icons.Filled.Bookmark,
         contentDescription = null,
         onClick = onClick,
     )

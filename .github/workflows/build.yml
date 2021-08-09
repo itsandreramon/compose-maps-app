@@ -49,13 +49,16 @@ jobs:
         run: ./gradlew assembleDebug --stacktrace --scan
 
       - name: Run lint
-        run: ./gradlew app:lintDebug ktlint
+        run: ./gradlew app:lintDebug
 
       - name: Run unit tests
         run: ./gradlew test
 
-#      - name: Run integration tests
-#        uses: reactivecircus/android-emulator-runner@v2
-#        with:
-#          api-level: 29
-#          script: ./gradlew connectedCheck
+      #      - name: Run integration tests
+      #        uses: reactivecircus/android-emulator-runner@v2
+      #        with:
+      #          api-level: 29
+      #          script: ./gradlew connectedCheck
+
+      - name: Build APK
+        run: ./gradlew bundleDebug

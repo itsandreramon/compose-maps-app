@@ -3,6 +3,7 @@ package de.thb.ui.components.places
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import de.thb.core.util.dateToString
 import de.thb.ui.theme.corner_size_medium
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
+import de.thb.ui.theme.rulona_background_light
 import de.thb.ui.type.EditState
 import de.thb.ui.util.color
 import de.thb.ui.util.getCategorySeverityForRules
@@ -57,13 +59,23 @@ fun RulonaCategoryWithRules(
     var expanded by state { false }
 
     Box(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
+        Column(Modifier.fillMaxWidth()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        when (editState) {
+                            is EditState.Done -> {
+                                expanded = !expanded
+                            }
+                            is EditState.Editing -> {
+                                onItemRemoved()
+                            }
+                            is EditState.Adding -> {
+                                onItemAdded()
+                            }
+                        }
+                    }
                     .padding(vertical = margin_small)
             ) {
                 Row(
@@ -92,7 +104,8 @@ fun RulonaCategoryWithRules(
 
                 Surface(
                     shape = RoundedCornerShape(corner_size_medium),
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd),
                 ) {
                     val rotation by animateFloatAsState(
                         if (expanded) -90f else 90f
@@ -102,19 +115,6 @@ fun RulonaCategoryWithRules(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .clickable {
-                                when (editState) {
-                                    is EditState.Done -> {
-                                        expanded = !expanded
-                                    }
-                                    is EditState.Editing -> {
-                                        onItemRemoved()
-                                    }
-                                    is EditState.Adding -> {
-                                        onItemAdded()
-                                    }
-                                }
-                            }
                             .padding(horizontal = margin_medium, vertical = margin_small),
                     ) {
                         when (editState) {
@@ -146,7 +146,11 @@ fun RulonaCategoryWithRules(
             }
 
             AnimatedVisibility(visible = expanded) {
-                Column(Modifier.padding(bottom = margin_small, start = margin_medium)) {
+                Column(
+                    modifier = Modifier
+                        .background(rulona_background_light)
+                        .padding(margin_medium)
+                ) {
                     for (rule in rules) {
                         Text(
                             text = rule.text,
@@ -163,7 +167,7 @@ fun RulonaCategoryWithRules(
                     if (date != null) {
                         Box(
                             modifier = Modifier
-                                .padding(bottom = margin_medium)
+                                .padding(bottom = margin_small)
                                 .fillMaxWidth()
                         ) {
                             Text(
@@ -173,6 +177,8 @@ fun RulonaCategoryWithRules(
                         }
                     }
                 }
+
+                Divider(modifier = Modifier.fillMaxWidth())
             }
         }
 

@@ -10,7 +10,8 @@ sealed class RouteScreenUseCase {
     ) : RouteScreenUseCase()
 
     data class OpenPlaceDetailsUseCase(
-        val place: PlaceEntity,
+        val destinationPlace: PlaceEntity,
+        val context: Context,
     ) : RouteScreenUseCase()
 
     data class SearchUseCase(
