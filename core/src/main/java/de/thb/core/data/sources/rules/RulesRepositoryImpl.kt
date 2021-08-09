@@ -1,5 +1,6 @@
 package de.thb.core.data.sources.rules
 
+import android.util.Log
 import com.dropbox.android.external.store4.Fetcher
 import com.dropbox.android.external.store4.SourceOfTruth
 import com.dropbox.android.external.store4.StoreBuilder
@@ -21,6 +22,7 @@ class RulesRepositoryImpl(
 
     private val getByIdStore = StoreBuilder.from(
         fetcher = Fetcher.of { id: String ->
+            Log.e("FETCH", id)
             Pair(id, rulesRemoteDataSource.getRulesByPlaceId(id))
         },
         sourceOfTruth = SourceOfTruth.Companion.of(
@@ -39,11 +41,13 @@ class RulesRepositoryImpl(
     }
 
     override suspend fun insert(rule: RuleEntity) {
+        Log.e("INSERT", "$rule")
         rulesLocalDataSource.insert(rule)
     }
 
     private suspend fun insert(ruleReponses: List<RuleReponse>, placeId: String) {
         val ruleEntities = ruleReponses.toEntities(placeId)
+        Log.e("INSERT", "$ruleEntities")
         rulesLocalDataSource.insert(ruleEntities)
     }
 }

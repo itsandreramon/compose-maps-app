@@ -83,6 +83,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -198,6 +199,8 @@ class RouteViewModel(
             val rules = mutableListOf<RuleWithCategoryEntity>()
 
             for (place in resp.restrictedPlaces) {
+
+                // TODO fix bug
                 val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
                 rules.addAll(rulesForPlace.first())
             }
@@ -316,6 +319,8 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
             }
             is PlaceDetailsUiState -> {
                 searchBarVisible = false
+
+                Log.e("TAG", "${uiState.rulesInRoute}")
 
                 PlaceDetailsScreen(
                     place = uiState.place,
