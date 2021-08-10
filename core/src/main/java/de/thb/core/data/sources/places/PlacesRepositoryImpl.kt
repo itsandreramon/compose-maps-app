@@ -1,11 +1,6 @@
 package de.thb.core.data.sources.places
 
 import android.util.Log
-import com.dropbox.android.external.store4.Fetcher
-import com.dropbox.android.external.store4.SourceOfTruth
-import com.dropbox.android.external.store4.StoreBuilder
-import com.dropbox.android.external.store4.StoreRequest
-import com.dropbox.android.external.store4.StoreResponse
 import de.thb.core.data.sources.places.local.PlacesLocalDataSource
 import de.thb.core.data.sources.places.remote.PlacesRemoteDataSource
 import de.thb.core.domain.place.PlaceEntity
@@ -14,6 +9,7 @@ import de.thb.core.util.PlaceUtils.toEntity
 import de.thb.core.util.responseToEntityIfExistsElseResponse
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import okio.IOException
 
 class PlacesRepositoryImpl(
     private val placesLocalDataSource: PlacesLocalDataSource,
@@ -24,37 +20,33 @@ class PlacesRepositoryImpl(
         const val TAG = "PlacesRepository"
     }
 
-    private val getAllStore = StoreBuilder.from(
-        fetcher = Fetcher.of { placesRemoteDataSource.getAll() },
-        sourceOfTruth = SourceOfTruth.of(
-            reader = { placesLocalDataSource.getAll() },
-            writer = { _, input -> insert(input) },
-        )
-    ).build()
+    override fun getAll() = flow {
+        val places = try {
+            placesRemoteDataSource.getAll()
+        } catch (e: IOException) {
+            emptyList()
+        }
 
-    private val getByIdStore = StoreBuilder.from(
-        fetcher = Fetcher.of { id: String -> placesRemoteDataSource.getById(id) },
-        sourceOfTruth = SourceOfTruth.Companion.of(
-            reader = { id: String -> placesLocalDataSource.getById(id) },
-            writer = { _, input -> placesLocalDataSource.insertOrUpdate(input) },
-        )
-    ).build()
+        insert(places)
 
-    override fun getAll() = flow<List<PlaceEntity>> {
-        getAllStore.stream(StoreRequest.cached(key = "all", refresh = false)).collect { response ->
-            when (response) {
-                is StoreResponse.Data -> emit(response.value)
-                else -> emit(emptyList())
-            }
+        placesLocalDataSource.getAll().collect {
+            emit(it)
         }
     }
 
     override fun getById(id: String) = flow {
-        getByIdStore.stream(StoreRequest.cached(id, refresh = false)).collect { response ->
-            when (response) {
-                is StoreResponse.Data -> emit(response.value)
-                else -> emit(null)
-            }
+        val place = try {
+            placesRemoteDataSource.getById(id)
+        } catch (e: IOException) {
+            null
+        }
+
+        if (place != null) {
+            placesLocalDataSource.insertOrUpdate(place)
+        }
+
+        placesLocalDataSource.getById(id).collect {
+            emit(it)
         }
     }
 

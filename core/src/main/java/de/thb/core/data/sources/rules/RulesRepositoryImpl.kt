@@ -1,42 +1,31 @@
 package de.thb.core.data.sources.rules
 
 import android.util.Log
-import com.dropbox.android.external.store4.Fetcher
-import com.dropbox.android.external.store4.SourceOfTruth
-import com.dropbox.android.external.store4.StoreBuilder
-import com.dropbox.android.external.store4.StoreRequest
-import com.dropbox.android.external.store4.StoreResponse
 import de.thb.core.data.sources.rules.local.RulesLocalDataSource
 import de.thb.core.data.sources.rules.remote.RulesRemoteDataSource
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.core.domain.rule.RuleReponse
-import de.thb.core.domain.rule.RuleWithCategoryEntity
 import de.thb.core.util.RuleUtils.toEntities
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import okio.IOException
 
 class RulesRepositoryImpl(
     private val rulesLocalDataSource: RulesLocalDataSource,
     private val rulesRemoteDataSource: RulesRemoteDataSource,
 ) : RulesRepository {
 
-    private val getByIdStore = StoreBuilder.from(
-        fetcher = Fetcher.of { id: String ->
-            Log.e("FETCH", id)
-            Pair(id, rulesRemoteDataSource.getRulesByPlaceId(id))
-        },
-        sourceOfTruth = SourceOfTruth.Companion.of(
-            reader = { id: String -> rulesLocalDataSource.getByPlaceId(id) },
-            writer = { _, input -> insert(input.second, input.first) }
-        )
-    ).build()
+    override fun getByPlaceId(placeId: String) = flow {
+        val rules = try {
+            rulesRemoteDataSource.getRulesByPlaceId(placeId)
+        } catch (e: IOException) {
+            emptyList()
+        }
 
-    override fun getByPlaceId(placeId: String) = flow<List<RuleWithCategoryEntity>> {
-        getByIdStore.stream(StoreRequest.cached(placeId, refresh = false)).collect { response ->
-            when (response) {
-                is StoreResponse.Data -> emit(response.value)
-                else -> emit(emptyList())
-            }
+        insert(rules, placeId)
+
+        rulesLocalDataSource.getByPlaceId(placeId).collect {
+            emit(it)
         }
     }
 
