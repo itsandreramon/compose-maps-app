@@ -38,7 +38,7 @@ import de.thb.ui.util.state
 import kotlinx.coroutines.launch
 
 @Composable
-fun RulonaOnboardingDialog(onDismissRequest: () -> Unit, onSkipClicked: () -> Unit) {
+fun RulonaOnboardingDialog(onDismissRequest: () -> Unit) {
     val maxPages = 2
     var activePage by state { 0 }
 

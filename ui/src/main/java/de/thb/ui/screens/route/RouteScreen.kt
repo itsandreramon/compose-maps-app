@@ -154,16 +154,14 @@ class RouteViewModel(
                 }
                 is PlaceDetailsUiState -> {
                     if (uiState.restrictedPlaces.isNotEmpty() && uiState.placesInRoute.isEmpty()) {
-                        val places = places.filter { place ->
+                        val filteredPlaces = places.filter { place ->
                             uiState.restrictedPlaces.any { restrictedPlace ->
                                 restrictedPlace.placeId == place.id
                             }
                         }
 
-                        Log.e(TAG, "filtered places: $places")
-
                         setState {
-                            copy(uiState = uiState.copy(placesInRoute = places))
+                            copy(uiState = uiState.copy(placesInRoute = filteredPlaces))
                         }
                     }
                 }

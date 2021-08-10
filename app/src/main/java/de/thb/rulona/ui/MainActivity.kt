@@ -36,13 +36,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                Log.e("LOG", "$dialogVisible")
-
                 if (dialogVisible) {
-                    RulonaOnboardingDialog(
-                        onDismissRequest = { dialogVisible = false },
-                        onSkipClicked = { dialogVisible = false },
-                    )
+                    RulonaOnboardingDialog(onDismissRequest = { dialogVisible = false })
                 }
 
                 ProvideWindowInsets {

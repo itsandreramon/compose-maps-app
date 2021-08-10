@@ -136,6 +136,9 @@ class PlacesViewModel(
                     isErrorLoadingCurrentLocationDialogVisible = false
                 )
             }
+            else -> {
+                // TODO
+            }
         }
     }
 
