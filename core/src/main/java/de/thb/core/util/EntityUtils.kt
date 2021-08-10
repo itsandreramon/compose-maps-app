@@ -92,10 +92,13 @@ object RuleUtils {
     ): List<Pair<CategoryEntity, List<RuleEntity>>> {
         return rules
             .groupBy { it.category }
-            .map { entry ->
+            .mapNotNull { entry ->
                 val category = entry.key
                 val rulesForCategory = entry.value.map { it.rule }
-                Pair(category, rulesForCategory)
+
+                category?.let {
+                    Pair(category, rulesForCategory)
+                }
             }
     }
 

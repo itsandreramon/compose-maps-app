@@ -160,8 +160,9 @@ class PlaceDetailsViewModel(
         loadRulesJob = rulesRepository.getByPlaceId(placeId)
             .onEach { rules ->
                 val (myRules, allRules) = rules
-                    .sortedBy { it.category.name }
-                    .partition { it.category.added == true }
+                    .filter { it.category != null }
+                    .sortedBy { it.category!!.name }
+                    .partition { it.category!!.added == true }
 
                 setState { copy(myRules = myRules, allRules = allRules) }
             }.launchIn(viewModelScope)

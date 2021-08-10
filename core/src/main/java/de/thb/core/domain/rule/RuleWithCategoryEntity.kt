@@ -17,5 +17,5 @@ data class RuleWithCategoryEntity(
         entityColumn = "id",
         entity = CategoryEntity::class
     )
-    val category: CategoryEntity
+    val category: CategoryEntity?
 ) : Parcelable
