@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.runtime.Composable
@@ -66,6 +68,7 @@ import de.thb.ui.components.RulonaSearchBarFilled
 import de.thb.ui.components.places.RulonaEmptySearchQueryLayout
 import de.thb.ui.components.places.RulonaEmptySearchResultsLayout
 import de.thb.ui.components.route.RulonaRouteRuleItem
+import de.thb.ui.screens.route.RouteScreenUseCase.CancelLoadRouteInformation
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.SearchUseCase
@@ -113,6 +116,7 @@ sealed class RouteUiState {
 data class RouteState(
     val query: String = "",
     val searchedPlaces: List<PlaceEntity> = listOf(),
+    val isLoadingRouteInformation: Boolean = false,
     val uiState: RouteUiState = OverviewUiState(),
 ) : MavericksState
 
@@ -174,6 +178,10 @@ class RouteViewModel(
             }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
+            is CancelLoadRouteInformation -> {
+                setScreenSearchState(SearchState.Inactive())
+                setState { copy(isLoadingRouteInformation = false) }
+            }
         }
     }
 
@@ -181,6 +189,8 @@ class RouteViewModel(
         context: Context,
         destinationPlaceId: String
     ) {
+        setState { copy(isLoadingRouteInformation = true) }
+
         loadRouteJob?.let {
             if (!it.isCancelled) it.cancel()
         }
@@ -220,7 +230,8 @@ class RouteViewModel(
                                     },
                                     restrictedPlaces = resp.restrictedPlaces,
                                     rulesInRoute = rules,
-                                )
+                                ),
+                                isLoadingRouteInformation = false,
                             )
                         }
                     }
@@ -287,9 +298,24 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
     }
 
     val routeUiState by viewModel.collectAsState()
+    val isLoadingRouteInformation by viewModel.collectAsState(RouteState::isLoadingRouteInformation)
     val focusRequester = FocusRequester()
 
     var searchBarVisible by state { false }
+
+    if (isLoadingRouteInformation) {
+        AlertDialog(
+            title = { Text("Bitte warten...") },
+            text = { Text(text = "Suche nach Corona Beschränkungen auf der Route...") },
+            onDismissRequest = {},
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.action(CancelLoadRouteInformation)
+                }) { Text(text = "Abbruch") }
+            },
+            confirmButton = {},
+        )
+    }
 
     Box(
         Modifier

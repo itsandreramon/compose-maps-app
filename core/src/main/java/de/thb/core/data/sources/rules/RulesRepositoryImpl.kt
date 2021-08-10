@@ -32,7 +32,7 @@ class RulesRepositoryImpl(
     ).build()
 
     override fun getByPlaceId(placeId: String) = flow<List<RuleWithCategoryEntity>> {
-        getByIdStore.stream(StoreRequest.cached(placeId, refresh = true)).collect { response ->
+        getByIdStore.stream(StoreRequest.cached(placeId, refresh = false)).collect { response ->
             when (response) {
                 is StoreResponse.Data -> emit(response.value)
                 else -> emit(emptyList())

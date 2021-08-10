@@ -41,7 +41,7 @@ class PlacesRepositoryImpl(
     ).build()
 
     override fun getAll() = flow<List<PlaceEntity>> {
-        getAllStore.stream(StoreRequest.cached(key = "all", refresh = true)).collect { response ->
+        getAllStore.stream(StoreRequest.cached(key = "all", refresh = false)).collect { response ->
             when (response) {
                 is StoreResponse.Data -> emit(response.value)
                 else -> emit(emptyList())
@@ -50,7 +50,7 @@ class PlacesRepositoryImpl(
     }
 
     override fun getById(id: String) = flow {
-        getByIdStore.stream(StoreRequest.cached(id, refresh = true)).collect { response ->
+        getByIdStore.stream(StoreRequest.cached(id, refresh = false)).collect { response ->
             when (response) {
                 is StoreResponse.Data -> emit(response.value)
                 else -> emit(null)

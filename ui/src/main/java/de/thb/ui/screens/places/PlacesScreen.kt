@@ -60,17 +60,9 @@ import org.koin.core.component.inject
 import java.time.Instant
 
 sealed class PlacesUiState {
-    data class RecentlySearchedUiState(
-        val recentlySearchedPlaces: List<PlaceEntity> = listOf(),
-    ) : PlacesUiState()
-
-    data class SearchUiState(
-        val query: String,
-        val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
-    ) : PlacesUiState()
-
+    object RecentlySearchedUiState : PlacesUiState()
+    object SearchUiState : PlacesUiState()
     object BookmarksUiState : PlacesUiState()
-
     object EditBookmarksUiState : PlacesUiState()
 }
 
@@ -79,6 +71,9 @@ data class PlacesState(
     val isLoadingCurrentLocation: Boolean = false,
     val currentLocationPlaceId: String? = null,
     val bookmarkedPlaces: List<PlaceEntity> = listOf(),
+    val searchQuery: String = "",
+    val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
+    val recentlySearchedPlaces: List<PlaceEntity> = listOf(),
 ) : MavericksState
 
 class PlacesViewModel(
@@ -100,20 +95,20 @@ class PlacesViewModel(
             .launchIn(viewModelScope)
 
         stateFlow.combine(placesRepository.getAll()) { state, places ->
-            when (val uiState = state.uiState) {
+            when (state.uiState) {
                 is RecentlySearchedUiState -> {
                     val recentlySearchedPlaces = places
                         .filter { it.searchedAtUtc != null }
                         .sortedByDescending { fromUtc(it.searchedAtUtc!!) }
 
-                    setState { copy(uiState = uiState.copy(recentlySearchedPlaces)) }
+                    setState { copy(recentlySearchedPlaces = recentlySearchedPlaces) }
                 }
                 is SearchUiState -> {
                     val searchedPlaces = places.filter {
-                        it.name.contains(uiState.query, ignoreCase = true)
+                        it.name.contains(state.searchQuery, ignoreCase = true)
                     }
 
-                    setState { copy(uiState = uiState.copy(uiState.query, searchedPlaces)) }
+                    setState { copy(currentlySearchedPlaces = searchedPlaces) }
                 }
             }
         }.launchIn(viewModelScope)
@@ -159,9 +154,14 @@ class PlacesViewModel(
 
     private fun setScreenSearchState(state: SearchState) {
         when (state) {
-            is SearchState.Active -> setState { copy(uiState = RecentlySearchedUiState()) }
+            is SearchState.Active -> setState { copy(uiState = RecentlySearchedUiState) }
             is SearchState.Inactive -> setState { copy(uiState = BookmarksUiState) }
-            is SearchState.Search -> setState { copy(uiState = SearchUiState(state.query)) }
+            is SearchState.Search -> setState {
+                copy(
+                    uiState = SearchUiState,
+                    searchQuery = state.query
+                )
+            }
         }
     }
 
@@ -190,6 +190,8 @@ fun PlacesScreen(
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
     val isLoadingCurrentLocation by viewModel.collectAsState(PlacesState::isLoadingCurrentLocation)
     val currentLocationPlaceId by viewModel.collectAsState(PlacesState::currentLocationPlaceId)
+    val currentlySearchedPlaces by viewModel.collectAsState(PlacesState::currentlySearchedPlaces)
+    val recentlySearchedPlaces by viewModel.collectAsState(PlacesState::recentlySearchedPlaces)
 
     val focusRequester = FocusRequester()
     val context = LocalContext.current
@@ -218,7 +220,7 @@ fun PlacesScreen(
     Column(
         Modifier
             .statusBarsPadding()
-            .padding(margin_medium)
+            .padding(horizontal = margin_medium)
             .focusRequester(focusRequester)
             .focusTarget()
     ) {
@@ -255,7 +257,7 @@ fun PlacesScreen(
             }
             is RecentlySearchedUiState -> {
                 PlacesRecentlySearched(
-                    recentlySearchedPlaces = uiState.recentlySearchedPlaces,
+                    recentlySearchedPlaces = recentlySearchedPlaces,
                     onItemBookmarkClicked = { place ->
                         viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },
@@ -264,7 +266,7 @@ fun PlacesScreen(
             }
             is SearchUiState -> {
                 PlacesSearch(
-                    currentlySearchedPlaces = uiState.currentlySearchedPlaces.sortedBy { it.name },
+                    currentlySearchedPlaces = currentlySearchedPlaces.sortedBy { it.name },
                     onItemBookmarkClicked = { place ->
                         viewModel.action(TogglePlaceBookmarkUseCase(place))
                     },

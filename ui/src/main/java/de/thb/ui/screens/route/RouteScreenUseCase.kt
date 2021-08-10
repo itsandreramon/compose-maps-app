@@ -17,4 +17,6 @@ sealed class RouteScreenUseCase {
     data class SearchUseCase(
         val searchState: SearchState,
     ) : RouteScreenUseCase()
+
+    object CancelLoadRouteInformation : RouteScreenUseCase()
 }

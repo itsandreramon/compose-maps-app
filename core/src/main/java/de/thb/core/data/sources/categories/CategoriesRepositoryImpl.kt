@@ -32,7 +32,7 @@ class CategoriesRepositoryImpl(
     ).build()
 
     override fun getAll() = flow<List<CategoryEntity>> {
-        store.stream(StoreRequest.cached(key = "all", refresh = true)).collect { response ->
+        store.stream(StoreRequest.cached(key = "all", refresh = false)).collect { response ->
             when (response) {
                 is StoreResponse.Loading -> emit(emptyList())
                 is StoreResponse.Error -> emit(emptyList())

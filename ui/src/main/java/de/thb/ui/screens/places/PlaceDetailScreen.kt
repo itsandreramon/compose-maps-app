@@ -1,5 +1,6 @@
 package de.thb.ui.screens.places
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.RulonaAppBarAction.Bookmark
 import de.thb.ui.type.RulonaAppBarAction.Share
+import de.thb.ui.util.IntentManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -187,6 +189,8 @@ fun PlaceDetailsScreen(
 
     val placeDetailUiState = viewModel.collectAsState(PlaceDetailsState::uiState)
 
+    val activity = LocalContext.current as Activity
+
     when (placeDetailUiState.value) {
         is OverviewUiState -> {
             PlaceDetailsOverview(
@@ -194,7 +198,14 @@ fun PlaceDetailsScreen(
                 myRules = myRules,
                 allRules = allRules,
                 onBackClicked = onBackClicked,
-                onShareClicked = {},
+                onShareClicked = {
+                    place?.let { place ->
+                        IntentManager.createSharePlaceIntent(
+                            activity = activity,
+                            placeId = place.id,
+                        ).startChooser()
+                    }
+                },
                 onBookmarkClicked = {
                     place?.let { place ->
                         viewModel.action(
