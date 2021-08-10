@@ -7,5 +7,5 @@ interface RouteRemoteDataSource {
     suspend fun getRoute(
         originLatLng: MapLatLng,
         destinationPlaceId: String,
-    ): RouteResponse
+    ): RouteResponse?
 }

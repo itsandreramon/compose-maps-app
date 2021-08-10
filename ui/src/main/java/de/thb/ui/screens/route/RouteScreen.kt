@@ -69,6 +69,7 @@ import de.thb.ui.components.places.RulonaEmptySearchQueryLayout
 import de.thb.ui.components.places.RulonaEmptySearchResultsLayout
 import de.thb.ui.components.route.RulonaRouteRuleItem
 import de.thb.ui.screens.route.RouteScreenUseCase.CancelLoadRouteInformation
+import de.thb.ui.screens.route.RouteScreenUseCase.HideDialogUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.OpenPlaceDetailsUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.RequestLocationUpdatesUseCase
 import de.thb.ui.screens.route.RouteScreenUseCase.SearchUseCase
@@ -78,6 +79,7 @@ import de.thb.ui.screens.route.RouteUiState.SearchUiState
 import de.thb.ui.theme.margin_large
 import de.thb.ui.theme.margin_medium
 import de.thb.ui.theme.margin_small
+import de.thb.ui.type.DialogType
 import de.thb.ui.type.RulonaAppBarAction.Back
 import de.thb.ui.type.SearchState
 import de.thb.ui.util.rememberMapViewWithLifecycle
@@ -117,6 +119,7 @@ data class RouteState(
     val query: String = "",
     val searchedPlaces: List<PlaceEntity> = listOf(),
     val isLoadingRouteInformation: Boolean = false,
+    val isErrorLoadingRouteDialogVisible: Boolean = false,
     val uiState: RouteUiState = OverviewUiState(),
 ) : MavericksState
 
@@ -174,7 +177,7 @@ class RouteViewModel(
         when (useCase) {
             is OpenPlaceDetailsUseCase -> {
                 setState { copy(uiState = PlaceDetailsUiState(place = useCase.destinationPlace)) }
-                loadRouteInformation(useCase.context, useCase.destinationPlace.id)
+                loadRouteInformation(useCase.context, useCase.destinationPlace.id, useCase.onError)
             }
             is RequestLocationUpdatesUseCase -> requestLocationUpdates(useCase.context)
             is SearchUseCase -> setScreenSearchState(useCase.searchState)
@@ -182,12 +185,27 @@ class RouteViewModel(
                 setScreenSearchState(SearchState.Inactive())
                 setState { copy(isLoadingRouteInformation = false) }
             }
+            is HideDialogUseCase -> hideDialog(useCase.dialogType)
+        }
+    }
+
+    private fun hideDialog(dialogType: DialogType) {
+        when (dialogType) {
+            DialogType.ErrorLoadingRouteInformation -> setState {
+                copy(
+                    isErrorLoadingRouteDialogVisible = false
+                )
+            }
+            else -> {
+                // TODO
+            }
         }
     }
 
     private fun loadRouteInformation(
         context: Context,
-        destinationPlaceId: String
+        destinationPlaceId: String,
+        onError: () -> Unit,
     ) {
         setState { copy(isLoadingRouteInformation = true) }
 
@@ -204,38 +222,49 @@ class RouteViewModel(
                 destinationPlaceId = destinationPlaceId,
             )
 
-            val boundaries = mutableListOf<List<Coordinate>>()
-            val rules = mutableListOf<RuleWithCategoryEntity>()
+            if (resp != null) {
 
-            for (place in resp.restrictedPlaces) {
+                val boundaries = mutableListOf<List<Coordinate>>()
+                val rules = mutableListOf<RuleWithCategoryEntity>()
 
-                // TODO fix bug
-                val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
-                rules.addAll(rulesForPlace.first())
-            }
+                for (place in resp.restrictedPlaces) {
 
-            withState { state ->
-                when (val uiState = state.uiState) {
-                    is PlaceDetailsUiState -> {
-                        setState {
-                            copy(
-                                uiState = uiState.copy(
-                                    polyline = resp.route
-                                        .flatten()
-                                        .map { MapLatLng(it.lat, it.lng) },
-                                    boundaries = boundaries.map { coordinates ->
-                                        coordinates.map {
-                                            MapLatLng(it.lat, it.lng)
-                                        }
-                                    },
-                                    restrictedPlaces = resp.restrictedPlaces,
-                                    rulesInRoute = rules,
-                                ),
-                                isLoadingRouteInformation = false,
-                            )
+                    // TODO fix bug
+                    val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
+                    rules.addAll(rulesForPlace.first())
+                }
+
+                withState { state ->
+                    when (val uiState = state.uiState) {
+                        is PlaceDetailsUiState -> {
+                            setState {
+                                copy(
+                                    uiState = uiState.copy(
+                                        polyline = resp.route
+                                            .flatten()
+                                            .map { MapLatLng(it.lat, it.lng) },
+                                        boundaries = boundaries.map { coordinates ->
+                                            coordinates.map {
+                                                MapLatLng(it.lat, it.lng)
+                                            }
+                                        },
+                                        restrictedPlaces = resp.restrictedPlaces,
+                                        rulesInRoute = rules,
+                                    ),
+                                    isLoadingRouteInformation = false,
+                                )
+                            }
                         }
                     }
                 }
+            } else {
+                setState {
+                    copy(
+                        isLoadingRouteInformation = false,
+                        isErrorLoadingRouteDialogVisible = true
+                    )
+                }
+                onError()
             }
         }
     }
@@ -299,6 +328,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
 
     val routeUiState by viewModel.collectAsState()
     val isLoadingRouteInformation by viewModel.collectAsState(RouteState::isLoadingRouteInformation)
+    val isErrorLoadingRouteDialogVisible by viewModel.collectAsState(RouteState::isErrorLoadingRouteDialogVisible)
     val focusRequester = FocusRequester()
 
     var searchBarVisible by state { false }
@@ -312,6 +342,23 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                 TextButton(onClick = {
                     viewModel.action(CancelLoadRouteInformation)
                 }) { Text(text = "Abbruch") }
+            },
+            confirmButton = {},
+        )
+    }
+
+    if (isErrorLoadingRouteDialogVisible) {
+        AlertDialog(
+            title = { Text("Fehler") },
+            text = { Text(text = "Es konnte keine Route gefunden werden. Bitte versichere, dass du eine aktive Internet-Verbindung hast.") },
+            onDismissRequest = {
+                viewModel.action(HideDialogUseCase(DialogType.ErrorLoadingRouteInformation))
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.action(CancelLoadRouteInformation)
+                    viewModel.action(HideDialogUseCase(DialogType.ErrorLoadingRouteInformation))
+                }) { Text(text = "Ok") }
             },
             confirmButton = {},
         )
@@ -335,7 +382,11 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
                     PlacesSearchScreen(
                         currentlySearchedPlaces = routeUiState.searchedPlaces,
                         onPlaceClicked = { place ->
-                            viewModel.action(OpenPlaceDetailsUseCase(place, context))
+                            viewModel.action(
+                                OpenPlaceDetailsUseCase(place, context, onError = {
+                                    viewModel.action(SearchUseCase(SearchState.Inactive()))
+                                })
+                            )
                         },
                     )
                 } else {
