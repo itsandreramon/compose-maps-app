@@ -7,7 +7,7 @@
 | User Interface | [Compose](https://developer.android.com/jetpack/compose)|
 | Dependency Injection | [Koin](https://github.com/InsertKoinIO/koin)|
 | State Management | [Mavericks](https://github.com/airbnb/mavericks)|
-| Caching | [Store](https://github.com/dropbox/Store)|
+| Caching | [Room](https://developer.android.com/jetpack/androidx/releases/room)|
 | Networking | [Retrofit](https://github.com/square/retrofit)|
 
 ## Instructions
