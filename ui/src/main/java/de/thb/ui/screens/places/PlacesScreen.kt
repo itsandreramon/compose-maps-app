@@ -39,6 +39,7 @@ import de.thb.ui.components.places.RulonaPlacesList
 import de.thb.ui.components.search.RulonaSearchHeader
 import de.thb.ui.components.search.RulonaSearchList
 import de.thb.ui.screens.places.PlacesScreenUseCase.EditBookmarksUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.HideDialogUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SearchCurrentLocationUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SearchUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SetPlaceSearchTimestampUseCase
@@ -48,6 +49,7 @@ import de.thb.ui.screens.places.PlacesUiState.EditBookmarksUiState
 import de.thb.ui.screens.places.PlacesUiState.RecentlySearchedUiState
 import de.thb.ui.screens.places.PlacesUiState.SearchUiState
 import de.thb.ui.theme.margin_medium
+import de.thb.ui.type.DialogType
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
@@ -74,6 +76,7 @@ data class PlacesState(
     val searchQuery: String = "",
     val currentlySearchedPlaces: List<PlaceEntity> = listOf(),
     val recentlySearchedPlaces: List<PlaceEntity> = listOf(),
+    val isErrorLoadingCurrentLocationDialogVisible: Boolean = false,
 ) : MavericksState
 
 class PlacesViewModel(
@@ -121,6 +124,18 @@ class PlacesViewModel(
             is SearchCurrentLocationUseCase -> setSearchCurrentLocationState(useCase.context)
             is TogglePlaceBookmarkUseCase -> togglePlaceItemBookmark(useCase.place)
             is SetPlaceSearchTimestampUseCase -> setPlaceSearchedTimestamp(useCase.place)
+            is HideDialogUseCase -> hideDialog(useCase.dialogType)
+        }
+    }
+
+    private fun hideDialog(dialogType: DialogType) {
+        when (dialogType) {
+            DialogType.LoadingCurrentLocation -> setState { copy(isLoadingCurrentLocation = false) }
+            DialogType.ErrorLoadingCurrentLocation -> setState {
+                copy(
+                    isErrorLoadingCurrentLocationDialogVisible = false
+                )
+            }
         }
     }
 
@@ -136,11 +151,20 @@ class PlacesViewModel(
                 currLocation = locationDataSource.getLastLocation().first()
             )
 
-            setState {
-                copy(
-                    currentLocationPlaceId = districtId,
-                    isLoadingCurrentLocation = false
-                )
+            if (districtId == null) {
+                setState {
+                    copy(
+                        isLoadingCurrentLocation = false,
+                        isErrorLoadingCurrentLocationDialogVisible = true,
+                    )
+                }
+            } else {
+                setState {
+                    copy(
+                        currentLocationPlaceId = districtId,
+                        isLoadingCurrentLocation = false
+                    )
+                }
             }
         }
     }
@@ -192,20 +216,46 @@ fun PlacesScreen(
     val currentLocationPlaceId by viewModel.collectAsState(PlacesState::currentLocationPlaceId)
     val currentlySearchedPlaces by viewModel.collectAsState(PlacesState::currentlySearchedPlaces)
     val recentlySearchedPlaces by viewModel.collectAsState(PlacesState::recentlySearchedPlaces)
+    val isErrorLoadingCurrentLocationDialogVisible by viewModel.collectAsState(PlacesState::isErrorLoadingCurrentLocationDialogVisible)
 
     val focusRequester = FocusRequester()
     val context = LocalContext.current
 
     LaunchedEffect(currentLocationPlaceId) {
-        currentLocationPlaceId?.let(onPlaceLoaded)
+        currentLocationPlaceId?.let {
+            Log.e("Loading", "$it")
+            onPlaceLoaded(it)
+        }
     }
 
     if (isLoadingCurrentLocation) {
         AlertDialog(
             title = { Text("Bitte warten...") },
             text = { Text(text = "Suche nach deinem aktuellen Landkreis.") },
-            onDismissRequest = {},
-            dismissButton = { TextButton(onClick = {}) { Text(text = "Abbruch") } },
+            onDismissRequest = {
+                viewModel.action(HideDialogUseCase(DialogType.LoadingCurrentLocation))
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.action(HideDialogUseCase(DialogType.LoadingCurrentLocation))
+                }) { Text(text = "Abbruch") }
+            },
+            confirmButton = {},
+        )
+    }
+
+    if (isErrorLoadingCurrentLocationDialogVisible) {
+        AlertDialog(
+            title = { Text("Fehler") },
+            text = { Text(text = "Dein Aktueller Ort konnte nicht bestimmt werden. Bitte versichere, dass du eine aktive Internet-Verbindung hast.") },
+            onDismissRequest = {
+                viewModel.action(HideDialogUseCase(DialogType.ErrorLoadingCurrentLocation))
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.action(HideDialogUseCase(DialogType.ErrorLoadingCurrentLocation))
+                }) { Text(text = "Ok") }
+            },
             confirmButton = {},
         )
     }
@@ -236,7 +286,7 @@ fun PlacesScreen(
             onFocusRequested = { focusRequester.requestFocus() },
         )
 
-        when (val uiState = placesUiState.value) {
+        when (placesUiState.value) {
             is BookmarksUiState -> {
                 PlacesBookmarks(
                     bookmarkedPlaces = bookmarkedPlaces,

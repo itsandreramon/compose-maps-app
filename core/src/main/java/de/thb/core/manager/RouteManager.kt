@@ -6,6 +6,7 @@ import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.util.LatLng
 import de.thb.core.util.MapLatLng
 import kotlinx.coroutines.flow.first
+import okio.IOException
 
 interface RouteManager {
     suspend fun getPlaceIdByLatLng(currLocation: MapLatLng): String?
@@ -17,17 +18,21 @@ class RouteManagerImpl(
 ) : RouteManager {
 
     override suspend fun getPlaceIdByLatLng(currLocation: MapLatLng): String? {
-        val district = districtRemoteDataSource.getByLatLng(
-            LatLng(
-                currLocation.latitude,
-                currLocation.longitude
+        try {
+            val district = districtRemoteDataSource.getByLatLng(
+                LatLng(
+                    currLocation.latitude,
+                    currLocation.longitude
+                )
             )
-        )
 
-        Log.e("RouteManager", "found district: $district")
+            Log.e("RouteManager", "found district: $district")
 
-        return placesRepository.getAll().first().firstOrNull {
-            it.name == district
-        }?.id
+            return placesRepository.getAll().first().firstOrNull {
+                it.name == district
+            }?.id
+        } catch (e: IOException) {
+            return null
+        }
     }
 }
