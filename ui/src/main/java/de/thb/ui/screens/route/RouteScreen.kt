@@ -299,8 +299,10 @@ class RouteViewModel(
             is SearchState.Search -> setState {
                 copy(uiState = SearchUiState(), query = state.query)
             }
-            is SearchState.Inactive -> setState {
-                copy(uiState = OverviewUiState())
+            is SearchState.Inactive -> {
+                    setState {
+                        copy(uiState = OverviewUiState())
+                    }
             }
         }
     }
@@ -416,7 +418,10 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
             ) {
                 RulonaSearchBarFilled(
                     onSearchStateChanged = { searchState ->
-                        viewModel.action(SearchUseCase(searchState))
+                        // fix route loading
+                        if (!isLoadingRouteInformation) {
+                            viewModel.action(SearchUseCase(searchState))
+                        }
                     },
                     onFocusRequested = { focusRequester.requestFocus() },
                     hint = "Ziel"
