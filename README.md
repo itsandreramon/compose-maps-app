@@ -5,6 +5,7 @@
 | What           | How                        |
 |----------------|----------------------------|
 | User Interface | [Compose](https://developer.android.com/jetpack/compose)|
+| Concurrency | [Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
 | Dependency Injection | [Koin](https://github.com/InsertKoinIO/koin)|
 | State Management | [Mavericks](https://github.com/airbnb/mavericks)|
 | Caching | [Room](https://developer.android.com/jetpack/androidx/releases/room)|
