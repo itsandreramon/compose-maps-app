@@ -61,6 +61,7 @@ import de.thb.core.domain.route.type.Coordinate
 import de.thb.core.domain.route.type.RestrictedPlace
 import de.thb.core.domain.rule.RuleWithCategoryEntity
 import de.thb.core.util.MapLatLng
+import de.thb.core.util.Result
 import de.thb.core.util.RuleUtils
 import de.thb.ui.components.MapView
 import de.thb.ui.components.RulonaAppBar
@@ -89,6 +90,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -213,56 +215,74 @@ class RouteViewModel(
 
         loadRouteJob = viewModelScope.launch {
             val locationDataSource = LocationDataSourceImpl.getInstance(context)
-            val currLocation = locationDataSource.getLastLocation().first()
+            val currLocation = when (val result =
+                locationDataSource.getLastLocation().firstOrNull() ?: Result.Error(
+                    NullPointerException()
+                )) {
+                is Result.Success -> result.data
+                is Result.Error -> null
+            }
 
-            val resp = routeRemoteDataSource.getRoute(
-                originLatLng = currLocation,
-                destinationPlaceId = destinationPlaceId,
-            )
+            Log.e("curr location", "$currLocation")
 
-            if (resp != null) {
+            if (currLocation != null) {
+                val resp = routeRemoteDataSource.getRoute(
+                    originLatLng = currLocation,
+                    destinationPlaceId = destinationPlaceId,
+                )
 
-                val boundaries = mutableListOf<List<Coordinate>>()
-                val rules = mutableListOf<RuleWithCategoryEntity>()
+                if (resp != null) {
 
-                for (place in resp.restrictedPlaces) {
+                    val boundaries = mutableListOf<List<Coordinate>>()
+                    val rules = mutableListOf<RuleWithCategoryEntity>()
 
-                    // TODO fix bug
-                    val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
-                    rules.addAll(rulesForPlace.first())
-                }
+                    for (place in resp.restrictedPlaces) {
 
-                withState { state ->
-                    when (val uiState = state.uiState) {
-                        is PlaceDetailsUiState -> {
-                            setState {
-                                copy(
-                                    uiState = uiState.copy(
-                                        polyline = resp.route
-                                            .flatten()
-                                            .map { MapLatLng(it.lat, it.lng) },
-                                        boundaries = boundaries.map { coordinates ->
-                                            coordinates.map {
-                                                MapLatLng(it.lat, it.lng)
-                                            }
-                                        },
-                                        restrictedPlaces = resp.restrictedPlaces,
-                                        rulesInRoute = rules,
-                                    ),
-                                    isLoadingRouteInformation = false,
-                                )
+                        // TODO fix bug
+                        val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
+                        rules.addAll(rulesForPlace.first())
+                    }
+
+                    withState { state ->
+                        when (val uiState = state.uiState) {
+                            is PlaceDetailsUiState -> {
+                                setState {
+                                    copy(
+                                        uiState = uiState.copy(
+                                            polyline = resp.route
+                                                .flatten()
+                                                .map { MapLatLng(it.lat, it.lng) },
+                                            boundaries = boundaries.map { coordinates ->
+                                                coordinates.map {
+                                                    MapLatLng(it.lat, it.lng)
+                                                }
+                                            },
+                                            restrictedPlaces = resp.restrictedPlaces,
+                                            rulesInRoute = rules,
+                                        ),
+                                        isLoadingRouteInformation = false,
+                                    )
+                                }
                             }
                         }
                     }
+                } else {
+                    setState {
+                        copy(
+                            isLoadingRouteInformation = false,
+                            isErrorLoadingRouteDialogVisible = true
+                        )
+                    }
+                    onError()
                 }
             } else {
                 setState {
                     copy(
-                        isLoadingRouteInformation = false,
-                        isErrorLoadingRouteDialogVisible = true
+                        uiState = OverviewUiState(),
+                        isErrorLoadingRouteDialogVisible = true,
+                        isLoadingRouteInformation = false
                     )
                 }
-                onError()
             }
         }
     }
@@ -300,9 +320,9 @@ class RouteViewModel(
                 copy(uiState = SearchUiState(), query = state.query)
             }
             is SearchState.Inactive -> {
-                    setState {
-                        copy(uiState = OverviewUiState())
-                    }
+                setState {
+                    copy(uiState = OverviewUiState())
+                }
             }
         }
     }
@@ -350,7 +370,7 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
     if (isErrorLoadingRouteDialogVisible) {
         AlertDialog(
             title = { Text("Fehler") },
-            text = { Text(text = "Es konnte keine Route gefunden werden. Bitte versichere, dass du eine aktive Internet-Verbindung hast.") },
+            text = { Text(text = "Es konnte keine Route gefunden werden. Bitte versichere, dass du eine aktive Internet-Verbindung sowie Ortungsdienste aktiviert hast.") },
             onDismissRequest = {
                 viewModel.action(HideDialogUseCase(DialogType.ErrorLoadingRouteInformation))
             },

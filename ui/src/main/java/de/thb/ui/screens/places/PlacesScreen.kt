@@ -31,6 +31,7 @@ import de.thb.core.data.sources.location.LocationDataSourceImpl
 import de.thb.core.data.sources.places.PlacesRepository
 import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.manager.RouteManager
+import de.thb.core.util.Result
 import de.thb.core.util.fromUtc
 import de.thb.ui.components.RulonaHeaderEditable
 import de.thb.ui.components.RulonaSearchBar
@@ -150,24 +151,31 @@ class PlacesViewModel(
     private fun resolveLocation(context: Context) {
         val locationDataSource = LocationDataSourceImpl.getInstance(context)
         viewModelScope.launch {
-            val districtId = routeManager.getPlaceIdByLatLng(
-                currLocation = locationDataSource.getLastLocation().first()
-            )
+            val currLocation = when (val result = locationDataSource.getLastLocation().first()) {
+                is Result.Success -> result.data
+                is Result.Error -> null
+            }
 
-            if (districtId == null) {
-                setState {
-                    copy(
-                        isLoadingCurrentLocation = false,
-                        isErrorLoadingCurrentLocationDialogVisible = true,
-                    )
+            if (currLocation != null) {
+                val districtId = routeManager.getPlaceIdByLatLng(currLocation)
+
+                if (districtId == null) {
+                    setState {
+                        copy(
+                            isLoadingCurrentLocation = false,
+                            isErrorLoadingCurrentLocationDialogVisible = true,
+                        )
+                    }
+                } else {
+                    setState {
+                        copy(
+                            currentLocationPlaceId = districtId,
+                            isLoadingCurrentLocation = false
+                        )
+                    }
                 }
             } else {
-                setState {
-                    copy(
-                        currentLocationPlaceId = districtId,
-                        isLoadingCurrentLocation = false
-                    )
-                }
+                // TODO show dialog
             }
         }
     }
