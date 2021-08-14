@@ -55,6 +55,7 @@ import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -150,11 +151,17 @@ class PlacesViewModel(
 
     private fun resolveLocation(context: Context) {
         val locationDataSource = LocationDataSourceImpl.getInstance(context)
+
         viewModelScope.launch {
-            val currLocation = when (val result = locationDataSource.getLastLocation().first()) {
+            val currLocation = when (val result =
+                locationDataSource.getLastLocation().firstOrNull() ?: Result.Error(
+                    NullPointerException()
+                )) {
                 is Result.Success -> result.data
                 is Result.Error -> null
             }
+
+            Log.e("resolve location", "$currLocation")
 
             if (currLocation != null) {
                 val districtId = routeManager.getPlaceIdByLatLng(currLocation)
@@ -175,7 +182,7 @@ class PlacesViewModel(
                     }
                 }
             } else {
-                // TODO show dialog
+                setState { copy(isLoadingCurrentLocation = false, isErrorLoadingCurrentLocationDialogVisible = true) }
             }
         }
     }
