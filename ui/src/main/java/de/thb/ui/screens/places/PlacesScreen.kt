@@ -54,7 +54,6 @@ import de.thb.ui.type.DialogType
 import de.thb.ui.type.EditState
 import de.thb.ui.type.SearchState
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -182,7 +181,12 @@ class PlacesViewModel(
                     }
                 }
             } else {
-                setState { copy(isLoadingCurrentLocation = false, isErrorLoadingCurrentLocationDialogVisible = true) }
+                setState {
+                    copy(
+                        isLoadingCurrentLocation = false,
+                        isErrorLoadingCurrentLocationDialogVisible = true
+                    )
+                }
             }
         }
     }
