@@ -1,5 +1,6 @@
 package de.thb.rulona.nav
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType

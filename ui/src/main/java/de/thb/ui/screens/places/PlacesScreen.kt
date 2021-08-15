@@ -234,6 +234,8 @@ fun PlacesScreen(
     viewModel: PlacesViewModel = mavericksViewModel(),
     onPlaceLoaded: (id: String) -> Unit
 ) {
+    Log.e("Recomposition", "PlacesScreen")
+
     val placesUiState = viewModel.collectAsState(PlacesState::uiState)
     val bookmarkedPlaces by viewModel.collectAsState(PlacesState::bookmarkedPlaces)
     val isLoadingCurrentLocation by viewModel.collectAsState(PlacesState::isLoadingCurrentLocation)

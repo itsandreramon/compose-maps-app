@@ -51,7 +51,6 @@ fun RulonaBottomAppBar(navController: NavHostController) {
                 }
 
                 launchSingleTop = true
-                restoreState = true
             }
         }
     )
