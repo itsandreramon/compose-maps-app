@@ -8,6 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 
 val networkModule = module {
 
@@ -26,6 +27,9 @@ val networkModule = module {
 
     fun provideOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
+            .connectTimeout(0, TimeUnit.SECONDS)
+            .writeTimeout(0, TimeUnit.SECONDS)
+            .readTimeout(0, TimeUnit.SECONDS)
 
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(
