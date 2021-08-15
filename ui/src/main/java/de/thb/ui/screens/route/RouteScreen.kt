@@ -416,8 +416,6 @@ fun RouteScreen(viewModel: RouteViewModel = mavericksViewModel()) {
             is PlaceDetailsUiState -> {
                 searchBarVisible = false
 
-                Log.e("TAG", "${uiState.rulesInRoute}")
-
                 PlaceDetailsScreen(
                     place = uiState.place,
                     placeLocation = uiState.placeLocation,

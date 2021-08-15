@@ -15,8 +15,8 @@ android {
         minSdk buildConfig.minSdk
         targetSdk buildConfig.targetSdk
 
-        versionName "0.1.4"
-        versionCode 3
+        versionName "0.1.5"
+        versionCode 4
 
         applicationId "de.thb.rulona"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

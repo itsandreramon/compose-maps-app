@@ -1,6 +1,5 @@
 package de.thb.core.data.sources.rules
 
-import android.util.Log
 import de.thb.core.data.sources.rules.local.RulesLocalDataSource
 import de.thb.core.data.sources.rules.remote.RulesRemoteDataSource
 import de.thb.core.domain.rule.RuleEntity
@@ -30,13 +29,11 @@ class RulesRepositoryImpl(
     }
 
     override suspend fun insert(rule: RuleEntity) {
-        Log.e("INSERT", "$rule")
         rulesLocalDataSource.insert(rule)
     }
 
     private suspend fun insert(ruleReponses: List<RuleReponse>, placeId: String) {
         val ruleEntities = ruleReponses.toEntities(placeId)
-        Log.e("INSERT", "$ruleEntities")
         rulesLocalDataSource.insert(ruleEntities)
     }
 }

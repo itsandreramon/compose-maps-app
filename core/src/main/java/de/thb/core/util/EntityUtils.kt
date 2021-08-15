@@ -106,9 +106,6 @@ object RuleUtils {
         places: List<PlaceEntity>,
         rules: List<RuleWithCategoryEntity>
     ): List<Pair<PlaceEntity, List<RuleEntity>>> {
-        Log.e("Grouping places", "$places")
-        Log.e("Grouping rules", "$rules")
-
         return rules
             .onEach { Log.e("group by rule", "${it.rule.placeId}") }
             .groupBy { it.rule.placeId }
@@ -121,8 +118,6 @@ object RuleUtils {
                 val place = places.firstOrNull {
                     it.id == placeIdWithRules.first
                 }
-
-                Log.e("Found", "place $place")
 
                 place?.let {
                     Pair(place, placeIdWithRules.second)

@@ -41,6 +41,7 @@ import de.thb.ui.components.search.RulonaSearchHeader
 import de.thb.ui.components.search.RulonaSearchList
 import de.thb.ui.screens.places.PlacesScreenUseCase.EditBookmarksUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.HideDialogUseCase
+import de.thb.ui.screens.places.PlacesScreenUseCase.ResetCurrentPlaceIdUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SearchCurrentLocationUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SearchUseCase
 import de.thb.ui.screens.places.PlacesScreenUseCase.SetPlaceSearchTimestampUseCase
@@ -126,6 +127,7 @@ class PlacesViewModel(
             is TogglePlaceBookmarkUseCase -> togglePlaceItemBookmark(useCase.place)
             is SetPlaceSearchTimestampUseCase -> setPlaceSearchedTimestamp(useCase.place)
             is HideDialogUseCase -> hideDialog(useCase.dialogType)
+            is ResetCurrentPlaceIdUseCase -> setState { copy(currentLocationPlaceId = null) }
         }
     }
 
@@ -245,7 +247,7 @@ fun PlacesScreen(
 
     LaunchedEffect(currentLocationPlaceId) {
         currentLocationPlaceId?.let {
-            Log.e("Loading", "$it")
+            viewModel.action(ResetCurrentPlaceIdUseCase)
             onPlaceLoaded(it)
         }
     }

@@ -30,4 +30,6 @@ sealed class PlacesScreenUseCase {
     data class HideDialogUseCase(
         val dialogType: DialogType,
     ) : PlacesScreenUseCase()
+
+    object ResetCurrentPlaceIdUseCase : PlacesScreenUseCase()
 }

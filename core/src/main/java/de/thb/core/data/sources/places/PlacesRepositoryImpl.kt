@@ -1,6 +1,5 @@
 package de.thb.core.data.sources.places
 
-import android.util.Log
 import de.thb.core.data.sources.places.local.PlacesLocalDataSource
 import de.thb.core.data.sources.places.remote.PlacesRemoteDataSource
 import de.thb.core.domain.place.PlaceEntity
@@ -51,7 +50,6 @@ class PlacesRepositoryImpl(
     }
 
     override suspend fun insert(place: PlaceEntity) {
-        Log.e("REPO", "$place")
         placesLocalDataSource.insert(place)
     }
 
