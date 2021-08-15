@@ -17,7 +17,7 @@ interface DistrictService {
     @GET("/details.php")
     suspend fun getByOsm(
         @Query("osmtype") osmType: String,
-        @Query("osmid") osmId: Int,
+        @Query("osmid") osmId: Long,
         @Query("format") format: String,
     ): DetailsResponse
 }

@@ -6,7 +6,7 @@ import de.thb.core.domain.district.types.AddressReverse
 data class ReverseResponse(
 
     @Json(name = "osm_id")
-    val osm_id: Int,
+    val osm_id: Long,
 
     @Json(name = "osm_type")
     val osm_type: String,

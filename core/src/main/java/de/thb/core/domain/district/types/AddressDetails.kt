@@ -6,7 +6,7 @@ data class AddressDetails(
     val distance: Int,
     val isaddress: Boolean,
     val localname: String,
-    val osm_id: Int,
+    val osm_id: Long,
     val osm_type: String,
     val place_id: Int,
     val place_type: Any,
