@@ -1,5 +1,8 @@
 [![Build](https://github.com/itsandreramon/mux-rulona/actions/workflows/build.yml/badge.svg)](https://github.com/itsandreramon/mux-rulona/actions/workflows/build.yml)
 
+#### Disclaimer
+This application is a proof-of-concept that showcases the design of an app that connects to different services to combine the current Covid restrictions in a given federal state in Germany. The application has been built as part of the "Mobile User Experience" course at the **University of Applied Sciences Brandenburg** and is used for educational purposes only and not meant to be distributed in any form.
+
 ## Stack
 
 | What           | How                        |
