@@ -232,13 +232,10 @@ class RouteViewModel(
                 )
 
                 if (resp != null) {
-
                     val boundaries = mutableListOf<List<Coordinate>>()
                     val rules = mutableListOf<RuleWithCategoryEntity>()
 
                     for (place in resp.restrictedPlaces) {
-
-                        // TODO fix bug
                         val rulesForPlace = rulesRepository.getByPlaceId(place.placeId)
                         rules.addAll(rulesForPlace.first())
                     }

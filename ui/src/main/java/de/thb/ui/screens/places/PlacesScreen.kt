@@ -133,11 +133,11 @@ class PlacesViewModel(
 
     private fun hideDialog(dialogType: DialogType) {
         when (dialogType) {
-            DialogType.LoadingCurrentLocation -> setState { copy(isLoadingCurrentLocation = false) }
+            DialogType.LoadingCurrentLocation -> setState {
+                copy(isLoadingCurrentLocation = false)
+            }
             DialogType.ErrorLoadingCurrentLocation -> setState {
-                copy(
-                    isErrorLoadingCurrentLocationDialogVisible = false
-                )
+                copy(isErrorLoadingCurrentLocationDialogVisible = false)
             }
             else -> {
                 // TODO
@@ -154,15 +154,15 @@ class PlacesViewModel(
         val locationDataSource = LocationDataSourceImpl.getInstance(context)
 
         viewModelScope.launch {
-            val currLocation = when (val result =
-                locationDataSource.getLastLocation().firstOrNull() ?: Result.Error(
+            val currLocation = when (
+                val result = locationDataSource.getLastLocation()
+                    .firstOrNull() ?: Result.Error(
                     NullPointerException()
-                )) {
+                )
+            ) {
                 is Result.Success -> result.data
                 is Result.Error -> null
             }
-
-            Log.e("resolve location", "$currLocation")
 
             if (currLocation != null) {
                 val districtId = routeManager.getPlaceIdByLatLng(currLocation)
@@ -202,8 +202,12 @@ class PlacesViewModel(
 
     private fun setScreenSearchState(state: SearchState) {
         when (state) {
-            is SearchState.Active -> setState { copy(uiState = RecentlySearchedUiState) }
-            is SearchState.Inactive -> setState { copy(uiState = BookmarksUiState) }
+            is SearchState.Active -> setState {
+                copy(uiState = RecentlySearchedUiState)
+            }
+            is SearchState.Inactive -> setState {
+                copy(uiState = BookmarksUiState)
+            }
             is SearchState.Search -> setState {
                 copy(
                     uiState = SearchUiState,
@@ -223,7 +227,6 @@ class PlacesViewModel(
     private fun setPlaceSearchedTimestamp(place: PlaceEntity) {
         viewModelScope.launch {
             val updatedPlace = place.copy(searchedAtUtc = Instant.now().toString())
-            Log.e("VM", "setting searched at..")
             placesRepository.insert(updatedPlace)
         }
     }

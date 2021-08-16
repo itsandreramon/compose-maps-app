@@ -6,8 +6,10 @@ import de.thb.core.domain.place.PlaceEntity
 import de.thb.core.domain.place.PlaceResponse
 import de.thb.core.util.PlaceUtils.toEntity
 import de.thb.core.util.responseToEntityIfExistsElseResponse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import okio.IOException
 
 class PlacesRepositoryImpl(
@@ -19,33 +21,45 @@ class PlacesRepositoryImpl(
         const val TAG = "PlacesRepository"
     }
 
-    override fun getAll() = flow {
-        val places = try {
-            placesRemoteDataSource.getAll()
-        } catch (e: IOException) {
-            emptyList()
+    override fun getAll() = channelFlow {
+        val places = async {
+            try {
+                placesRemoteDataSource.getAll()
+            } catch (e: IOException) {
+                emptyList()
+            }
         }
 
-        insert(places)
+        launch {
+            insert(places.await())
+        }
 
-        placesLocalDataSource.getAll().collect {
-            emit(it)
+        launch {
+            placesLocalDataSource.getAll().collect {
+                send(it)
+            }
         }
     }
 
-    override fun getById(id: String) = flow {
-        val place = try {
-            placesRemoteDataSource.getById(id)
-        } catch (e: IOException) {
-            null
+    override fun getById(id: String) = channelFlow {
+        val placeAsync = async {
+            try {
+                placesRemoteDataSource.getById(id)
+            } catch (e: IOException) {
+                null
+            }
         }
 
-        if (place != null) {
-            placesLocalDataSource.insertOrUpdate(place)
+        launch {
+            placeAsync.await()?.let {
+                placesLocalDataSource.insertOrUpdate(it)
+            }
         }
 
-        placesLocalDataSource.getById(id).collect {
-            emit(it)
+        launch {
+            placesLocalDataSource.getById(id).collect {
+                send(it)
+            }
         }
     }
 

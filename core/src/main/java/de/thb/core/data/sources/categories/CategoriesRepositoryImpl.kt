@@ -6,8 +6,10 @@ import de.thb.core.domain.category.CategoryEntity
 import de.thb.core.domain.category.CategoryResponse
 import de.thb.core.util.CategoryUtils.toEntity
 import de.thb.core.util.responseToEntityIfExistsElseResponse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import okio.IOException
 
 class CategoriesRepositoryImpl(
@@ -19,17 +21,23 @@ class CategoriesRepositoryImpl(
         const val TAG = "CategoriesRepsitory"
     }
 
-    override fun getAll() = flow {
-        val categories = try {
-            categoriesRemoteDataSource.getAll()
-        } catch (e: IOException) {
-            emptyList()
+    override fun getAll() = channelFlow {
+        val categories = async {
+            try {
+                categoriesRemoteDataSource.getAll()
+            } catch (e: IOException) {
+                emptyList()
+            }
         }
 
-        insert(categories)
+        launch {
+            insert(categories.await())
+        }
 
-        categoriesLocalDataSource.getAll().collect {
-            emit(it)
+        launch {
+            categoriesLocalDataSource.getAll().collect {
+                send(it)
+            }
         }
     }
 

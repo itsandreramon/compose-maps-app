@@ -35,7 +35,7 @@ subprojects {
             freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.FlowPreview"
             freeCompilerArgs += "-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi"
             freeCompilerArgs += "-Xopt-in=com.google.accompanist.pager.ExperimentalPagerApi"
-            jvmTarget = "1.8"
+            jvmTarget = "11"
         }
     }
 

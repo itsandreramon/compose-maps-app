@@ -5,8 +5,10 @@ import de.thb.core.data.sources.rules.remote.RulesRemoteDataSource
 import de.thb.core.domain.rule.RuleEntity
 import de.thb.core.domain.rule.RuleReponse
 import de.thb.core.util.RuleUtils.toEntities
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import okio.IOException
 
 class RulesRepositoryImpl(
@@ -14,17 +16,23 @@ class RulesRepositoryImpl(
     private val rulesRemoteDataSource: RulesRemoteDataSource,
 ) : RulesRepository {
 
-    override fun getByPlaceId(placeId: String) = flow {
-        val rules = try {
-            rulesRemoteDataSource.getRulesByPlaceId(placeId)
-        } catch (e: IOException) {
-            emptyList()
+    override fun getByPlaceId(placeId: String) = channelFlow {
+        val rules = async {
+            try {
+                rulesRemoteDataSource.getRulesByPlaceId(placeId)
+            } catch (e: IOException) {
+                emptyList()
+            }
         }
 
-        insert(rules, placeId)
+        launch {
+            insert(rules.await(), placeId)
+        }
 
-        rulesLocalDataSource.getByPlaceId(placeId).collect {
-            emit(it)
+        launch {
+            rulesLocalDataSource.getByPlaceId(placeId).collect {
+                send(it)
+            }
         }
     }
 
